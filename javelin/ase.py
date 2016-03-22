@@ -25,7 +25,7 @@ def read_stru(filename):
                 reading_atom_list = True
         else:
             symbol, x, y, z = line[:4]
-            symbol = symbol.lower().capitalize()
+            symbol = symbol.capitalize()
             symbols.append(symbol)
             positions.append([float(x), float(y), float(z)])
     return Atoms(symbols=symbols,
