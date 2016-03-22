@@ -1,5 +1,6 @@
 """Theses functions read and write the legacy DISCUS stru file format."""
 
+from __future__ import absolute_import
 from ase.atoms import Atoms
 
 
