@@ -3,16 +3,16 @@ language: python
 python:
   - "2.6"
   - "2.7"
-  - "3.2"
   - "3.3"
   - "3.4"
   - "3.5"
 
 install:
-  - pip install flake8
-  - pip install ase
-  - python setup.py install
+  - pip install flake8 ase pytest-cov codecov
 
 script:
-  - py.test
+  - py.test --cov=javelin
   - flake8
+
+after_success:
+  - codecov
