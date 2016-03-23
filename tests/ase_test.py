@@ -1,10 +1,11 @@
-from javelin.ase import read_stru
+import pytest
 from numpy.testing import assert_array_almost_equal, assert_array_equal
 
 
 class Test_read_stru:
     def test_znse(self):
-        znse = read_stru('tests/znse.cell')
+        ase = pytest.importorskip("javelin.ase")
+        znse = ase.read_stru('tests/znse.cell')
         assert len(znse) == 2
         assert_array_almost_equal(znse.get_cell(), [[3.997, 0, 0],
                                                     [-1.9985, 3.461504, 0],
@@ -15,7 +16,8 @@ class Test_read_stru:
         assert znse.get_chemical_formula() == 'SeZn'
 
     def test_pzn(self):
-        pzn = read_stru('tests/pzn.stru')
+        ase = pytest.importorskip("javelin.ase")
+        pzn = ase.read_stru('tests/pzn.stru')
         assert len(pzn) == 5
         assert_array_equal(pzn.get_cell(), [[4.06, 0, 0],
                                             [0, 4.06, 0],
