@@ -29,3 +29,13 @@ class Test_read_stru:
                             [0.5, 0.,  1.5],
                             [0.,  0.5, 1.5]])
         assert pzn.get_chemical_formula() == 'NbO3Pb'
+
+    def test_missing_cell(self):
+        ase = pytest.importorskip("javelin.ase")
+        pzn = ase.read_stru('tests/missing_cell.cell')
+        assert len(pzn) == 1
+        assert_array_equal(pzn.get_cell(), [[1, 0, 0],
+                                            [0, 1, 0],
+                                            [0, 0, 1]])
+        assert_array_equal(pzn.get_scaled_positions(), [[0.5, 0., 0.25]])
+        assert pzn.get_chemical_formula() == 'C'
