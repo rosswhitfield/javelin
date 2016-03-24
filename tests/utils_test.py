@@ -21,6 +21,12 @@ class Test_unit_cell_to_vectors:
                                          [-2.5, 4.33012702, 0],
                                          [0,    0,          7]])
 
+    def xtest_triclinic(self):
+        cell = unit_cell_to_vectors(5, 5, 5, 80, 82, 85)
+        assert_array_almost_equal(cell, [[5.,         0.,         0.],
+                                         [0.43577871, 4.98097349, 0.],
+                                         [0.6958655,  0.81067708, 4.88452391]])
+
 
 class Test_unit_vectors_to_cell:
     def test_cubic(self):
