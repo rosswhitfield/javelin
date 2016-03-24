@@ -17,9 +17,9 @@ class Test_unit_cell_to_vectors:
 
     def test_hexagonal(self):
         cell = unit_cell_to_vectors(5, 5, 7, 90, 90, 120)
-        assert_array_almost_equal(cell, [[5, 0, 0],
+        assert_array_almost_equal(cell, [[5,    0,          0],
                                          [-2.5, 4.33012702, 0],
-                                         [0, 0, 7]])
+                                         [0,    0,          7]])
 
 
 class Test_unit_vectors_to_cell:
@@ -48,9 +48,9 @@ class Test_unit_vectors_to_cell:
         assert gamma == 90
 
     def test_hexagonal(self):
-        cell = [[5, 0, 0],
+        cell = [[5,    0,          0],
                 [-2.5, 4.33012702, 0],
-                [0, 0, 7]]
+                [0,    0,          7]]
         a, b, c, alpha, beta, gamma = unit_vectors_to_cell(cell)
         assert a == 5
         assert_almost_equal(b, 5)
