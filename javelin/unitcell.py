@@ -1,7 +1,7 @@
 import numpy as np
 
 
-class UnitCell():
+class UnitCell(object):
     def __init__(self, *args):
         self.a = 1
         self.b = 1

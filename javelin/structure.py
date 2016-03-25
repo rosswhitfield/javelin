@@ -1,7 +1,7 @@
 """This module define the Structure object"""
 
 
-class Structure():
+class Structure(object):
     def __init__(self):
         self.__positions = None
         self.__Z = []

@@ -1,7 +1,7 @@
 """This module define the Structure object"""
 
 
-class Fourier():
+class Fourier(object):
     __radiation_type = ["neutrons", "xray", "electrons"]
 
     def __init__(self):

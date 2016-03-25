@@ -1,7 +1,7 @@
 """This module define the Data object"""
 
 
-class Data():
+class Data(object):
     def __init__(self):
         self.dim = 1
         self.array = None
