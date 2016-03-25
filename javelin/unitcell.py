@@ -9,7 +9,7 @@ class UnitCell():
         self.alpha = 90
         self.beta = 90
         self.gamma = 90
-        if args is not None:
+        if args:
             self.set_cell(args)
 
     def set_cell(self, *args):
