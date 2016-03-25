@@ -30,7 +30,7 @@ class UnitCell():
             self.beta = np.float(args[4])
             self.gamma = np.float(args[5])
         elif args.size == 9:  # unit cell vectors
-            print(args)
+            print(args)  # TODO use unit_vectors_to_cell here
         else:
             print("Invalid number of variables, unit cell unchanged")
 
