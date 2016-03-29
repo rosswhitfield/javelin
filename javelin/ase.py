@@ -6,9 +6,8 @@ from javelin.utils import unit_cell_to_vectors
 
 
 def read_stru(filename):
-    f = open(filename)
-    lines = f.readlines()
-    f.close()
+    with open(filename) as f:
+        lines = f.readlines()
 
     a = b = c = alpha = beta = gamma = 0
 
