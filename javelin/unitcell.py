@@ -18,9 +18,17 @@ class UnitCell(object):
         self.__G = np.matrix(np.eye(3))
         self.__Gstar = np.matrix(np.eye(3))
         if args:
-            self.set_cell(args)
+            self.cell = args
 
-    def set_cell(self, *args):
+    @property
+    def cell(self):
+        return (self.a, self.b, self.c,
+                np.degrees(self.alpha),
+                np.degrees(self.beta),
+                np.degrees(self.gamma))
+
+    @cell.setter
+    def cell(self, *args):
         args = np.asarray(args).flatten()
         if args.size == 1:  # cubic
             self.a = self.b = self.c = np.float(args)
@@ -42,28 +50,31 @@ class UnitCell(object):
         self.__calculateG()
         self.__calculateReciprocalLattice()
 
-    def get_cell(self):
-        return (self.a, self.b, self.c,
-                np.degrees(self.alpha),
-                np.degrees(self.beta),
-                np.degrees(self.gamma))
-
-    cell = property(get_cell, set_cell)
-
-    def get_G(self):
+    @property
+    def G(self):
         return self.__G
 
-    def get_Gstar(self):
-        return self.__G.getI()
+    @property
+    def Gstar(self):
+        return self.G.getI()
 
-    def get_ReciprocalCell(self):
+    @property
+    def volume(self):
+        return np.sqrt(np.linalg.det(self.__G))
+
+    @property
+    def reciprocalVolume(self):
+        return np.sqrt(np.linalg.det(self.Gstar))
+
+    @property
+    def reciprocalCell(self):
         return (self.ra, self.rb, self.rc,
                 np.degrees(self.ralpha),
                 np.degrees(self.rbeta),
                 np.degrees(self.rgamma))
 
     def __calculateReciprocalLattice(self):
-        Gstar = self.get_Gstar()
+        Gstar = self.Gstar
         self.ra = np.sqrt(Gstar[0, 0])
         self.rb = np.sqrt(Gstar[1, 1])
         self.rc = np.sqrt(Gstar[2, 2])
