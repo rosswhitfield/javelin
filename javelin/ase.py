@@ -2,7 +2,7 @@
 
 from __future__ import absolute_import
 from ase.atoms import Atoms
-from javelin.utils import unit_cell_to_vectors
+from ase.lattice.spacegroup.cell import cellpar_to_cell
 
 
 def read_stru(filename):
@@ -21,7 +21,7 @@ def read_stru(filename):
         if not reading_atom_list:  # Wait for 'atoms' line before reading atoms
             if line[0] == 'cell':
                 a, b, c, alpha, beta, gamma = [float(x) for x in line[1:7]]
-                cell = unit_cell_to_vectors(a, b, c, alpha, beta, gamma)
+                cell = cellpar_to_cell([a, b, c, alpha, beta, gamma])
             if line[0] == 'atoms':
                 if a == 0:
                     print("Cell not found")
