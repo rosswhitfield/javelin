@@ -6,9 +6,17 @@ class UnitCell(object):
         self.a = 1
         self.b = 1
         self.c = 1
-        self.alpha = 90
-        self.beta = 90
-        self.gamma = 90
+        self.alpha = np.radians(90)
+        self.beta = np.radians(90)
+        self.gamma = np.radians(90)
+        self.ra = 1  # a*
+        self.rb = 1  # b*
+        self.rc = 1  # c*
+        self.ralpha = np.radians(90)  # alpha*
+        self.rbeta = np.radians(90)   # beta*
+        self.rgamma = np.radians(90)  # gamma*
+        self.__G = np.matrix(np.eye(3))
+        self.__Gstar = np.matrix(np.eye(3))
         if args:
             self.set_cell(args)
 
@@ -16,60 +24,64 @@ class UnitCell(object):
         args = np.asarray(args).flatten()
         if args.size == 1:  # cubic
             self.a = self.b = self.c = np.float(args)
-            self.alpha = self.beta = self.gamma = 90
+            self.alpha = self.beta = self.gamma = np.radians(90)
         elif args.size == 3:  # orthorhombic
             self.a = np.float(args[0])
             self.b = np.float(args[1])
             self.c = np.float(args[2])
-            self.alpha = self.beta = self.gamma = 90
+            self.alpha = self.beta = self.gamma = np.radians(90)
         elif args.size == 6:
             self.a = np.float(args[0])
             self.b = np.float(args[1])
             self.c = np.float(args[2])
-            self.alpha = np.float(args[3])
-            self.beta = np.float(args[4])
-            self.gamma = np.float(args[5])
-        elif args.size == 9:  # unit cell vectors
-            print(args)  # TODO use unit_vectors_to_cell here
+            self.alpha = np.radians(args[3])
+            self.beta = np.radians(args[4])
+            self.gamma = np.radians(args[5])
         else:
-            print("Invalid number of variables, unit cell unchanged")
+            raise ValueError("Invalid number of variables, unit cell unchanged")
+        self.__calculateG()
+        self.__calculateReciprocalLattice()
 
     def get_cell(self):
         return (self.a, self.b, self.c,
-                self.alpha, self.beta, self.gamma)
+                np.degrees(self.alpha),
+                np.degrees(self.beta),
+                np.degrees(self.gamma))
 
     cell = property(get_cell, set_cell)
 
+    def get_G(self):
+        return self.__G
 
-def unit_cell_to_vectors(a, b, c, alpha, beta, gamma, degrees=True):
-    if alpha == 90 and beta == 90 and gamma == 90:  # orthorhombic
-        cell = np.diag([a, b, c])
-    else:
-        if degrees:
-            alpha = np.radians(alpha)
-            beta = np.radians(beta)
-            gamma = np.radians(gamma)
-        a_vec = [a, 0, 0]
-        b_vec = [b * np.cos(gamma), b * np.sin(gamma), 0]
-        cj_scale = (np.cos(alpha) - np.cos(beta) * np.cos(gamma)) / np.sin(gamma)
-        vol = np.sqrt(1 - np.cos(alpha)**2 - np.cos(beta)**2 - np.cos(gamma)**2 +
-                      2 * np.cos(alpha) * np.cos(beta) * np.cos(gamma))
-        c_vec = [c * np.cos(beta),
-                 c * cj_scale,
-                 c * vol / np.sin(alpha)]
-        cell = np.round([a_vec, b_vec, c_vec], 14)
-    return cell
+    def get_Gstar(self):
+        return self.__G.getI()
 
+    def get_ReciprocalCell(self):
+        return (self.ra, self.rb, self.rc,
+                np.degrees(self.ralpha),
+                np.degrees(self.rbeta),
+                np.degrees(self.rgamma))
 
-def unit_vectors_to_cell(cell, degrees=True):
-    a = np.sqrt(np.sum(np.square(cell[0])))
-    b = np.sqrt(np.sum(np.square(cell[1])))
-    c = np.sqrt(np.sum(np.square(cell[2])))
-    alpha = np.arccos(np.dot(cell[1], cell[2])/(b*c))
-    beta = np.arccos(np.dot(cell[0], cell[2])/(a*c))
-    gamma = np.arccos(np.dot(cell[0], cell[1])/(a*b))
-    if degrees:
-        alpha = np.degrees(alpha)
-        beta = np.degrees(beta)
-        gamma = np.degrees(gamma)
-    return a, b, c, alpha, beta, gamma
+    def __calculateReciprocalLattice(self):
+        Gstar = self.get_Gstar()
+        self.ra = np.sqrt(Gstar[0, 0])
+        self.rb = np.sqrt(Gstar[1, 1])
+        self.rc = np.sqrt(Gstar[2, 2])
+        self.ralpha = np.arccos(Gstar[1, 2] / (self.rb*self.rc))
+        self.rbeta = np.arccos(Gstar[0, 2] / (self.ra*self.rc))
+        self.rgamma = np.arccos(Gstar[0, 1] / (self.ra*self.rb))
+
+    def __calculateG(self):
+        if ((self.alpha > self.beta + self.gamma) or
+                (self.beta > self.alpha + self.gamma) or
+                (self.gamma > self.alpha + self.beta)):
+            raise ValueError("Invalid angles")
+        self.__G[0, 0] = self.a**2
+        self.__G[1, 1] = self.b**2
+        self.__G[2, 2] = self.c**2
+        self.__G[0, 1] = self.a * self.b * np.cos(self.gamma)
+        self.__G[0, 2] = self.a * self.c * np.cos(self.beta)
+        self.__G[1, 2] = self.b * self.c * np.cos(self.alpha)
+        self.__G[1, 0] = self.__G[0, 1]
+        self.__G[2, 0] = self.__G[0, 2]
+        self.__G[2, 1] = self.__G[1, 2]
