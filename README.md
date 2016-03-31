@@ -1,6 +1,21 @@
-=======
-Javelin
-=======
+#Javelin
+
+##Installing
+
+```
+python setup.py install
+```
+
+##Running tests
+
+### Unit tests
+```
+py.test tests
+```
+### Doctests
+```
+py.test --doctest-modules javelin
+```
 
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](http://opensource.org/licenses/MIT)
 [![Build Status](https://travis-ci.org/rosswhitfield/javelin.svg?branch=master)](https://travis-ci.org/rosswhitfield/javelin)
