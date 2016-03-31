@@ -2,6 +2,40 @@ import numpy as np
 
 
 class UnitCell(object):
+    """The UnitCell ojbect can be set with either 1, 3 or 6 parameters
+    corresponding to cubic ``a`` parameters, ``(a, b, c)`` or ``(a, b,
+    c, alpha, beta, gamma)``, where angles are in degrees.
+
+    >>> cubic = UnitCell(5)
+    >>> cubic.cell
+    (5.0, 5.0, 5.0, 90.0, 90.0, 90.0)
+
+    >>> orthorhombic = UnitCell(5, 6, 7)
+    >>> orthorhombic.cell
+    (5.0, 6.0, 7.0, 90.0, 90.0, 90.0)
+
+    >>> unitcell = UnitCell(4.0, 3.0, 6.0, 89.0, 90.0, 97.0)
+    >>> unitcell.cell
+    (4.0, 3.0, 6.0, 89.0, 90.0, 97.0)
+
+    UnitCell objects can be set after being created simply by
+
+    >>> unitcell = UnitCell()
+    >>> unitcell.cell = 6
+    >>> unitcell.cell
+    (6.0, 6.0, 6.0, 90.0, 90.0, 90.0)
+    >>> unitcell.cell = 3, 4, 5
+    >>> unitcell.cell
+    (3.0, 4.0, 5.0, 90.0, 90.0, 90.0)
+    >>> unitcell.cell = 6, 7, 8, 91.0, 90, 89
+    >>> unitcell.cell
+    (6.0, 7.0, 8.0, 91.0, 90.0, 89.0)
+    >>> # or using a list or tuple
+    >>> unitcell.cell = [8, 7, 6, 89, 90, 90]
+    >>> unitcell.cell
+    (8.0, 7.0, 6.0, 89.0, 90.0, 90.0)
+
+    """
     def __init__(self, *args):
         self.a = 1
         self.b = 1
@@ -22,6 +56,10 @@ class UnitCell(object):
 
     @property
     def cell(self):
+        """Return the unit cell parameters (*a*, *b*, *c*, *alpha*, *beta*,
+        *gamma*) in degrees.
+
+        """
         return (self.a, self.b, self.c,
                 np.degrees(self.alpha),
                 np.degrees(self.beta),
@@ -29,6 +67,11 @@ class UnitCell(object):
 
     @cell.setter
     def cell(self, *args):
+        """Sets the unit cell with either 1, 3 or 6 parameters corresponding
+        to cubic ``a`` parameters, ``(a, b, c)`` or ``(a, b, c, alpha,
+        beta, gamma)``, where angles are in degrees
+
+        """
         args = np.asarray(args).flatten()
         if args.size == 1:  # cubic
             self.a = self.b = self.c = np.float(args)
@@ -52,28 +95,37 @@ class UnitCell(object):
 
     @property
     def G(self):
+        """Returns the metric tensor **G**"""
         return self.__G
 
     @property
     def Gstar(self):
+        """Returns the reciprocal metric tensor **G***"""
         return self.G.getI()
 
     @property
     def volume(self):
+        """Returns the unit cell volume"""
         return np.sqrt(np.linalg.det(self.__G))
 
     @property
     def reciprocalVolume(self):
+        """Returns the unit cell reciprocal volume"""
         return np.sqrt(np.linalg.det(self.Gstar))
 
     @property
     def reciprocalCell(self):
+        """Return the reciprocal unit cell parameters (*a**, *b**, *c**,
+        *alpha**, *beta**, *gamma**) in degrees.
+
+        """
         return (self.ra, self.rb, self.rc,
                 np.degrees(self.ralpha),
                 np.degrees(self.rbeta),
                 np.degrees(self.rgamma))
 
     def __calculateReciprocalLattice(self):
+        """Calculates the reciropcal lattice from G*"""
         Gstar = self.Gstar
         self.ra = np.sqrt(Gstar[0, 0])
         self.rb = np.sqrt(Gstar[1, 1])
@@ -83,6 +135,7 @@ class UnitCell(object):
         self.rgamma = np.arccos(Gstar[0, 1] / (self.ra*self.rb))
 
     def __calculateG(self):
+        """Calculates the metric tensor from unti cell parameters"""
         if ((self.alpha > self.beta + self.gamma) or
                 (self.beta > self.alpha + self.gamma) or
                 (self.gamma > self.alpha + self.beta)):

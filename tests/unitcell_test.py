@@ -24,6 +24,8 @@ def test_UnitCell_cell_setter():
     assert unitcell.cell == (4, 5, 6, 90, 90, 90)
     unitcell.cell = [6, 5, 4]
     assert unitcell.cell == (6, 5, 4, 90, 90, 90)
+    unitcell.cell = (6, 4, 5)
+    assert unitcell.cell == (6, 4, 5, 90, 90, 90)
     unitcell.cell = 7, 6, 5, 120, 90, 45
     assert_array_almost_equal(unitcell.cell,
                               (7, 6, 5, 120, 90, 45))
