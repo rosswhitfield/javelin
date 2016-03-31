@@ -8,7 +8,8 @@ python:
   - "3.5"
 
 install:
-  - pip install flake8 ase pytest-cov codecov
+  - pip install flake8 ase pytest-cov codecov Cython
+  - pip install h5py
 
 script:
   - py.test --cov=javelin --doctest-modules javelin tests
