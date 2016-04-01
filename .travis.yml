@@ -19,13 +19,14 @@ before_install:
   - conda config --set always_yes yes --set changeps1 no
 
 install:
-  - conda create -q -n test-environment python=$TRAVIS_PYTHON_VERSION flake8 h5py
-  - source activate test-environment
+  - conda create -q -n testenv python=$TRAVIS_PYTHON_VERSION h5py
+  - if [[ "${TRAVIS_PYTHON_VERSION}" == "3.5" ]]; then conda install --yes -n testenv flake8; fi
+  - source activate testenv
   - pip install ase codecov pytest-cov
 
 script:
   - py.test --cov=javelin --doctest-modules javelin tests
-  - flake8
+  - if [[ "${TRAVIS_PYTHON_VERSION}" == "3.5" ]]; then flake8; fi
 
 after_success:
   - codecov
