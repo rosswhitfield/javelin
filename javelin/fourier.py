@@ -1,5 +1,6 @@
 """This module define the Structure object"""
 import numpy as np
+import periodictable
 
 
 class Fourier(object):
@@ -47,12 +48,25 @@ class Fourier(object):
         kx *= (2*np.pi)
         ky *= (2*np.pi)
         kz *= (2*np.pi)
-        for atom in self.structure.get_scaled_positions():
-            dotx = np.exp(kx*atom[0]*1j)
-            doty = np.exp(ky*atom[1]*1j)
-            dotz = np.exp(kz*atom[2]*1j)
-            sumexp = dotx * doty * dotz
-            output_array += sumexp
+        # Get unique list of atomic numbers
+        atomic_numbers = self.structure.get_atomic_numbers()
+        unique_atomic_numbers = np.unique(atomic_numbers)
+        # Get atom positions
+        positions = self.structure.get_scaled_positions()
+        # Loop of atom types
+        for atomic_number in unique_atomic_numbers:
+            atom_positions = positions[np.where(atomic_numbers == atomic_number)]
+            temp_array = np.zeros([self.na, self.no], dtype=np.complex)
+            f = periodictable.elements[atomic_number].neutron.b_c
+            print("Working on atom number", atomic_number, "Total atoms:", len(atom_positions))
+            # Loop over atom positions of type atomic_number
+            for atom in atom_positions:
+                dotx = np.exp(kx*atom[0]*1j)
+                doty = np.exp(ky*atom[1]*1j)
+                dotz = np.exp(kz*atom[2]*1j)
+                sumexp = dotx * doty * dotz
+                temp_array += sumexp
+            output_array += temp_array * f  # scale by form factor
         results = np.real(output_array*np.conj(output_array))
         return results
 
