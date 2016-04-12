@@ -22,7 +22,7 @@ install:
   - conda create -q -n testenv python=$TRAVIS_PYTHON_VERSION h5py
   - if [[ "${TRAVIS_PYTHON_VERSION}" == "3.5" ]]; then conda install --yes -n testenv flake8; fi
   - source activate testenv
-  - pip install ase codecov pytest-cov
+  - pip install ase codecov pytest-cov periodictable
 
 script:
   - py.test --cov=javelin --doctest-modules javelin tests
