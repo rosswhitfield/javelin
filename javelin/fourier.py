@@ -11,11 +11,15 @@ class Fourier(object):
         self._wavelenght = 1.54
         self._lots = None
         self._average = 0.0
-        self._na = 101
-        self._no = 101
+        self._nabs = 101  # abscissa  (lr - ll)
+        self._nord = 101  # ordinate  (ul - ll)
+        self._napp = 1    # applicate (tl - ll)
+        self._dims = 2
+        self._2D = True
         self._ll = np.array([0.0, 0.0, 0.0])
-        self._lr = np.array([2.0, 0.0, 0.0])
-        self._ul = np.array([0.0, 2.0, 0.0])
+        self._lr = np.array([1.0, 0.0, 0.0])
+        self._ul = np.array([0.0, 1.0, 0.0])
+        self._tl = np.array([0.0, 0.0, 0.0])
 
     @property
     def radiation(self):
@@ -35,14 +39,24 @@ class Fourier(object):
 
     @property
     def bins(self):
-        return self._na, self._no
+        return self._nabs, self._nord, self._napp
 
     @bins.setter
     def bins(self, dims):
-        if len(dims) < 2:
-            return
-        self._na = dims[0]
-        self._no = dims[1]
+        if len(dims) == 2:
+            self._dims = 2
+            self._2D = True
+            self._nabs = dims[0]
+            self._nord = dims[1]
+            self._napp = 1
+        elif len(dims) == 3:
+            self._dims = 3
+            self._2D = False
+            self._nabs = dims[0]
+            self._nord = dims[1]
+            self._napp = dims[2]
+        else:
+            return  # TODO warning
 
     @property
     def ll(self):
@@ -74,20 +88,44 @@ class Fourier(object):
             return
         self._ul = np.asarray(ul)
 
+    @property
+    def tl(self):
+        return self._tl
+
+    @tl.setter
+    def tl(self, tl):
+        if len(tl) != 3:
+            return
+        self._tl = np.asarray(tl)
+
     def calculate(self):
         """Returns a Data object"""
-        output_array = np.zeros([self._na, self._no], dtype=np.complex)
-        vector1_step = (self._lr - self._ll)/(self._na-1)
-        vector2_step = (self.ul - self._ll)/(self._no-1)
-        kx = np.zeros([self._na, self._no])
-        ky = np.zeros([self._na, self._no])
-        kz = np.zeros([self._na, self._no])
-        for x in range(self._na):
-            for y in range(self._no):
-                v = self._ll + x*vector1_step + y*vector2_step
-                kx[x, y] = v[0]
-                ky[x, y] = v[1]
-                kz[x, y] = v[2]
+        vector1_step = (self._lr - self._ll)/(self._nabs-1)
+        vector2_step = (self.ul - self._ll)/(self._nord-1)
+        if self._2D:
+            output_array = np.zeros([self._nabs, self._nord], dtype=np.complex)
+            kx = np.zeros([self._nabs, self._nord])
+            ky = np.zeros([self._nabs, self._nord])
+            kz = np.zeros([self._nabs, self._nord])
+            for x in range(self._nabs):
+                for y in range(self._nord):
+                    v = self._ll + x*vector1_step + y*vector2_step
+                    kx[x, y] = v[0]
+                    ky[x, y] = v[1]
+                    kz[x, y] = v[2]
+        else:  # assume _dims == 3
+            output_array = np.zeros([self._nabs, self._nord, self._napp], dtype=np.complex)
+            vector3_step = (self.tl - self._ll)/(self._napp-1)
+            kx = np.zeros([self._nabs, self._nord, self._napp])
+            ky = np.zeros([self._nabs, self._nord, self._napp])
+            kz = np.zeros([self._nabs, self._nord, self._napp])
+            for x in range(self._nabs):
+                for y in range(self._nord):
+                    for z in range(self._napp):
+                        v = self._ll + x*vector1_step + y*vector2_step + z*vector3_step
+                        kx[x, y, z] = v[0]
+                        ky[x, y, z] = v[1]
+                        kz[x, y, z] = v[2]
         kx *= (2*np.pi)
         ky *= (2*np.pi)
         kz *= (2*np.pi)
@@ -99,7 +137,10 @@ class Fourier(object):
         # Loop of atom types
         for atomic_number in unique_atomic_numbers:
             atom_positions = positions[np.where(atomic_numbers == atomic_number)]
-            temp_array = np.zeros([self._na, self._no], dtype=np.complex)
+            if self._2D:
+                temp_array = np.zeros([self._nabs, self._nord], dtype=np.complex)
+            else:
+                temp_array = np.zeros([self._nabs, self._nord, self._napp], dtype=np.complex)
             f = periodictable.elements[atomic_number].neutron.b_c
             print("Working on atom number", atomic_number, "Total atoms:", len(atom_positions))
             # Loop over atom positions of type atomic_number
@@ -112,8 +153,8 @@ class Fourier(object):
 
     def calculate_fast(self):
         """Returns a Data object"""
-        output_array = np.zeros([self._na, self._no], dtype=np.complex)
-        kx, ky, kz = calc_k_grid(self._ll, self._lr, self.ul, self._na, self._no)
+        output_array = np.zeros([self._nabs, self._nord], dtype=np.complex)
+        kx, ky, kz = calc_k_grid(self._ll, self._lr, self.ul, self._nabs, self._nord)
         kx *= (2*np.pi)
         ky *= (2*np.pi)
         kz *= (2*np.pi)
@@ -125,7 +166,7 @@ class Fourier(object):
         # Loop of atom types
         for atomic_number in unique_atomic_numbers:
             atom_positions = positions[np.where(atomic_numbers == atomic_number)]
-            temp_array = np.zeros([self._na, self._no], dtype=np.complex)
+            temp_array = np.zeros([self._nabs, self._nord], dtype=np.complex)
             f = periodictable.elements[atomic_number].neutron.b_c
             print("Working on atom number", atomic_number, "Total atoms:", len(atom_positions))
             # Loop over atom positions of type atomic_number
