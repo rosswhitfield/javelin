@@ -16,10 +16,10 @@ class Fourier(object):
         self._napp = 1    # applicate (tl - ll)
         self._dims = 2
         self._2D = True
-        self._ll = np.array([0.0, 0.0, 0.0])
-        self._lr = np.array([1.0, 0.0, 0.0])
-        self._ul = np.array([0.0, 1.0, 0.0])
-        self._tl = np.array([0.0, 0.0, 0.0])
+        self._ll = np.array([0.0, 0.0, 0.0])  # lower left
+        self._lr = np.array([1.0, 0.0, 0.0])  # lower right
+        self._ul = np.array([0.0, 1.0, 0.0])  # upper left
+        self._tl = np.array([0.0, 0.0, 0.0])  # top left
 
     @property
     def radiation(self):
@@ -149,8 +149,8 @@ class Fourier(object):
 
     def calculate_fast(self):
         """Returns a Data object"""
-        output_array = np.zeros([self._nabs, self._nord], dtype=np.complex)
-        kx, ky, kz = calc_k_grid(self._ll, self._lr, self.ul, self._nabs, self._nord)
+        output_array = np.zeros(self.bins, dtype=np.complex)
+        kx, ky, kz = calc_k_grid(self._ll, self._lr, self.ul, self._tl, self.bins)
         kx *= (2*np.pi)
         ky *= (2*np.pi)
         kz *= (2*np.pi)
@@ -162,7 +162,7 @@ class Fourier(object):
         # Loop of atom types
         for atomic_number in unique_atomic_numbers:
             atom_positions = positions[np.where(atomic_numbers == atomic_number)]
-            temp_array = np.zeros([self._nabs, self._nord], dtype=np.complex)
+            temp_array = np.zeros(self.bins, dtype=np.complex)
             f = periodictable.elements[atomic_number].neutron.b_c
             print("Working on atom number", atomic_number, "Total atoms:", len(atom_positions))
             # Loop over atom positions of type atomic_number
@@ -177,39 +177,65 @@ class Fourier(object):
         return results
 
 
-def calc_k_grid(ll, lr, ul, na, no):
-    va = lr - ll
-    vo = ul - ll
-    vector1_step = (lr - ll)/(na-1)
-    vector2_step = (ul - ll)/(no-1)
-    kx_bina, kx_bino = get_bin_number(va, vo, na, no, 0)
-    ky_bina, ky_bino = get_bin_number(va, vo, na, no, 1)
-    kz_bina, kz_bino = get_bin_number(va, vo, na, no, 2)
-    kx = np.zeros([kx_bina, kx_bino])
-    ky = np.zeros([ky_bina, ky_bino])
-    kz = np.zeros([kz_bina, kz_bino])
-    for x in range(kx_bina):
-        for y in range(kx_bino):
-            v = ll + x*vector1_step + y*vector2_step
-            kx[x, y] = v[0]
-    for x in range(ky_bina):
-        for y in range(ky_bino):
-            v = ll + x*vector1_step + y*vector2_step
-            ky[x, y] = v[1]
-    for x in range(kz_bina):
-        for y in range(kz_bino):
-            v = ll + x*vector1_step + y*vector2_step
-            kz[x, y] = v[2]
+def calc_k_grid(ll, lr, ul, tl, bins):
+    vabs = lr - ll
+    vord = ul - ll
+    vapp = tl - ll
+    vector1_step = (lr - ll)/(bins[0]-1)
+    vector2_step = (ul - ll)/(bins[1]-1)
+    kx_bins = get_bin_number(vabs, vord, vapp, bins, 0)
+    ky_bins = get_bin_number(vabs, vord, vapp, bins, 1)
+    kz_bins = get_bin_number(vabs, vord, vapp, bins, 2)
+    kx = np.zeros(kx_bins)
+    ky = np.zeros(ky_bins)
+    kz = np.zeros(kz_bins)
+    if len(bins) == 2:
+        for x in range(kx_bins[0]):
+            for y in range(kx_bins[1]):
+                v = ll + x*vector1_step + y*vector2_step
+                kx[x, y] = v[0]
+        for x in range(ky_bins[0]):
+            for y in range(ky_bins[1]):
+                v = ll + x*vector1_step + y*vector2_step
+                ky[x, y] = v[1]
+        for x in range(kz_bins[0]):
+            for y in range(kz_bins[1]):
+                v = ll + x*vector1_step + y*vector2_step
+                kz[x, y] = v[2]
+    else:
+        vector3_step = (tl - ll)/(bins[2]-1)
+        for x in range(kx_bins[0]):
+            for y in range(kx_bins[1]):
+                for z in range(kx_bins[2]):
+                    v = ll + x*vector1_step + y*vector2_step + z*vector3_step
+                    kx[x, y, z] = v[0]
+        for x in range(ky_bins[0]):
+            for y in range(ky_bins[1]):
+                for z in range(ky_bins[2]):
+                    v = ll + x*vector1_step + y*vector2_step + z*vector3_step
+                    ky[x, y, z] = v[1]
+        for x in range(kz_bins[0]):
+            for y in range(kz_bins[1]):
+                for z in range(kz_bins[2]):
+                    v = ll + x*vector1_step + y*vector2_step + z*vector3_step
+                    kz[x, y, z] = v[2]
     return kx, ky, kz
 
 
-def get_bin_number(va, vo, na, no, index):
-    if va[index] == 0:
+def get_bin_number(vabs, vord, vapp, bins, index):
+    if vabs[index] == 0:
         binx = 1
     else:
-        binx = na
-    if vo[index] == 0:
+        binx = bins[0]
+    if vord[index] == 0:
         biny = 1
     else:
-        biny = no
-    return binx, biny
+        biny = bins[1]
+    if len(bins) == 2:
+        return binx, biny
+    else:
+        if vapp[index] == 0:
+            binz = 1
+        else:
+            binz = bins[2]
+        return binx, biny, binz
