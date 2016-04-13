@@ -103,28 +103,23 @@ class Fourier(object):
 
     def calculate(self):
         """Returns a Data object"""
-        vector1_step = (self._lr - self._ll)/(self._nabs-1)
-        vector2_step = (self.ul - self._ll)/(self._nord-1)
+        dx = (self._lr - self._ll)/(self._nabs-1)
+        dy = (self._ul - self._ll)/(self._nord-1)
         output_array = np.zeros(self.bins, dtype=np.complex)
-        kx = np.zeros(self.bins)
-        ky = np.zeros(self.bins)
-        kz = np.zeros(self.bins)
+        x = np.arange(self._nabs).reshape((self._nabs, 1))
+        y = np.arange(self._nord).reshape((1, self._nord))
         if self._2D:
-            for x in range(self._nabs):
-                for y in range(self._nord):
-                    v = self._ll + x*vector1_step + y*vector2_step
-                    kx[x, y] = v[0]
-                    ky[x, y] = v[1]
-                    kz[x, y] = v[2]
+            kx = self._ll[0] + x*dx[0] + y*dy[0]
+            ky = self._ll[1] + x*dx[1] + y*dy[1]
+            kz = self._ll[2] + x*dx[2] + y*dy[2]
         else:  # assume _dims == 3
-            vector3_step = (self.tl - self._ll)/(self._napp-1)
-            for x in range(self._nabs):
-                for y in range(self._nord):
-                    for z in range(self._napp):
-                        v = self._ll + x*vector1_step + y*vector2_step + z*vector3_step
-                        kx[x, y, z] = v[0]
-                        ky[x, y, z] = v[1]
-                        kz[x, y, z] = v[2]
+            x.shape = (self._nabs, 1, 1)
+            y.shape = (1, self._nord, 1)
+            z = np.arange(self._napp).reshape((1, 1, self._napp))
+            dz = (self.tl - self._ll)/(self._napp-1)
+            kx = self._ll[0] + x*dx[0] + y*dy[0] + z*dz[0]
+            ky = self._ll[1] + x*dx[1] + y*dy[1] + z*dz[1]
+            kz = self._ll[2] + x*dx[2] + y*dy[2] + z*dz[2]
         kx *= (2*np.pi)
         ky *= (2*np.pi)
         kz *= (2*np.pi)
@@ -181,8 +176,8 @@ def calc_k_grid(ll, lr, ul, tl, bins):
     vabs = lr - ll
     vord = ul - ll
     vapp = tl - ll
-    vector1_step = (lr - ll)/(bins[0]-1)
-    vector2_step = (ul - ll)/(bins[1]-1)
+    dx = (lr - ll)/(bins[0]-1)
+    dy = (ul - ll)/(bins[1]-1)
     kx_bins = get_bin_number(vabs, vord, vapp, bins, 0)
     ky_bins = get_bin_number(vabs, vord, vapp, bins, 1)
     kz_bins = get_bin_number(vabs, vord, vapp, bins, 2)
@@ -190,35 +185,29 @@ def calc_k_grid(ll, lr, ul, tl, bins):
     ky = np.zeros(ky_bins)
     kz = np.zeros(kz_bins)
     if len(bins) == 2:
-        for x in range(kx_bins[0]):
-            for y in range(kx_bins[1]):
-                v = ll + x*vector1_step + y*vector2_step
-                kx[x, y] = v[0]
-        for x in range(ky_bins[0]):
-            for y in range(ky_bins[1]):
-                v = ll + x*vector1_step + y*vector2_step
-                ky[x, y] = v[1]
-        for x in range(kz_bins[0]):
-            for y in range(kz_bins[1]):
-                v = ll + x*vector1_step + y*vector2_step
-                kz[x, y] = v[2]
+        x = np.arange(kx_bins[0]).reshape((kx_bins[0], 1))
+        y = np.arange(kx_bins[1]).reshape((1, kx_bins[1]))
+        kx = ll[0] + x*dx[0] + y*dy[0]
+        x = np.arange(ky_bins[0]).reshape((ky_bins[0], 1))
+        y = np.arange(ky_bins[1]).reshape((1, ky_bins[1]))
+        ky = ll[1] + x*dx[1] + y*dy[1]
+        x = np.arange(kz_bins[0]).reshape((kz_bins[0], 1))
+        y = np.arange(kz_bins[1]).reshape((1, kz_bins[1]))
+        kz = ll[2] + x*dx[2] + y*dy[2]
     else:
-        vector3_step = (tl - ll)/(bins[2]-1)
-        for x in range(kx_bins[0]):
-            for y in range(kx_bins[1]):
-                for z in range(kx_bins[2]):
-                    v = ll + x*vector1_step + y*vector2_step + z*vector3_step
-                    kx[x, y, z] = v[0]
-        for x in range(ky_bins[0]):
-            for y in range(ky_bins[1]):
-                for z in range(ky_bins[2]):
-                    v = ll + x*vector1_step + y*vector2_step + z*vector3_step
-                    ky[x, y, z] = v[1]
-        for x in range(kz_bins[0]):
-            for y in range(kz_bins[1]):
-                for z in range(kz_bins[2]):
-                    v = ll + x*vector1_step + y*vector2_step + z*vector3_step
-                    kz[x, y, z] = v[2]
+        dz = (tl - ll)/(bins[2]-1)
+        x = np.arange(kx_bins[0]).reshape((kx_bins[0], 1, 1))
+        y = np.arange(kx_bins[1]).reshape((1, kx_bins[1], 1))
+        z = np.arange(kx_bins[2]).reshape((1, 1, kx_bins[2]))
+        kx = ll[0] + x*dx[0] + y*dy[0] + z*dz[0]
+        x = np.arange(ky_bins[0]).reshape((ky_bins[0], 1, 1))
+        y = np.arange(ky_bins[1]).reshape((1, ky_bins[1], 1))
+        z = np.arange(ky_bins[2]).reshape((1, 1, ky_bins[2]))
+        ky = ll[1] + x*dx[1] + y*dy[1] + z*dz[1]
+        x = np.arange(kz_bins[0]).reshape((kz_bins[0], 1, 1))
+        y = np.arange(kz_bins[1]).reshape((1, kz_bins[1], 1))
+        z = np.arange(kz_bins[2]).reshape((1, 1, kz_bins[2]))
+        kz = ll[2] + x*dx[2] + y*dy[2] + z*dz[2]
     return kx, ky, kz
 
 
