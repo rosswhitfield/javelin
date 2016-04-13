@@ -165,8 +165,7 @@ class Fourier(object):
                 dotx = np.exp(kx*atom[0]*1j)
                 doty = np.exp(ky*atom[1]*1j)
                 dotz = np.exp(kz*atom[2]*1j)
-                sumexp = dotx * doty * dotz
-                temp_array += sumexp
+                temp_array += dotx * doty * dotz
             output_array += temp_array * f  # scale by form factor
         results = np.real(output_array*np.conj(output_array))
         return results
