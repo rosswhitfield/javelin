@@ -39,7 +39,10 @@ class Fourier(object):
 
     @property
     def bins(self):
-        return self._nabs, self._nord, self._napp
+        if self._2D:
+            return self._nabs, self._nord
+        else:
+            return self._nabs, self._nord, self._napp
 
     @bins.setter
     def bins(self, dims):
@@ -102,11 +105,11 @@ class Fourier(object):
         """Returns a Data object"""
         vector1_step = (self._lr - self._ll)/(self._nabs-1)
         vector2_step = (self.ul - self._ll)/(self._nord-1)
+        output_array = np.zeros(self.bins, dtype=np.complex)
+        kx = np.zeros(self.bins)
+        ky = np.zeros(self.bins)
+        kz = np.zeros(self.bins)
         if self._2D:
-            output_array = np.zeros([self._nabs, self._nord], dtype=np.complex)
-            kx = np.zeros([self._nabs, self._nord])
-            ky = np.zeros([self._nabs, self._nord])
-            kz = np.zeros([self._nabs, self._nord])
             for x in range(self._nabs):
                 for y in range(self._nord):
                     v = self._ll + x*vector1_step + y*vector2_step
@@ -114,11 +117,7 @@ class Fourier(object):
                     ky[x, y] = v[1]
                     kz[x, y] = v[2]
         else:  # assume _dims == 3
-            output_array = np.zeros([self._nabs, self._nord, self._napp], dtype=np.complex)
             vector3_step = (self.tl - self._ll)/(self._napp-1)
-            kx = np.zeros([self._nabs, self._nord, self._napp])
-            ky = np.zeros([self._nabs, self._nord, self._napp])
-            kz = np.zeros([self._nabs, self._nord, self._napp])
             for x in range(self._nabs):
                 for y in range(self._nord):
                     for z in range(self._napp):
@@ -137,10 +136,7 @@ class Fourier(object):
         # Loop of atom types
         for atomic_number in unique_atomic_numbers:
             atom_positions = positions[np.where(atomic_numbers == atomic_number)]
-            if self._2D:
-                temp_array = np.zeros([self._nabs, self._nord], dtype=np.complex)
-            else:
-                temp_array = np.zeros([self._nabs, self._nord, self._napp], dtype=np.complex)
+            temp_array = np.zeros(self.bins, dtype=np.complex)
             f = periodictable.elements[atomic_number].neutron.b_c
             print("Working on atom number", atomic_number, "Total atoms:", len(atom_positions))
             # Loop over atom positions of type atomic_number
