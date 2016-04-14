@@ -46,6 +46,10 @@ class Fourier(object):
 
     @bins.setter
     def bins(self, dims):
+        dims = np.asarray(dims)
+        if (dims < 2).any():
+            print("Must have more than 1 bin in each direction")
+            return
         if len(dims) == 2:
             self._dims = 2
             self._2D = True
