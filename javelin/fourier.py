@@ -215,19 +215,10 @@ def calc_k_grid(ll, lr, ul, tl, bins):
 
 
 def get_bin_number(vabs, vord, vapp, bins, index):
-    if vabs[index] == 0:
-        binx = 1
-    else:
-        binx = bins[0]
-    if vord[index] == 0:
-        biny = 1
-    else:
-        biny = bins[1]
+    binx = 1 if vabs[index] == 0 else bins[0]
+    biny = 1 if vord[index] == 0 else bins[1]
     if len(bins) == 2:
         return binx, biny
     else:
-        if vapp[index] == 0:
-            binz = 1
-        else:
-            binz = bins[2]
+        binz = 1 if vapp[index] == 0 else bins[2]
         return binx, biny, binz
