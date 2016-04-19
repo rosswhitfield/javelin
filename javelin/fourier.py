@@ -16,10 +16,10 @@ class Fourier(object):
         self._napp = 1    # applicate (tl - ll)
         self._dims = 2
         self._2D = True
-        self._ll = np.array([0.0, 0.0, 0.0])  # lower left
-        self._lr = np.array([1.0, 0.0, 0.0])  # lower right
-        self._ul = np.array([0.0, 1.0, 0.0])  # upper left
-        self._tl = np.array([0.0, 0.0, 0.0])  # top left
+        self._vertices = {'ll': np.array([0.0, 0.0, 0.0]),  # lower left
+                          'lr': np.array([1.0, 0.0, 0.0]),  # lower right
+                          'ul': np.array([0.0, 1.0, 0.0]),  # upper left
+                          'tl': np.array([0.0, 0.0, 0.0])}  # top left
 
     @property
     def radiation(self):
@@ -48,14 +48,13 @@ class Fourier(object):
     def bins(self, dims):
         dims = np.asarray(dims)
         if (dims < 2).any():
-            print("Must have more than 1 bin in each direction")
-            return
+            raise ValueError("Must have more than 1 bin in each direction")
         if len(dims) == 2:
             self._dims = 2
             self._2D = True
             self._nabs = dims[0]
             self._nord = dims[1]
-            self._napp = 1
+            self._napp = 0
         elif len(dims) == 3:
             self._dims = 3
             self._2D = False
@@ -63,67 +62,84 @@ class Fourier(object):
             self._nord = dims[1]
             self._napp = dims[2]
         else:
-            return  # TODO warning
+            raise ValueError("Must provide 2 or 3 dimensions")
 
     @property
     def ll(self):
-        return self._ll
+        return self._vertices['ll']
 
     @ll.setter
     def ll(self, ll):
         if len(ll) != 3:
-            return
-        self._ll = np.asarray(ll)
+            raise ValueError("Must have length 3")
+        self._vertices['ll'] = np.asarray(ll)
 
     @property
     def lr(self):
-        return self._lr
+        return self._vertices['lr']
 
     @lr.setter
     def lr(self, lr):
         if len(lr) != 3:
-            return
-        self._lr = np.asarray(lr)
+            raise ValueError("Must have length 3")
+        self._vertices['lr'] = np.asarray(lr)
 
     @property
     def ul(self):
-        return self._ul
+        return self._vertices['ul']
 
     @ul.setter
     def ul(self, ul):
         if len(ul) != 3:
-            return
-        self._ul = np.asarray(ul)
+            raise ValueError("Must have length 3")
+        self._vertices['ul'] = np.asarray(ul)
 
     @property
     def tl(self):
-        return self._tl
+        return self._vertices['tl']
 
     @tl.setter
     def tl(self, tl):
         if len(tl) != 3:
-            return
-        self._tl = np.asarray(tl)
+            raise ValueError("Must have length 3")
+        self._vertices['tl'] = np.asarray(tl)
+
+    def validate_vectors(self):
+        vertices = ['lr', 'ul'] if self._2D else ['lr', 'ul', 'tl']
+        vector_dict = {}
+        for vertex in vertices:
+            # Create vector from ll to 'vertex'
+            vector = self._vertices[vertex] - self._vertices['ll']
+            # Check length of vector
+            if length(vector) == 0:
+                raise ValueError("Distance between ll and " + vertex + " is 0")
+            # Compare vector with previous to check it parallel
+            for item in vector_dict:
+                if check_parallel(vector, vector_dict[item]):
+                    raise ValueError("Vector from ll to " + vertex +
+                                     " is parallel with the vector from ll to "+item)
+            vector_dict[vertex] = vector  # Store to allow comparison with other vectors
 
     def calculate(self):
         """Returns a Data object"""
-        dx = (self._lr - self._ll)/(self._nabs-1)
-        dy = (self._ul - self._ll)/(self._nord-1)
+        self.validate_vectors()
+        dx = (self.lr - self.ll)/(self._nabs-1)
+        dy = (self.ul - self.ll)/(self._nord-1)
         output_array = np.zeros(self.bins, dtype=np.complex)
         x = np.arange(self._nabs).reshape((self._nabs, 1))
         y = np.arange(self._nord).reshape((1, self._nord))
         if self._2D:
-            kx = self._ll[0] + x*dx[0] + y*dy[0]
-            ky = self._ll[1] + x*dx[1] + y*dy[1]
-            kz = self._ll[2] + x*dx[2] + y*dy[2]
+            kx = self.ll[0] + x*dx[0] + y*dy[0]
+            ky = self.ll[1] + x*dx[1] + y*dy[1]
+            kz = self.ll[2] + x*dx[2] + y*dy[2]
         else:  # assume _dims == 3
             x.shape = (self._nabs, 1, 1)
             y.shape = (1, self._nord, 1)
             z = np.arange(self._napp).reshape((1, 1, self._napp))
-            dz = (self.tl - self._ll)/(self._napp-1)
-            kx = self._ll[0] + x*dx[0] + y*dy[0] + z*dz[0]
-            ky = self._ll[1] + x*dx[1] + y*dy[1] + z*dz[1]
-            kz = self._ll[2] + x*dx[2] + y*dy[2] + z*dz[2]
+            dz = (self.tl - self.ll)/(self._napp-1)
+            kx = self.ll[0] + x*dx[0] + y*dy[0] + z*dz[0]
+            ky = self.ll[1] + x*dx[1] + y*dy[1] + z*dz[1]
+            kz = self.ll[2] + x*dx[2] + y*dy[2] + z*dz[2]
         kx *= (2*np.pi)
         ky *= (2*np.pi)
         kz *= (2*np.pi)
@@ -148,8 +164,9 @@ class Fourier(object):
 
     def calculate_fast(self):
         """Returns a Data object"""
+        self.validate_vectors()
         output_array = np.zeros(self.bins, dtype=np.complex)
-        kx, ky, kz = calc_k_grid(self._ll, self._lr, self.ul, self._tl, self.bins)
+        kx, ky, kz = calc_k_grid(self.ll, self.lr, self.ul, self.tl, self.bins)
         kx *= (2*np.pi)
         ky *= (2*np.pi)
         kz *= (2*np.pi)
@@ -222,3 +239,15 @@ def get_bin_number(vabs, vord, vapp, bins, index):
     else:
         binz = 1 if vapp[index] == 0 else bins[2]
         return binx, biny, binz
+
+
+def length(v):
+    return np.sqrt((np.dot(v, v)))
+
+
+def check_parallel(v1, v2):
+    return (np.cross(v1, v2) == 0).all()
+
+
+def angle(v1, v2):
+    return np.arccos(np.dot(v1, v2) / (length(v1) * length(v2)))
