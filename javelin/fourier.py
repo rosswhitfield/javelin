@@ -160,7 +160,7 @@ class Fourier(object):
                 temp_array += np.exp(dot*1j)
             output_array += temp_array * f  # scale by form factor
         results = np.real(output_array*np.conj(output_array))
-        return results
+        return self.create_xarray_dataarray(results)
 
     def calculate_fast(self):
         """Returns a Data object"""
@@ -189,7 +189,27 @@ class Fourier(object):
                 temp_array += dotx * doty * dotz
             output_array += temp_array * f  # scale by form factor
         results = np.real(output_array*np.conj(output_array))
-        return results
+        return self.create_xarray_dataarray(results)
+
+    def create_xarray_dataarray(self, values):
+        import xarray as xr
+        x = np.linspace(length(self.ll), length(self.lr), self.bins[0])
+        y = np.linspace(length(self.ll), length(self.ul), self.bins[1])
+        if self._2D:
+            return xr.DataArray(data=values,
+                                name="Intensity",
+                                dims=("Q1", "Q2"),
+                                coords=(x, y),
+                                attrs=(("radiation", self._radiation),
+                                       ("units", "q")))
+        else:
+            z = np.linspace(length(self.ll), length(self.tl), self.bins[2])
+            return xr.DataArray(data=values,
+                                name="Intensity",
+                                dims=("Q1", "Q2", "Q3"),
+                                coords=(x, y, z),
+                                attrs=(("radiation", self._radiation),
+                                       ("units", "q")))
 
 
 def calc_k_grid(ll, lr, ul, tl, bins):

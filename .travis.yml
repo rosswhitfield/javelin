@@ -1,9 +1,7 @@
 language: python
 
 python:
-  - "2.6"
   - "2.7"
-  - "3.3"
   - "3.4"
   - "3.5"
 
@@ -19,7 +17,7 @@ before_install:
   - conda config --set always_yes yes --set changeps1 no
 
 install:
-  - conda create -q -n testenv python=$TRAVIS_PYTHON_VERSION h5py
+  - conda create -q -n testenv python=$TRAVIS_PYTHON_VERSION h5py xarray
   - if [[ "${TRAVIS_PYTHON_VERSION}" == "3.5" ]]; then conda install --yes -n testenv flake8; fi
   - source activate testenv
   - pip install ase codecov pytest-cov periodictable
