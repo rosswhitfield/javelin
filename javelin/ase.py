@@ -2,7 +2,7 @@
 
 from __future__ import absolute_import
 from ase.atoms import Atoms
-from ase.lattice.spacegroup.cell import cellpar_to_cell
+from ase.geometry import cellpar_to_cell
 
 
 def read_stru(filename):
