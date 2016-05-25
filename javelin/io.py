@@ -1,8 +1,8 @@
 def read_mantid_MDHisto(filename):
-    """Read the saved MDHisto from from Mantid and returns a javelin Data object"""
+    """Read the saved MDHisto from from Mantid and returns an xarray.DataArray object"""
     import h5py
     import numpy as np
-    from javelin.data import Data
+    import xarray as xr
     with h5py.File(filename, "r") as f:
         if ('SaveMDVersion' not in f['MDHistoWorkspace'].attrs or
                 f['MDHistoWorkspace'].attrs['SaveMDVersion'] < 2):
@@ -14,31 +14,34 @@ def read_mantid_MDHisto(filename):
             print("Can't open "+path+'signal')
             return
 
-        data_set = Data()
         signal = f[path+'signal']
         data = np.array(signal)
-        data_set.array = data
 
         if 'axes' not in signal.attrs:
             print("Can't find axes")
-            return data_set
+            return xr.DataArray(data)
         axes = signal.attrs['axes'].decode().split(":")
         axes.reverse()
 
-        dimensions = len(axes)
-        data_set.dim = dimensions
+        dims_list = []
+        coords_list = []
         for a in axes:
-            axis = f[path+a]
-            data_set.add_axis(a, axis.attrs['units'].decode(),
-                              np.array(axis))
+            dims_list.append(a)
+            axis = np.array(f[path+a])
+            axis = ((axis + np.roll(axis, -1))[:-1])/2  # Hack: Need bin centers
+            coords_list.append(np.array(axis))
+
+        data_set = xr.DataArray(data,
+                                dims=dims_list,
+                                coords=coords_list)
 
         if 'MDHistoWorkspace/experiment0/sample/oriented_lattice' in f:
             lattice = f['MDHistoWorkspace/experiment0/sample/oriented_lattice']
-            data_set.set_unit_cell(lattice['unit_cell_a'][0],
-                                   lattice['unit_cell_b'][0],
-                                   lattice['unit_cell_c'][0],
-                                   lattice['unit_cell_alpha'][0],
-                                   lattice['unit_cell_beta'][0],
-                                   lattice['unit_cell_gamma'][0])
+            data_set.attrs['a'] = lattice['unit_cell_a'][0]
+            data_set.attrs['b'] = lattice['unit_cell_b'][0]
+            data_set.attrs['c'] = lattice['unit_cell_c'][0]
+            data_set.attrs['alpha'] = lattice['unit_cell_alpha'][0]
+            data_set.attrs['beta'] = lattice['unit_cell_beta'][0]
+            data_set.attrs['gamma'] = lattice['unit_cell_gamma'][0]
 
     return data_set
