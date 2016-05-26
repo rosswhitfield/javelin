@@ -17,7 +17,7 @@ py.test tests
 py.test --doctest-modules javelin
 ```
 
-[![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](http://opensource.org/licenses/MIT)
+[![license](https://img.shields.io/github/license/rosswhitfield/javelin.svg?maxAge=2592000)](LICENSE)
 [![Build Status](https://travis-ci.org/rosswhitfield/javelin.svg?branch=master)](https://travis-ci.org/rosswhitfield/javelin)
 [![codecov.io](https://codecov.io/github/rosswhitfield/javelin/coverage.svg?branch=master)](https://codecov.io/github/rosswhitfield/javelin?branch=master)
 [![Code Climate](https://codeclimate.com/github/rosswhitfield/javelin/badges/gpa.svg)](https://codeclimate.com/github/rosswhitfield/javelin)
