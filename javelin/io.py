@@ -21,7 +21,6 @@ def read_mantid_MDHisto(filename):
             print("Can't find axes")
             return xr.DataArray(data)
         axes = signal.attrs['axes'].decode().split(":")
-        axes.reverse()
 
         dims_list = []
         coords_list = []
