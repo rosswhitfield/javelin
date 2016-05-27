@@ -1,3 +1,4 @@
+import pytest
 from javelin.unitcell import UnitCell
 from numpy.testing import assert_array_equal, assert_array_almost_equal, assert_almost_equal
 
@@ -71,3 +72,21 @@ def test_UnitCell_cell_setter():
     unitcell.cell = 7, 6, 5, 120, 90, 45
     assert_array_almost_equal(unitcell.cell,
                               (7, 6, 5, 120, 90, 45))
+
+
+def test_UnitCell_exceptions():
+    unitcell = UnitCell()
+
+    with pytest.raises(ValueError):
+        unitcell.cell = (1, 2)
+    with pytest.raises(ValueError):
+        unitcell.cell = (1, 2, 3, 4, 5)
+
+    with pytest.raises(TypeError):
+        unitcell.cell = "foobor"
+
+    with pytest.raises(ValueError):
+        UnitCell(1, 1, 1, 90, 90, 200)
+
+    with pytest.raises(ValueError):
+        UnitCell(1, 1, 1, 360, 90, 90)
