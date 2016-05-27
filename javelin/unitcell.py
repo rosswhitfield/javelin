@@ -140,12 +140,9 @@ class UnitCell(object):
                 (self.beta > self.alpha + self.gamma) or
                 (self.gamma > self.alpha + self.beta)):
             raise ValueError("Invalid angles")
-        self.__G[0, 0] = self.a**2
-        self.__G[1, 1] = self.b**2
-        self.__G[2, 2] = self.c**2
-        self.__G[0, 1] = self.a * self.b * np.cos(self.gamma)
-        self.__G[0, 2] = self.a * self.c * np.cos(self.beta)
-        self.__G[1, 2] = self.b * self.c * np.cos(self.alpha)
-        self.__G[1, 0] = self.__G[0, 1]
-        self.__G[2, 0] = self.__G[0, 2]
-        self.__G[2, 1] = self.__G[1, 2]
+        ca = np.cos(self.alpha)
+        cb = np.cos(self.beta)
+        cg = np.cos(self.gamma)
+        self.__G = np.matrix([[self.a**2,            self.a * self.b * cg, self.a * self.c * cb],
+                              [self.a * self.b * cg, self.b**2,            self.b * self.c * ca],
+                              [self.a * self.c * cb, self.b * self.c * ca, self.c**2]])
