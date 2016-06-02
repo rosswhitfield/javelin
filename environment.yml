@@ -1,0 +1,12 @@
+name: javelin
+dependencies:
+- h5py
+- numpy
+- pandas
+- pip
+- pytables
+- pytest-cov
+- xarray
+- pip:
+  - ase
+  - periodictable
