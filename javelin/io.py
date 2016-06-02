@@ -44,3 +44,34 @@ def read_mantid_MDHisto(filename):
             data_set.attrs['gamma'] = lattice['unit_cell_gamma'][0]
 
     return data_set
+
+
+def save_xarray_to_HDF5(dataArray, filename, complib=None):
+    """Save the xarray DataArray to HDF file using pandas HDFStore
+
+    attrs will be saved as metadata via pickle
+
+    requries pytables
+
+    complib : {'zlib', 'bzip2', 'lzo', 'blosc', None}, default None"""
+    from pandas import HDFStore
+    file = HDFStore(filename, mode='w', complib=complib)
+    file.put('data', dataArray.to_pandas())
+    if len(dataArray.attrs) > 0:
+        file.get_storer('data').attrs.metadata = dataArray.attrs
+    file.close()
+
+
+def load_HDF5_to_xarray(filename):
+    """Load HDF file into an xarray DataArray using pandas HDFStore
+
+    requries pytables"""
+    from pandas import HDFStore
+    from xarray import DataArray
+    with HDFStore(filename) as file:
+        data = file['data']
+        if 'metadata' in file.get_storer('data').attrs:
+            metadata = file.get_storer('data').attrs.metadata
+        else:
+            metadata = None
+    return DataArray(data, attrs=metadata)
