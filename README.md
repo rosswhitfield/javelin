@@ -6,13 +6,23 @@
 python setup.py install
 ```
 
+###Using conda for package management
+
+```
+conda env create
+source activate javelin
+python setup.py install
+```
+
 ##Running tests
 
 ### Unit tests
+
 ```
 py.test tests
 ```
 ### Doctests
+
 ```
 py.test --doctest-modules javelin
 ```
