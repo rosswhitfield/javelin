@@ -1,0 +1,23 @@
+environment:
+  matrix:
+    - PYTHON_VERSION: 2.7
+      MINICONDA: C:\Miniconda-x64
+    - PYTHON_VERSION: 3.4
+      MINICONDA: C:\Miniconda3-x64
+    - PYTHON_VERSION: 3.5
+      MINICONDA: C:\Miniconda35-x64
+
+init:
+  - "ECHO %PYTHON_VERSION% %MINICONDA%"
+  - "set PATH=%MINICONDA%;%MINICONDA%\\Scripts;%PATH%"
+  - conda config --set always_yes yes --set changeps1 no
+
+install:
+  - "conda create -q -n testenv python=%PYTHON_VERSION% h5py xarray pytables pytest"
+  - activate testenv
+  - pip install ase periodictable
+
+build: off
+
+test_script:
+  - py.test --doctest-modules javelin tests
