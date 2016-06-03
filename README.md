@@ -27,10 +27,12 @@ py.test tests
 py.test --doctest-modules javelin
 ```
 
+---
 [![license](https://img.shields.io/github/license/rosswhitfield/javelin.svg?maxAge=2592000)](LICENSE)
 [![Build Status](https://travis-ci.org/rosswhitfield/javelin.svg?branch=master)](https://travis-ci.org/rosswhitfield/javelin)
 [![Build status](https://ci.appveyor.com/api/projects/status/32ajp5h0qunugdl3?svg=true)](https://ci.appveyor.com/project/rosswhitfield/javelin)
 [![codecov.io](https://codecov.io/github/rosswhitfield/javelin/coverage.svg?branch=master)](https://codecov.io/github/rosswhitfield/javelin?branch=master)
+
 [![Code Climate](https://codeclimate.com/github/rosswhitfield/javelin/badges/gpa.svg)](https://codeclimate.com/github/rosswhitfield/javelin)
 [![Codacy Badge](https://api.codacy.com/project/badge/grade/1d159bdd70ee4705b8e73238e59cc841)](https://www.codacy.com/app/whitfieldre/javelin)
 [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/rosswhitfield/javelin/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/rosswhitfield/javelin/?branch=master)
