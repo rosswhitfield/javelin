@@ -34,8 +34,10 @@ def read_mantid_MDHisto(filename):
                                 dims=dims_list,
                                 coords=coords_list)
 
-        if 'MDHistoWorkspace/experiment0/sample/oriented_lattice' in f:
-            lattice = f['MDHistoWorkspace/experiment0/sample/oriented_lattice']
+        # Get lattice constants
+        oriented_lattice = 'MDHistoWorkspace/experiment0/sample/oriented_lattice'
+        if oriented_lattice in f:
+            lattice = f[oriented_lattice]
             data_set.attrs['a'] = lattice['unit_cell_a'][0]
             data_set.attrs['b'] = lattice['unit_cell_b'][0]
             data_set.attrs['c'] = lattice['unit_cell_c'][0]
@@ -43,7 +45,46 @@ def read_mantid_MDHisto(filename):
             data_set.attrs['beta'] = lattice['unit_cell_beta'][0]
             data_set.attrs['gamma'] = lattice['unit_cell_gamma'][0]
 
+        # Get projection matrix
+        W_MATRIX = 'MDHistoWorkspace/experiment0/logs/W_MATRIX/value'
+        if W_MATRIX in f:
+            data_set.attrs['projection_matrix'] = np.array(f[W_MATRIX]).reshape(3, 3)
+
     return data_set
+
+
+def save_mantid_MDHisto(dataArray, filename):
+    """Save a file that can be read in using Mantid's LoadMD"""
+    import h5py
+    import numpy as np
+    f = h5py.File(filename, 'w')
+    top = f.create_group('MDHistoWorkspace')
+    top.attrs['NX_class'] = 'NXentry'
+    top.attrs['SaveMDVersion'] = 2
+
+    # Write signal data and axes
+    data = top.create_group('data')
+    data.attrs['NX_class'] = 'NXdata'
+    signal = data.create_dataset('signal', data=dataArray.values, compression="gzip")
+    signal.attrs['axes'] = ':'.join(dataArray.coords.dims)
+    signal.attrs['signal'] = 1
+    for axis in dataArray.coords.dims:
+        axis_array = dataArray.coords[axis].values
+
+        # Hack to change to bin boundaries instead of centres.
+        bin_size = (axis_array[-1] - axis_array[0])/(len(axis_array) - 1)
+        axis_array -= bin_size*0.5
+        axis_array = np.append(axis_array, axis_array[-1] + bin_size)
+
+        a = data.create_dataset(axis, data=axis_array)
+        a.attrs['frame'] = 'HKL'
+        a.attrs['long_name'] = axis
+        a.attrs['units'] = 'A^-1'
+
+    data.create_dataset('errors_squared', data=dataArray.values, compression="gzip")
+    data.create_dataset('mask', data=np.zeros(dataArray.shape, dtype=np.int8), compression="gzip")
+    data.create_dataset('num_events', data=np.ones(dataArray.shape), compression="gzip")
+    f.close()
 
 
 def save_xarray_to_HDF5(dataArray, filename, complib=None):
