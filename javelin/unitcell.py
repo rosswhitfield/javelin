@@ -51,6 +51,7 @@ class UnitCell(object):
         self.rgamma = np.radians(90)  # gamma*
         self.__G = np.matrix(np.eye(3))
         self.__Gstar = np.matrix(np.eye(3))
+        self.__B = np.matrix(np.eye(3))
         if args:
             self.cell = args
 
@@ -92,6 +93,7 @@ class UnitCell(object):
             raise ValueError("Invalid number of variables, unit cell unchanged")
         self.__calculateG()
         self.__calculateReciprocalLattice()
+        self.__calculateB()
 
     @property
     def G(self):
@@ -102,6 +104,16 @@ class UnitCell(object):
     def Gstar(self):
         """Returns the reciprocal metric tensor **G***"""
         return self.G.getI()
+
+    @property
+    def B(self):
+        """Returns the **B** matrix"""
+        return self.__B
+
+    @property
+    def Binv(self):
+        """Returns the inverse **B** matrix"""
+        return self.B.getI()
 
     @property
     def volume(self):
@@ -146,3 +158,11 @@ class UnitCell(object):
         self.__G = np.matrix([[self.a**2,            self.a * self.b * cg, self.a * self.c * cb],
                               [self.a * self.b * cg, self.b**2,            self.b * self.c * ca],
                               [self.a * self.c * cb, self.b * self.c * ca, self.c**2]])
+
+    def __calculateB(self):
+        """Calculated B matrix from lattice vectors"""
+        self.__B = np.matrix([[self.ra, self.rb * np.cos(self.rgamma),
+                               self.rc * np.cos(self.rbeta)],
+                              [0, self.rb * np.sin(self.rgamma),
+                               - self.rc * np.sin(self.rbeta) * np.cos(self.alpha)],
+                              [0,        0, 1/self.c]])
