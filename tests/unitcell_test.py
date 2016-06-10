@@ -22,6 +22,9 @@ def test_UnitCell_init():
     assert_array_equal(unitcell.B, [[1, 0, 0],
                                     [0, 1, 0],
                                     [0, 0, 1]])
+    assert_array_equal(unitcell.Binv, [[1, 0, 0],
+                                       [0, 1, 0],
+                                       [0, 0, 1]])
 
     unitcell = UnitCell(5)
     assert unitcell.cell == (5, 5, 5, 90, 90, 90)
@@ -34,6 +37,9 @@ def test_UnitCell_init():
     assert_array_almost_equal(unitcell.B, [[0.2, 0, 0],
                                            [0, 0.2, 0],
                                            [0, 0, 0.2]])
+    assert_array_almost_equal(unitcell.Binv, [[5, 0, 0],
+                                              [0, 5, 0],
+                                              [0, 0, 5]])
 
     unitcell = UnitCell(1, 2, 3)
     assert unitcell.cell == (1, 2, 3, 90, 90, 90)
@@ -66,6 +72,10 @@ def test_UnitCell_init():
     assert_array_almost_equal(unitcell.B, [[0.288675, 0.11547, 0],
                                            [0,        0.2,     0],
                                            [0,        0,       0.166667]])
+
+    assert_array_almost_equal(unitcell.Binv, [[3.464101, -2, 0],
+                                              [0,         5, 0],
+                                              [0,         0, 6]])
 
     unitcell = UnitCell([5, 6, 7, 89, 92, 121])
     assert unitcell.cell == (5, 6, 7, 89, 92, 121)
