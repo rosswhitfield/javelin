@@ -7,6 +7,8 @@ def test_UnitCell_init():
     unitcell = UnitCell()
     assert unitcell.cell == (1, 1, 1, 90, 90, 90)
     assert unitcell.reciprocalCell == (1, 1, 1, 90, 90, 90)
+    assert unitcell.d(1, 0, 0) == 1
+    assert unitcell.dstar(1, 0, 0) == 1
     assert unitcell.volume == 1
     assert unitcell.reciprocalVolume == 1
     assert_array_equal(unitcell.G, [[1, 0, 0],
@@ -38,6 +40,9 @@ def test_UnitCell_init():
                                            [0, 0, 9]])
 
     unitcell = UnitCell(4, 5, 6, 90, 90, 120)
+    assert unitcell.d(1, 0, 0) == 3.4641016151377548
+    assert unitcell.d(0, 1, 0) == 4.3301270189221936
+    assert unitcell.d(0, 0, 1) == 6
     assert_array_almost_equal(unitcell.cell,
                               (4, 5, 6, 90, 90, 120))
     assert_array_almost_equal(unitcell.reciprocalCell,
@@ -88,6 +93,7 @@ def test_UnitCell_exceptions():
 
     with pytest.raises(ValueError):
         unitcell.cell = (1, 2)
+
     with pytest.raises(ValueError):
         unitcell.cell = (1, 2, 3, 4, 5)
 

@@ -115,6 +115,16 @@ class UnitCell(object):
         """Returns the inverse **B** matrix"""
         return self.B.getI()
 
+    def dstar(self, h, k, l):
+        """Returns d*=1/d for given h,k,l"""
+        return np.linalg.norm(self.B * np.matrix([[h],
+                                                  [k],
+                                                  [l]]))
+
+    def d(self, h, k, l):
+        """Returns d-spacing for given h,k,l"""
+        return 1/self.dstar(h, k, l)
+
     @property
     def volume(self):
         """Returns the unit cell volume"""
