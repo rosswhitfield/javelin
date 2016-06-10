@@ -3,6 +3,7 @@ def read_mantid_MDHisto(filename):
     import h5py
     import numpy as np
     import xarray as xr
+    from javelin.unitcell import UnitCell
     with h5py.File(filename, "r") as f:
         if ('SaveMDVersion' not in f['MDHistoWorkspace'].attrs or
                 f['MDHistoWorkspace'].attrs['SaveMDVersion'] < 2):
@@ -38,12 +39,12 @@ def read_mantid_MDHisto(filename):
         oriented_lattice = 'MDHistoWorkspace/experiment0/sample/oriented_lattice'
         if oriented_lattice in f:
             lattice = f[oriented_lattice]
-            data_set.attrs['a'] = lattice['unit_cell_a'][0]
-            data_set.attrs['b'] = lattice['unit_cell_b'][0]
-            data_set.attrs['c'] = lattice['unit_cell_c'][0]
-            data_set.attrs['alpha'] = lattice['unit_cell_alpha'][0]
-            data_set.attrs['beta'] = lattice['unit_cell_beta'][0]
-            data_set.attrs['gamma'] = lattice['unit_cell_gamma'][0]
+            data_set.attrs['unit_cell'] = UnitCell(lattice['unit_cell_a'][0],
+                                                   lattice['unit_cell_b'][0],
+                                                   lattice['unit_cell_c'][0],
+                                                   lattice['unit_cell_alpha'][0],
+                                                   lattice['unit_cell_beta'][0],
+                                                   lattice['unit_cell_gamma'][0])
 
         # Get projection matrix
         W_MATRIX = 'MDHistoWorkspace/experiment0/logs/W_MATRIX/value'

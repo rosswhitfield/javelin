@@ -9,8 +9,8 @@ def test_read_mantid_MDHisto_ZrO2nxs():
     filename = os.path.join(os.path.dirname(__file__), 'data', 'ZrO2.nxs')
     ZrO2 = io.read_mantid_MDHisto(filename)
     assert ZrO2.values.shape == (200, 200)
-    assert_almost_equal(ZrO2.attrs['a'], 5.150207, decimal=5)
-    assert_almost_equal(ZrO2.attrs['alpha'], 90.0, decimal=5)
+    assert_almost_equal(ZrO2.attrs['unit_cell'].a, 5.150207)
+    assert_almost_equal(ZrO2.attrs['unit_cell'].alpha, 1.5707964)
 
 
 def test_save_load_xarray_to_HDF5(tmpdir):
@@ -30,11 +30,11 @@ def test_save_load_xarray_to_HDF5(tmpdir):
 
 def test_save_load_xarray_to_HDF5_with_metadata(tmpdir):
     import xarray as xr
+    from javelin.unitcell import UnitCell
 
     filename = tmpdir.join('test_file.h5')
     test_array = xr.DataArray([1, 2, 3])
-    test_array.attrs['a'] = 5
-    test_array.attrs['alpha'] = 90
+    test_array.attrs['unit_cell'] = UnitCell(5)
 
     # Test save
     io.save_xarray_to_HDF5(test_array, str(filename))
@@ -43,5 +43,5 @@ def test_save_load_xarray_to_HDF5_with_metadata(tmpdir):
     # Test load
     test_data = io.load_HDF5_to_xarray(str(filename))
     assert_array_equal(test_data.values, [1, 2, 3])
-    assert test_data.attrs['a'] == 5
-    assert test_data.attrs['alpha'] == 90
+    assert type(test_data.attrs['unit_cell']) is UnitCell
+    assert test_data.attrs['unit_cell'].a == 5
