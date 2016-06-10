@@ -125,6 +125,18 @@ class UnitCell(object):
         """Returns d-spacing for given h,k,l"""
         return 1/self.dstar(h, k, l)
 
+    def recAngle(self, h1, k1, l1, h2, k2, l2, degrees=False):
+        """Calculates the angle between two reciprocal vectors"""
+        q1 = np.matrix([[h1], [k1], [l1]])
+        q2 = np.matrix([[h2], [k2], [l2]])
+        q1 = self.Gstar * q1
+        E = (q1.T * q2).sum()
+        angle = np.arccos(E / (self.dstar(h1, k1, l1) * self.dstar(h2, k2, l2)))
+        if degrees:
+            return np.degrees(angle)
+        else:
+            return angle
+
     @property
     def volume(self):
         """Returns the unit cell volume"""

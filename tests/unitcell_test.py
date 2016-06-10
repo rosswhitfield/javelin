@@ -4,11 +4,16 @@ from numpy.testing import assert_array_equal, assert_array_almost_equal, assert_
 
 
 def test_UnitCell_init():
+    from numpy import pi
     unitcell = UnitCell()
     assert unitcell.cell == (1, 1, 1, 90, 90, 90)
     assert unitcell.reciprocalCell == (1, 1, 1, 90, 90, 90)
     assert unitcell.d(1, 0, 0) == 1
     assert unitcell.dstar(1, 0, 0) == 1
+    assert unitcell.recAngle(1, 0, 0, 1, 0, 0) == 0
+    assert unitcell.recAngle(1, 0, 0, 0, 1, 0, degrees=True) == 90
+    assert_almost_equal(unitcell.recAngle(0, 1, 0, 0, 1, 1), pi/4)
+    assert_almost_equal(unitcell.recAngle(0, 1, 0, 0, 1, 1, degrees=True), 45)
     assert unitcell.volume == 1
     assert unitcell.reciprocalVolume == 1
     assert_array_equal(unitcell.G, [[1, 0, 0],
@@ -43,6 +48,12 @@ def test_UnitCell_init():
     assert unitcell.d(1, 0, 0) == 3.4641016151377548
     assert unitcell.d(0, 1, 0) == 4.3301270189221936
     assert unitcell.d(0, 0, 1) == 6
+    assert_almost_equal(unitcell.recAngle(1, 0, 0, 1, 0, 0), 0)
+    assert_almost_equal(unitcell.recAngle(1, 0, 0, 1, 0, 0, degrees=True), 0, decimal=5)
+    assert_almost_equal(unitcell.recAngle(1, 0, 0, 0, 1, 0), pi/3)
+    assert_almost_equal(unitcell.recAngle(1, 0, 0, 0, 1, 0, degrees=True), 60)
+    assert_almost_equal(unitcell.recAngle(1, 0, 0, 0, 0, 1), pi/2)
+    assert_almost_equal(unitcell.recAngle(1, 0, 0, 0, 0, 1, degrees=True), 90)
     assert_array_almost_equal(unitcell.cell,
                               (4, 5, 6, 90, 90, 120))
     assert_array_almost_equal(unitcell.reciprocalCell,
