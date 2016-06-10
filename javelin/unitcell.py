@@ -55,6 +55,9 @@ class UnitCell(object):
         if args:
             self.cell = args
 
+    def __str__(self):
+        return str(self.cell)
+
     @property
     def cell(self):
         """Return the unit cell parameters (*a*, *b*, *c*, *alpha*, *beta*,

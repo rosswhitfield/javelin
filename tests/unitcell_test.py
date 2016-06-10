@@ -86,6 +86,8 @@ def test_UnitCell_init():
     assert_array_almost_equal(unitcell.G, [[25, -15.45114225, -1.22148238],
                                            [-15.45114225, 36, 0.73300107],
                                            [-1.22148238, 0.73300107, 49]])
+    # Test __str__
+    assert str(unitcell) == '(5.0, 6.0, 7.0, 89.0, 92.0, 121.0)'
 
 
 def test_UnitCell_cell_setter():
