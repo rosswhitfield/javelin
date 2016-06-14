@@ -150,6 +150,8 @@ class Fourier(object):
         positions = self.structure.get_scaled_positions()
         # Loop of atom types
         for atomic_number in unique_atomic_numbers:
+            if atomic_number == 0:
+                continue
             atom_positions = positions[np.where(atomic_numbers == atomic_number)]
             temp_array = np.zeros(self.bins, dtype=np.complex)
             f = periodictable.elements[atomic_number].neutron.b_c
@@ -177,6 +179,8 @@ class Fourier(object):
         positions = self.structure.get_scaled_positions()
         # Loop of atom types
         for atomic_number in unique_atomic_numbers:
+            if atomic_number == 0:
+                continue
             atom_positions = positions[np.where(atomic_numbers == atomic_number)]
             temp_array = np.zeros(self.bins, dtype=np.complex)
             f = periodictable.elements[atomic_number].neutron.b_c
