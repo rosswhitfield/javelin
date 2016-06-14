@@ -43,5 +43,5 @@ def test_save_load_xarray_to_HDF5_with_metadata(tmpdir):
     # Test load
     test_data = io.load_HDF5_to_xarray(str(filename))
     assert_array_equal(test_data.values, [1, 2, 3])
-    assert type(test_data.attrs['unit_cell']) is UnitCell
+    assert isinstance(test_data.attrs['unit_cell'], UnitCell)
     assert test_data.attrs['unit_cell'].a == 5
