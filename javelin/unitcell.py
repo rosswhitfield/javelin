@@ -58,6 +58,21 @@ class UnitCell(object):
     def __str__(self):
         return str(self.cell)
 
+    def cartesian(self, u):
+        """Return Cartesian coordinates of a lattice vector.
+
+        >>> unitcell = UnitCell(3,4,5,90,90,120)
+        >>> unitcell.cartesian([1,0,0])
+        array([  2.59807621e+00,  -1.50000000e+00,   3.25954010e-16])
+
+        A array of atoms position can also be passed
+        >>> positions = [[1,0,0], [0,0,0.5]]
+        >>> print(unitcell.cartesian(positions))
+        [[  2.59807621e+00  -1.50000000e+00   3.25954010e-16]
+         [  0.00000000e+00   0.00000000e+00   2.50000000e+00]]
+        """
+        return np.dot(u, np.asarray(self.Binv))
+
     @property
     def cell(self):
         """Return the unit cell parameters (*a*, *b*, *c*, *alpha*, *beta*,
