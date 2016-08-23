@@ -77,10 +77,14 @@ def test_UnitCell_init():
                                               [0,         5, 0],
                                               [0,         0, 6]])
 
-    assert_array_almost_equal(unitcell.cartesian([1, 0, 0]), [3.464102, -2, 0])
+    assert_array_almost_equal(unitcell.cartesian([1, 0, 0]), [[3.464102, -2, 0]])
     assert_array_almost_equal(unitcell.cartesian([[1,   0,   0],
                                                   [0.1, 0.3, 0.5]]), [[3.464102, -2, 0],
                                                                       [0.34641, 1.3, 3]])
+    assert_array_almost_equal(unitcell.fractional([3.464102, -2, 0]), [[1, 0, 0]])
+    assert_array_almost_equal(unitcell.fractional([[0, 5, 0],
+                                                   [0, 0, 3]]), [[0, 1, 0],
+                                                                 [0, 0, 0.5]])
 
     unitcell = UnitCell([5, 6, 7, 89, 92, 121])
     assert unitcell.cell == (5, 6, 7, 89, 92, 121)

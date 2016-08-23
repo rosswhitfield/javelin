@@ -63,15 +63,15 @@ class UnitCell(object):
 
         >>> unitcell = UnitCell(3,4,5,90,90,120)
         >>> unitcell.cartesian([1,0,0])
-        array([  2.59807621e+00,  -1.50000000e+00,   3.25954010e-16])
+        array([[  2.59807621e+00,  -1.50000000e+00,   3.25954010e-16]])
 
         A array of atoms position can also be passed
         >>> positions = [[1,0,0], [0,0,0.5]]
-        >>> print(unitcell.cartesian(positions))
-        [[  2.59807621e+00  -1.50000000e+00   3.25954010e-16]
-         [  0.00000000e+00   0.00000000e+00   2.50000000e+00]]
+        >>> unitcell.cartesian(positions)
+        array([[  2.59807621e+00,  -1.50000000e+00,   3.25954010e-16],
+               [  0.00000000e+00,   0.00000000e+00,   2.50000000e+00]])
         """
-        return np.dot(u, np.asarray(self.Binv))
+        return (u * self.Binv).getA()
 
     @property
     def cell(self):
@@ -112,6 +112,21 @@ class UnitCell(object):
         self.__calculateG()
         self.__calculateReciprocalLattice()
         self.__calculateB()
+
+    def fractional(self, u):
+        """Return Cartesian coordinates of a lattice vector.
+
+        >>> unitcell = UnitCell(3,4,5,90,90,120)
+        >>> unitcell.fractional([0,4,0])
+        array([[  0.00000000e+00,   1.00000000e+00,  -4.89858720e-17]])
+
+        A array of atoms position can also be passed
+        >>> positions = [[0,2,0], [0,0,5]]
+        >>> unitcell.fractional(positions)
+        array([[  0.00000000e+00,   5.00000000e-01,  -2.44929360e-17],
+               [  0.00000000e+00,   0.00000000e+00,   1.00000000e+00]])
+        """
+        return (u * self.B).getA()
 
     @property
     def G(self):
