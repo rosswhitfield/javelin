@@ -1,5 +1,5 @@
 import numpy as np
-from pandas import DataFrame, MultiIndex
+from pandas import DataFrame
 from javelin.unitcell import UnitCell
 
 
@@ -8,6 +8,17 @@ class Structure(object):
                  positions=None, cartn_positions=None,
                  rotations=False, translations=False):
 
+        if positions is not None:
+            numberOfAtoms = len(positions)
+        else:
+            numberOfAtoms = 0
+
+        if ncells is not None:
+            ncells = np.asarray(ncells)
+
+        if ncells is not None and positions is not None and ncells.prod() != numberOfAtoms:
+            raise ValueError("Product of ncells values doesn't equal length of positions")
+
         if isinstance(unitcell, UnitCell):
             self.unitcell = unitcell
         elif unitcell is None:
@@ -15,23 +26,7 @@ class Structure(object):
         else:
             self.unitcell = UnitCell(unitcell)
 
-        if ncells is not None and positions is not None and ncells.prod() != len(positions):
-            raise ValueError("Product of ncells values equal length of positions")
-
-        if ncells is None:
-            if positions is None:
-                miindex = MultiIndex(levels=[[], [], [], []],
-                                     labels=[[], [], [], []],
-                                     names=['i', 'j', 'k', 'site'])
-            else:
-                miindex = MultiIndex.from_product([0, 0, 0, range(len(positions))],
-                                                  names=['i', 'j', 'k', 'site'])
-        else:
-            miindex = MultiIndex.from_product([range(ncells[0]),
-                                               range(ncells[1]),
-                                               range(ncells[2]),
-                                               range(ncells[3])],
-                                              names=['i', 'j', 'k', 'site'])
+        miindex = get_miindex(numberOfAtoms, ncells)
 
         self.atoms = DataFrame(index=miindex,
                                columns=['Z', 'symbol',
@@ -119,6 +114,23 @@ def get_atomic_number_symbol(Z=None, symbol=None):
     return (Z, symbol)
 
 
+def axisAngle2Versor(x, y, z, angle, unit='degrees'):
+    norm = np.linalg.norm([x, y, z])
+
+    if norm == 0:
+        raise ValueError("Vector must have non-zero length")
+
+    x /= norm
+    y /= norm
+    z /= norm
+
+    if unit == 'degrees':
+        angle = np.deg2rad(angle)
+
+    sw = np.sin(angle/2)
+    return [np.cos(angle/2), x*sw, y*sw, z*sw]
+
+
 def get_rotation_matrix(l, m, n, theta, unit='degrees'):
 
     norm = np.linalg.norm([l, m, n])
@@ -138,3 +150,30 @@ def get_rotation_matrix(l, m, n, theta, unit='degrees'):
     return np.matrix([[l*l*(1-ct)+ct,   m*l*(1-ct)-n*st, n*l*(1-ct)+m*st],
                       [l*m*(1-ct)+n*st, m*m*(1-ct)+ct,   n*m*(1-ct)-l*st],
                       [l*n*(1-ct)-m*st, m*n*(1-ct)+l*st, n*n*(1-ct)+ct]]).T
+
+
+def get_rotation_matrix_from_versor(w, x, y, z):
+    return np.matrix([[1-2*y**2-2*z**2, 2*(x*y-z*w), 2*(x*z+y*w)],
+                      [2*(x*y+z*w), 1-2*x**2-2*z**2, 2*(y*z-x*w)],
+                      [2*(x*z-y*w), 2*(y*z+x*w), 1-2*x**2-2*y**2]]).T
+
+
+def get_miindex(l, ncells):
+    from pandas import MultiIndex
+
+    if ncells is None:
+        if l == 0:
+            miindex = MultiIndex(levels=[[], [], [], []],
+                                 labels=[[], [], [], []],
+                                 names=['i', 'j', 'k', 'site'])
+        else:
+            miindex = MultiIndex.from_product([0, 0, 0, range(l)],
+                                              names=['i', 'j', 'k', 'site'])
+    else:
+        miindex = MultiIndex.from_product([range(ncells[0]),
+                                           range(ncells[1]),
+                                           range(ncells[2]),
+                                           range(ncells[3])],
+                                          names=['i', 'j', 'k', 'site'])
+
+    return miindex
