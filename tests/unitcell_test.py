@@ -86,6 +86,12 @@ def test_UnitCell_init():
                                                    [0, 0, 3]]), [[0, 1, 0],
                                                                  [0, 0, 0.5]])
 
+    # test __eq__
+    assert unitcell != UnitCell()
+    assert unitcell != UnitCell(5)
+    assert unitcell == UnitCell(4, 5, 6, 90, 90, 120)
+    assert unitcell != UnitCell(6, 5, 4, 120, 90, 90)
+
     unitcell = UnitCell([5, 6, 7, 89, 92, 121])
     assert unitcell.cell == (5, 6, 7, 89, 92, 121)
     assert_array_almost_equal(unitcell.reciprocalCell,

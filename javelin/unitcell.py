@@ -55,6 +55,9 @@ class UnitCell(object):
         if args:
             self.cell = args
 
+    def __eq__(self, other):
+        return self.cell == other.cell
+
     def __str__(self):
         return str(self.cell)
 
