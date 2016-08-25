@@ -1,16 +1,19 @@
 import numpy as np
 from pandas import DataFrame
-from javelin.unitcell import UnitCell
 
 
 class Structure(object):
     def __init__(self):
-        self.unitcell = UnitCell()
+        self.unitcell = None
+
         self.atoms = DataFrame(columns=['i', 'j', 'k', 'site',
                                         'Z', 'symbol',
-                                        'rel_x', 'rel_y', 'rel_z',
-                                        'x', 'y', 'z']).set_index(['i', 'j', 'k', 'site'])
-        self.molecules = {}
+                                        'x', 'y', 'z',
+                                        'cartn_x', 'cartn_y', 'cartn_z']
+                               ).set_index(['i', 'j', 'k', 'site'])
+
+        self.rotations = None
+        self.translations = None
 
     @property
     def number_of_atoms(self):
@@ -45,12 +48,18 @@ class Structure(object):
         Z, symbol = get_atomic_number_symbol(Z, symbol)
         if position is None:
             raise ValueError("position not provided")
-        position_x = position[0] + i
-        position_y = position[1] + j
-        position_z = position[2] + k
+        if self.unitcell is None:
+            cartn = position
+        else:
+            cartn = self.unitcell.cartesian(position)
+
         self.atoms.loc[i, j, k, site] = [Z, symbol,
                                          position[0], position[1], position[2],
-                                         position_x, position_y, position_z]
+                                         cartn[0], cartn[1], cartn[2]]
+
+    def _recalculate_cartn(self):
+        self.atoms[['cartn_x', 'cartn_y', 'cartn_z']] = self.unitcell.cartesian(
+            self.atoms[['x', 'y', 'z']].values)
 
 
 def get_atomic_number_symbol(Z=None, symbol=''):
@@ -69,3 +78,24 @@ def get_atomic_number_symbol(Z=None, symbol=''):
         elif Z is not z:
             raise ValueError("symbol and Z don't match")
     return (Z, symbol)
+
+
+def get_rotation_matrix(l, m, n, theta, unit='degrees'):
+
+    norm = np.linalg.norm([l, m, n])
+
+    if norm == 0:
+        raise ValueError("Rotation vector must have non-zero length")
+
+    l /= norm
+    m /= norm
+    n /= norm
+
+    if unit == 'degrees':
+        theta = np.deg2rad(theta)
+
+    ct = np.cos(theta)
+    st = np.sin(theta)
+    return np.matrix([[l*l*(1-ct)+ct,   m*l*(1-ct)-n*st, n*l*(1-ct)+m*st],
+                      [l*m*(1-ct)+n*st, m*m*(1-ct)+ct,   n*m*(1-ct)-l*st],
+                      [l*n*(1-ct)-m*st, m*n*(1-ct)+l*st, n*n*(1-ct)+ct]]).T
