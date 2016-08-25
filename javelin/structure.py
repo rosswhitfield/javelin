@@ -1,19 +1,54 @@
 import numpy as np
-from pandas import DataFrame
+from pandas import DataFrame, MultiIndex
+from javelin.unitcell import UnitCell
 
 
 class Structure(object):
-    def __init__(self):
-        self.unitcell = None
+    def __init__(self, symbols=None, numbers=None, unitcell=None, ncells=None,
+                 positions=None, cartn_positions=None,
+                 rotations=False, translations=False):
 
-        self.atoms = DataFrame(columns=['i', 'j', 'k', 'site',
-                                        'Z', 'symbol',
+        if isinstance(unitcell, UnitCell):
+            self.unitcell = unitcell
+        elif unitcell is None:
+            self.unitcell = UnitCell()
+        else:
+            self.unitcell = UnitCell(unitcell)
+
+        if ncells is not None and positions is not None and ncells.prod() != len(positions):
+            raise ValueError("Product of ncells values equal length of positions")
+
+        if ncells is None:
+            if positions is None:
+                miindex = MultiIndex(levels=[[], [], [], []],
+                                     labels=[[], [], [], []],
+                                     names=['i', 'j', 'k', 'site'])
+            else:
+                miindex = MultiIndex.from_product([0, 0, 0, range(len(positions))],
+                                                  names=['i', 'j', 'k', 'site'])
+        else:
+            miindex = MultiIndex.from_product([range(ncells[0]),
+                                               range(ncells[1]),
+                                               range(ncells[2]),
+                                               range(ncells[3])],
+                                              names=['i', 'j', 'k', 'site'])
+
+        self.atoms = DataFrame(index=miindex,
+                               columns=['Z', 'symbol',
                                         'x', 'y', 'z',
-                                        'cartn_x', 'cartn_y', 'cartn_z']
-                               ).set_index(['i', 'j', 'k', 'site'])
+                                        'cartn_x', 'cartn_y', 'cartn_z'])
 
-        self.rotations = None
-        self.translations = None
+        if rotations:
+            self.rotations = DataFrame(index=miindex.droplevel(3),
+                                       columns=['w', 'x', 'y', 'z'])
+        else:
+            self.rotations = None
+
+        if translations:
+            self.translations = DataFrame(index=miindex.droplevel(3),
+                                          columns=['x', 'y', 'z'])
+        else:
+            self.translations = None
 
     @property
     def number_of_atoms(self):
@@ -48,24 +83,28 @@ class Structure(object):
         Z, symbol = get_atomic_number_symbol(Z, symbol)
         if position is None:
             raise ValueError("position not provided")
-        if self.unitcell is None:
-            cartn = position
-        else:
-            cartn = self.unitcell.cartesian(position)
+
+        cartn = self.unitcell.cartesian(position)
 
         self.atoms.loc[i, j, k, site] = [Z, symbol,
                                          position[0], position[1], position[2],
                                          cartn[0], cartn[1], cartn[2]]
+
+        if self.rotations is not None:
+            self.rotations[i, j, k] = [1, 0, 0, 0]
+
+        if self.translations is not None:
+            self.translations[i, j, k] = [0, 0, 0]
 
     def _recalculate_cartn(self):
         self.atoms[['cartn_x', 'cartn_y', 'cartn_z']] = self.unitcell.cartesian(
             self.atoms[['x', 'y', 'z']].values)
 
 
-def get_atomic_number_symbol(Z=None, symbol=''):
+def get_atomic_number_symbol(Z=None, symbol=None):
     import periodictable
 
-    if symbol is '':
+    if symbol is None:
         if Z is None:
             raise ValueError("symbol and/or Z number not given")
         else:
