@@ -74,7 +74,7 @@ class Structure(object):
                          self.atoms.y.values * self.unitcell.b,
                          self.atoms.z.values * self.unitcell.c]).T
 
-    def add_atom(self, i=0, j=0, k=0, site=0, Z=None, symbol='', position=None):
+    def add_atom(self, i=0, j=0, k=0, site=0, Z=None, symbol=None, position=None):
         Z, symbol = get_atomic_number_symbol(Z, symbol)
         if position is None:
             raise ValueError("position not provided")
@@ -97,16 +97,16 @@ class Structure(object):
 
 
 def get_atomic_number_symbol(Z=None, symbol=None):
-    import periodictable
+    from periodictable import elements
 
     if symbol is None:
         if Z is None:
             raise ValueError("symbol and/or Z number not given")
         else:
-            symbol = periodictable.elements[Z].symbol
+            symbol = elements[Z].symbol
     else:
         symbol = symbol.capitalize()
-        z = periodictable.elements.symbol(symbol).number
+        z = elements.symbol(symbol).number
         if Z is None:
             Z = z
         elif Z is not z:
