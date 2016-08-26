@@ -4,7 +4,7 @@ from javelin.unitcell import UnitCell
 
 
 class Structure(object):
-    def __init__(self, symbols=None, numbers=None, unitcell=None, ncells=None,
+    def __init__(self, symbols=None, numbers=None, unitcell=1, ncells=None,
                  positions=None, cartn_positions=None,
                  rotations=False, translations=False):
 
@@ -21,8 +21,6 @@ class Structure(object):
 
         if isinstance(unitcell, UnitCell):
             self.unitcell = unitcell
-        elif unitcell is None:
-            self.unitcell = UnitCell()
         else:
             self.unitcell = UnitCell(unitcell)
 
@@ -32,6 +30,10 @@ class Structure(object):
                                columns=['Z', 'symbol',
                                         'x', 'y', 'z',
                                         'cartn_x', 'cartn_y', 'cartn_z'])
+
+        self.atoms[['x', 'y', 'z']] = positions
+
+        self.atoms.Z, self.atoms.symbol = get_atomic_number_symbol(Z=numbers, symbol=symbols)
 
         if rotations:
             self.rotations = DataFrame(index=miindex.droplevel(3),
@@ -44,6 +46,8 @@ class Structure(object):
                                           columns=['x', 'y', 'z'])
         else:
             self.translations = None
+
+        self._recalculate_cartn()
 
     @property
     def number_of_atoms(self):
@@ -91,13 +95,13 @@ class Structure(object):
         return self.xyz_cartn
 
     def add_atom(self, i=0, j=0, k=0, site=0, Z=None, symbol=None, position=None):
-        Z, symbol = get_atomic_number_symbol(Z, symbol)
+        Z, symbol = get_atomic_number_symbol([Z], [symbol])
         if position is None:
             raise ValueError("position not provided")
 
         cartn = self.unitcell.cartesian(position)[0]
 
-        self.atoms.loc[i, j, k, site] = [Z, symbol,
+        self.atoms.loc[i, j, k, site] = [Z[0], symbol[0],
                                          position[0], position[1], position[2],
                                          cartn[0], cartn[1], cartn[2]]
 
@@ -117,16 +121,20 @@ def get_atomic_number_symbol(Z=None, symbol=None):
 
     if symbol is None:
         if Z is None:
-            raise ValueError("symbol and/or Z number not given")
+            return (None, None)
         else:
-            symbol = elements[Z].symbol
+            Z = np.asarray(Z)
+            length = len(Z)
+            symbol = np.empty(length, dtype='<U2')
+            for i in range(length):
+                symbol[i] = elements[Z[i]].symbol
     else:
-        symbol = symbol.capitalize()
-        z = elements.symbol(symbol).number
-        if Z is None:
-            Z = z
-        elif Z is not z:
-            raise ValueError("symbol and Z don't match")
+        symbol = np.asarray(symbol)
+        length = len(symbol)
+        Z = np.empty(length, dtype=np.int64)
+        for i in range(length):
+            symbol[i] = symbol[i].capitalize()
+            Z[i] = elements.symbol(symbol[i]).number
     return (Z, symbol)
 
 
