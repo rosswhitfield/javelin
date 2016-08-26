@@ -49,6 +49,26 @@ class Structure(object):
     def number_of_atoms(self):
         return len(self.atoms)
 
+    @property
+    def xyz(self):
+        return self.atoms[['x', 'y', 'z']].values
+
+    @property
+    def x(self):
+        return self.atoms.x.values
+
+    @property
+    def y(self):
+        return self.atoms.y.values
+
+    @property
+    def z(self):
+        return self.atoms.z.values
+
+    @property
+    def xyz_cartn(self):
+        return self.atoms[['cartn_x', 'cartn_y', 'cartn_z']].values
+
     def get_atom_symbols(self):
         return self.atoms.symbol.unique()
 
@@ -65,14 +85,10 @@ class Structure(object):
         return self.atoms.symbol.values
 
     def get_scaled_positions(self):
-        return np.array([self.atoms.x.values,
-                         self.atoms.y.values,
-                         self.atoms.z.values]).T
+        return self.xyz
 
     def get_positions(self):
-        return np.array([self.atoms.x.values * self.unitcell.a,
-                         self.atoms.y.values * self.unitcell.b,
-                         self.atoms.z.values * self.unitcell.c]).T
+        return self.xyz_cartn
 
     def add_atom(self, i=0, j=0, k=0, site=0, Z=None, symbol=None, position=None):
         Z, symbol = get_atomic_number_symbol(Z, symbol)
