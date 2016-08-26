@@ -79,7 +79,7 @@ class Structure(object):
         if position is None:
             raise ValueError("position not provided")
 
-        cartn = self.unitcell.cartesian(position)
+        cartn = self.unitcell.cartesian(position)[0]
 
         self.atoms.loc[i, j, k, site] = [Z, symbol,
                                          position[0], position[1], position[2],
