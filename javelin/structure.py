@@ -31,9 +31,10 @@ class Structure(object):
                                         'x', 'y', 'z',
                                         'cartn_x', 'cartn_y', 'cartn_z'])
 
-        self.atoms[['x', 'y', 'z']] = positions
-
         self.atoms.Z, self.atoms.symbol = get_atomic_number_symbol(Z=numbers, symbol=symbols)
+
+        positions = np.asarray(positions)
+        self.atoms[['x', 'y', 'z']] = positions
 
         if rotations:
             self.rotations = DataFrame(index=miindex.droplevel(3),

@@ -159,19 +159,31 @@ def read_stru(filename, starting_cell=[1, 1, 1]):
     print("Found a = {}, b = {}, c = {}, alpha = {}, beta = {}, gamma = {}"
           .format(a, b, c, alpha, beta, gamma))
 
-    xyz = np.array([x, y, z], dtype=np.float64)
+    x = np.array(x)
+    y = np.array(y)
+    z = np.array(z)
+    symbols = np.array(symbols)
 
     if ncell is not None:
-        xyz[0] -= np.tile(np.repeat(np.array(range(ncell[0])),
-                                    ncell[3]), ncell[1]*ncell[2]) + starting_cell[0]
-        xyz[1] -= np.tile(np.repeat(np.array(range(ncell[1])),
-                                    ncell[0]*ncell[3]), ncell[2]) + starting_cell[1]
-        xyz[2] -= np.repeat(np.array(range(ncell[2])),
-                            ncell[0]*ncell[1]*ncell[3]) + starting_cell[2]
+        x -= np.tile(np.repeat(np.array(range(ncell[0])),
+                               ncell[3]), ncell[1]*ncell[2]) + starting_cell[0]
+        y -= np.tile(np.repeat(np.array(range(ncell[1])),
+                               ncell[0]*ncell[3]), ncell[2]) + starting_cell[1]
+        z -= np.repeat(np.array(range(ncell[2])),
+                       ncell[0]*ncell[1]*ncell[3]) + starting_cell[2]
+
+    # reorder atom arrays, discus stru files have x increment fastest
+    # and z slowest, javelin is the opposite
+    x = x.reshape(ncell).transpose((2, 1, 0, 3)).flatten()
+    y = y.reshape(ncell).transpose((2, 1, 0, 3)).flatten()
+    z = z.reshape(ncell).transpose((2, 1, 0, 3)).flatten()
+    symbols = symbols.reshape(ncell).transpose((2, 1, 0, 3)).flatten()
+
+    xyz = np.array((x, y, z)).T
 
     structure = Structure(unitcell=(a, b, c, alpha, beta, gamma),
                           symbols=symbols,
-                          positions=xyz.T,
+                          positions=xyz,
                           ncells=ncell)
 
     print("Read in these atoms:")
