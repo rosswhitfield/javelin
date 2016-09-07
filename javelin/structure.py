@@ -112,6 +112,39 @@ class Structure(object):
         if self.translations is not None:
             self.translations[i, j, k] = [0, 0, 0]
 
+    def repeat(self, rep):
+        """Repeat the cells a number of time along each dimension
+
+        *rep* argument should be either three value like *(1,2,3)* or
+        a single value *r* equivalent to *(r,r,r)*."""
+
+        if isinstance(rep, int):
+            rep = np.array((rep, rep, rep, 1))
+        else:
+            rep = np.append(rep, 1)
+
+        ncells = np.array(self.atoms.index.max()) + 1
+
+        x = np.tile(np.reshape(self.x, ncells), rep).flatten()
+        y = np.tile(np.reshape(self.y, ncells), rep).flatten()
+        z = np.tile(np.reshape(self.z, ncells), rep).flatten()
+        Z = np.tile(np.reshape(self.get_atomic_numbers(), ncells), rep).flatten()
+
+        miindex = get_miindex(0, ncells * rep)
+
+        self.atoms = DataFrame(index=miindex,
+                               columns=['Z', 'symbol',
+                                        'x', 'y', 'z',
+                                        'cartn_x', 'cartn_y', 'cartn_z'])
+
+        self.atoms.Z, self.atoms.symbol = get_atomic_number_symbol(Z=Z)
+
+        self.atoms.x = x
+        self.atoms.y = y
+        self.atoms.z = z
+
+        self._recalculate_cartn()
+
     def _recalculate_cartn(self):
         self.atoms[['cartn_x', 'cartn_y', 'cartn_z']] = self.unitcell.cartesian(
             self.atoms[['x', 'y', 'z']].values)
