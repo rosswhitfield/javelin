@@ -153,9 +153,15 @@ class Structure(object):
 def get_atomic_number_symbol(Z=None, symbol=None):
     from periodictable import elements
 
-    if symbol is None:
-        if Z is None:
-            return (None, None)
+    if isinstance(Z, int):
+        Z = [Z]
+
+    if isinstance(symbol, str):
+        symbol = [symbol]
+
+    if np.count_nonzero(symbol) == 0:
+        if np.count_nonzero(Z) == 0:
+            raise ValueError("Need to provide list of either Z's or symbols.")
         else:
             Z = np.asarray(Z)
             length = len(Z)
