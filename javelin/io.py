@@ -120,6 +120,11 @@ def load_HDF5_to_xarray(filename):
 
 
 def read_stru(filename, starting_cell=[1, 1, 1]):
+    """Read in a .stru file saved from DISCUS into a javelin Structure
+
+    If the line ncell is not present in the file all the atoms will be
+    read into a single cell."""
+
     from javelin.structure import Structure
     import numpy as np
 
@@ -140,9 +145,9 @@ def read_stru(filename, starting_cell=[1, 1, 1]):
         line = l.replace(',', ' ').split()
         if not reading_atom_list:  # Wait for 'atoms' line before reading atoms
             if line[0] == 'cell':
-                a, b, c, alpha, beta, gamma = [float(x) for x in line[1:7]]
+                a, b, c, alpha, beta, gamma = [float(word) for word in line[1:7]]
             elif line[0] == 'ncell':
-                ncell = [int(x) for x in line[1:5]]
+                ncell = [int(word) for word in line[1:5]]
             elif line[0] == 'atoms':
                 if a == 0:
                     print("Cell not found")
@@ -152,16 +157,16 @@ def read_stru(filename, starting_cell=[1, 1, 1]):
         else:
             symbol, xx, yy, zz = line[:4]
             symbols.append(symbol)
-            x.append(float(xx))
-            y.append(float(yy))
-            z.append(float(zz))
+            x.append(xx)
+            y.append(yy)
+            z.append(zz)
 
     print("Found a = {}, b = {}, c = {}, alpha = {}, beta = {}, gamma = {}"
           .format(a, b, c, alpha, beta, gamma))
 
-    x = np.array(x)
-    y = np.array(y)
-    z = np.array(z)
+    x = np.array(x, dtype=np.float64)
+    y = np.array(y, dtype=np.float64)
+    z = np.array(z, dtype=np.float64)
     symbols = np.array(symbols)
 
     if ncell is not None:
@@ -172,12 +177,12 @@ def read_stru(filename, starting_cell=[1, 1, 1]):
         z -= np.repeat(np.array(range(ncell[2])),
                        ncell[0]*ncell[1]*ncell[3]) + starting_cell[2]
 
-    # reorder atom arrays, discus stru files have x increment fastest
-    # and z slowest, javelin is the opposite
-    x = x.reshape(ncell).transpose((2, 1, 0, 3)).flatten()
-    y = y.reshape(ncell).transpose((2, 1, 0, 3)).flatten()
-    z = z.reshape(ncell).transpose((2, 1, 0, 3)).flatten()
-    symbols = symbols.reshape(ncell).transpose((2, 1, 0, 3)).flatten()
+        # reorder atom arrays, discus stru files have x increment fastest
+        # and z slowest, javelin is the opposite
+        x = x.reshape(ncell).transpose((2, 1, 0, 3)).flatten()
+        y = y.reshape(ncell).transpose((2, 1, 0, 3)).flatten()
+        z = z.reshape(ncell).transpose((2, 1, 0, 3)).flatten()
+        symbols = symbols.reshape(ncell).transpose((2, 1, 0, 3)).flatten()
 
     xyz = np.array((x, y, z)).T
 

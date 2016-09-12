@@ -147,7 +147,10 @@ class Structure(object):
 
     def _recalculate_cartn(self):
         self.atoms[['cartn_x', 'cartn_y', 'cartn_z']] = self.unitcell.cartesian(
-            self.atoms[['x', 'y', 'z']].values)
+            self.atoms[['x', 'y', 'z']].values +
+            np.asarray([self.atoms.index.get_level_values(0).values,
+                        self.atoms.index.get_level_values(1).values,
+                        self.atoms.index.get_level_values(2).values]).T)
 
 
 def get_atomic_number_symbol(Z=None, symbol=None):
