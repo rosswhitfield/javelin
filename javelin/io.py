@@ -97,11 +97,11 @@ def save_xarray_to_HDF5(dataArray, filename, complib=None):
 
     complib : {'zlib', 'bzip2', 'lzo', 'blosc', None}, default None"""
     from pandas import HDFStore
-    file = HDFStore(filename, mode='w', complib=complib)
-    file.put('data', dataArray.to_pandas())
+    f = HDFStore(filename, mode='w', complib=complib)
+    f.put('data', dataArray.to_pandas())
     if len(dataArray.attrs) > 0:
-        file.get_storer('data').attrs.metadata = dataArray.attrs
-    file.close()
+        f.get_storer('data').attrs.metadata = dataArray.attrs
+    f.close()
 
 
 def load_HDF5_to_xarray(filename):
@@ -110,10 +110,10 @@ def load_HDF5_to_xarray(filename):
     requries pytables"""
     from pandas import HDFStore
     from xarray import DataArray
-    with HDFStore(filename) as file:
-        data = file['data']
-        if 'metadata' in file.get_storer('data').attrs:
-            metadata = file.get_storer('data').attrs.metadata
+    with HDFStore(filename) as f:
+        data = f['data']
+        if 'metadata' in f.get_storer('data').attrs:
+            metadata = f.get_storer('data').attrs.metadata
         else:
             metadata = None
     return DataArray(data, attrs=metadata)
