@@ -37,3 +37,4 @@ py.test --doctest-modules javelin
 [![Codacy Badge](https://api.codacy.com/project/badge/grade/1d159bdd70ee4705b8e73238e59cc841)](https://www.codacy.com/app/whitfieldre/javelin)
 [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/rosswhitfield/javelin/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/rosswhitfield/javelin/?branch=master)
 [![Code Issues](https://www.quantifiedcode.com/api/v1/project/b9400bc9e65144499231b2137856ce35/badge.svg)](https://www.quantifiedcode.com/app/project/b9400bc9e65144499231b2137856ce35)
+[![Code Health](https://landscape.io/github/rosswhitfield/javelin/master/landscape.svg?style=flat)](https://landscape.io/github/rosswhitfield/javelin/master)
