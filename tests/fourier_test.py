@@ -7,11 +7,11 @@ def test_Fourier_init():
     four = Fourier()
     assert four.radiation == 'neutrons'
     assert four.structure is None
-    assert four.bins == (101, 101)
-    assert_array_equal(four.ll, [0.0, 0.0, 0.0])
-    assert_array_equal(four.lr, [1.0, 0.0, 0.0])
-    assert_array_equal(four.ul, [0.0, 1.0, 0.0])
-    assert_array_equal(four.tl, [0.0, 0.0, 0.0])
+    assert four.grid.bins == (101, 101)
+    assert_array_equal(four.grid.ll, [0.0, 0.0, 0.0])
+    assert_array_equal(four.grid.lr, [1.0, 0.0, 0.0])
+    assert_array_equal(four.grid.ul, [0.0, 1.0, 0.0])
+    assert_array_equal(four.grid.tl, [0.0, 0.0, 1.0])
 
 
 def test_Fourier_ASE_single_atom():
@@ -19,8 +19,8 @@ def test_Fourier_ASE_single_atom():
     from ase import Atoms
     atom = Atoms('C2', positions=[(0, 0, 0), (1, 0, 0)])
     four = Fourier()
-    four.bins = [21, 2]
-    four.lr = [2.0, 0.0, 0.0]
+    four.grid.bins = [21, 2]
+    four.grid.lr = [2.0, 0.0, 0.0]
     four.structure = atom
     results = four.calculate()
     expected_result = [1.76804890e+02,   1.59921526e+02,   1.15720303e+02,
@@ -40,12 +40,12 @@ def test_Foutier_ASE_C_Ring():
     from ase.structure import nanotube
     cnt = nanotube(3, 3, length=1, bond=1.4)
     four = Fourier()
-    four.bins = [6, 6, 2]
+    four.grid.bins = [6, 6, 2]
     four.structure = cnt
-    four.ll = [0.0, 0.0, 0.0]
-    four.lr = [2.0, 0.0, 0.0]
-    four.ul = [0.0, 2.0, 0.0]
-    four.tl = [0.0, 0.0, 0.5]
+    four.grid.ll = [0.0, 0.0, 0.0]
+    four.grid.lr = [2.0, 0.0, 0.0]
+    four.grid.ul = [0.0, 2.0, 0.0]
+    four.grid.tl = [0.0, 0.0, 0.5]
     results = four.calculate()
     expected_result = [[[6.36497605e+03,   3.18248802e+03],
                         [5.19826149e+03,   2.62430530e+03],
