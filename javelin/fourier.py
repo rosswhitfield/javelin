@@ -90,17 +90,17 @@ class Fourier(object):
 
     def create_xarray_dataarray(self, values):
         import xarray as xr
-        if self.grid._2D:
+        if self.grid.twoD:
             return xr.DataArray(data=values,
                                 name="Intensity",
                                 dims=("Q1", "Q2"),
-                                coords=(self.grid._r1, self.grid._r2),
+                                coords=(self.grid.r1, self.grid.r2),
                                 attrs=(("radiation", self._radiation),
                                        ("units", self.grid.units)))
         else:
             return xr.DataArray(data=values,
                                 name="Intensity",
                                 dims=("Q1", "Q2", "Q3"),
-                                coords=(self.grid._r1, self.grid._r2, self.grid._r3),
+                                coords=(self.grid.r1, self.grid.r2, self.grid.r3),
                                 attrs=(("radiation", self._radiation),
                                        ("units", self.grid.units)))

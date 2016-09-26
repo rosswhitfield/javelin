@@ -8,26 +8,22 @@ import numpy as np
 
 
 class Grid(object):
-    def __init__(self, ll=None, lr=None, ul=None, tl=None, bins=None):
+    def __init__(self,
+                 ll=(0.0, 0.0, 0.0),
+                 lr=(1.0, 0.0, 0.0),
+                 ul=(0.0, 1.0, 0.0),
+                 tl=(0.0, 0.0, 1.0),
+                 bins=(101, 101)):
         # User providied information
-        self._vertices = {'ll': np.array([0.0, 0.0, 0.0]),  # lower left
-                          'lr': np.array([1.0, 0.0, 0.0]),  # lower right
-                          'ul': np.array([0.0, 1.0, 0.0]),  # upper left
-                          'tl': np.array([0.0, 0.0, 1.0])}  # top left
-        self._n1 = 101  # abscissa  (lr - ll)
-        self._n2 = 101  # ordinate  (ul - ll)
-        self._n3 = 1    # applicate (tl - ll)
+        self._vertices = {'ll': np.array(ll),  # lower left
+                          'lr': np.array(lr),  # lower right
+                          'ul': np.array(ul),  # upper left
+                          'tl': np.array(tl)}  # top left
 
         # Calculated grid info
-        self._origin = np.array([0, 0, 0])
-        self._v1 = np.array([1, 0, 0])
-        self._v2 = np.array([0, 1, 0])
-        self._v3 = np.array([0, 0, 1])
-        self._r1 = np.linspace(0, 1, 101)
-        self._r2 = np.linspace(0, 1, 101)
-        self._r3 = np.array([0])
-        self._dims = 2
-        self._2D = True
+        self.bins = bins
+        self.__vertices_to_vectors()
+
         self._unitcell = None
         self.units = 'r.l.u'
 
@@ -46,18 +42,22 @@ class Grid(object):
         if len(dims) == 2:
             self._dims = 2
             self._2D = True
-            self._n1 = dims[0]
-            self._n2 = dims[1]
+            self._n1 = dims[0]  # abscissa  (lr - ll)
+            self._n2 = dims[1]  # ordinate  (ul - ll)
             self._n3 = 1
         elif len(dims) == 3:
             self._dims = 3
             self._2D = False
-            self._n1 = dims[0]
-            self._n2 = dims[1]
-            self._n3 = dims[2]
+            self._n1 = dims[0]  # abscissa  (lr - ll)
+            self._n2 = dims[1]  # ordinate  (ul - ll)
+            self._n3 = dims[2]  # applicate (tl - ll)
         else:
             raise ValueError("Must provide 2 or 3 dimensions")
         self.__vertices_to_vectors()
+
+    @property
+    def twoD(self):
+        return self._2D
 
     @property
     def ll(self):
@@ -103,6 +103,30 @@ class Grid(object):
         self._vertices['tl'] = np.asarray(tl)
         self.__vertices_to_vectors()
 
+    @property
+    def v1(self):
+        return self._v1
+
+    @property
+    def v2(self):
+        return self._v2
+
+    @property
+    def v3(self):
+        return self._v3
+
+    @property
+    def r1(self):
+        return self._r1
+
+    @property
+    def r2(self):
+        return self._r2
+
+    @property
+    def r3(self):
+        return self._r3
+
     def __validate_vectors(self):
         vertices = ['lr', 'ul'] if self._2D else ['lr', 'ul', 'tl']
         vector_dict = {}
@@ -127,21 +151,21 @@ class Grid(object):
         self._v3 = np.array([0, 0, 1]) if self._2D else norm(self._vertices['tl'] -
                                                              self._vertices['ll'])
         self._r1 = np.linspace(0,
-                               length(self._vertices['lr']-self._vertices['ll'])/length(self._v1),
+                               length(self._vertices['lr']-self._vertices['ll'])/length(self.v1),
                                self._n1)
         self._r2 = np.linspace(0,
-                               length(self._vertices['ul']-self._vertices['ll'])/length(self._v2),
+                               length(self._vertices['ul']-self._vertices['ll'])/length(self.v2),
                                self._n2)
         self._r3 = np.array([0]) if self._2D else np.linspace(0,
                                                               length(self._vertices['tl'] -
                                                                      self._vertices['ll']) /
-                                                              length(self._v3),
+                                                              length(self.v3),
                                                               self._n3)
 
     def get_axis_names(self):
-        return (str(self._origin) + str(' + x') + str(self._v1),
-                str(self._origin) + str(' + y') + str(self._v2),
-                str(self._origin) + str(' + z') + str(self._v3))
+        return (str(self._origin) + str(' + x') + str(self.v1),
+                str(self._origin) + str(' + y') + str(self.v2),
+                str(self._origin) + str(' + z') + str(self.v3))
 
     def get_k_meshgrid(self):
         self.__validate_vectors()
@@ -165,12 +189,11 @@ class Grid(object):
 
     def get_squashed_k_meshgrid(self):
         self.__validate_vectors()
-        bins = self.bins
-        dx = (self.lr - self.ll)/(bins[0]-1)
-        dy = (self.ul - self.ll)/(bins[1]-1)
-        kx_bins = get_bin_number(self._v1, self._v2, self._v3, self.bins, 0)
-        ky_bins = get_bin_number(self._v1, self._v2, self._v3, self.bins, 1)
-        kz_bins = get_bin_number(self._v1, self._v2, self._v3, self.bins, 2)
+        dx = (self.lr - self.ll)/(self._n1-1)
+        dy = (self.ul - self.ll)/(self._n2-1)
+        kx_bins = get_bin_number(self.v1, self.v2, self.v3, self.bins, 0)
+        ky_bins = get_bin_number(self.v1, self.v2, self.v3, self.bins, 1)
+        kz_bins = get_bin_number(self.v1, self.v2, self.v3, self.bins, 2)
         kx = np.zeros(kx_bins)
         ky = np.zeros(ky_bins)
         kz = np.zeros(kz_bins)
@@ -185,7 +208,7 @@ class Grid(object):
             y = np.arange(kz_bins[1]).reshape((1, kz_bins[1]))
             kz = self.ll[2] + x*dx[2] + y*dy[2]
         else:
-            dz = (self.tl - self.ll)/(bins[2]-1)
+            dz = (self.tl - self.ll)/(self._n3-1)
             x = np.arange(kx_bins[0]).reshape((kx_bins[0], 1, 1))
             y = np.arange(kx_bins[1]).reshape((1, kx_bins[1], 1))
             z = np.arange(kx_bins[2]).reshape((1, 1, kx_bins[2]))
