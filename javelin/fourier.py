@@ -33,10 +33,10 @@ class Fourier(object):
     def calculate(self):
         """Returns a Data object"""
         output_array = np.zeros(self.grid.bins, dtype=np.complex)
-        kx, ky, kz = self.grid.get_k_meshgrid()
-        kx *= (2*np.pi)
-        ky *= (2*np.pi)
-        kz *= (2*np.pi)
+        qx, qk, qz = self.grid.get_q_meshgrid()
+        qx *= (2*np.pi)
+        qk *= (2*np.pi)
+        qz *= (2*np.pi)
         # Get unique list of atomic numbers
         atomic_numbers = self.structure.get_atomic_numbers()
         unique_atomic_numbers = np.unique(atomic_numbers)
@@ -52,7 +52,7 @@ class Fourier(object):
             print("Working on atom number", atomic_number, "Total atoms:", len(atom_positions))
             # Loop over atom positions of type atomic_number
             for atom in atom_positions:
-                dot = kx*atom[0] + ky*atom[1] + kz*atom[2]
+                dot = qx*atom[0] + qk*atom[1] + qz*atom[2]
                 temp_array += np.exp(dot*1j)
             output_array += temp_array * f  # scale by form factor
         results = np.real(output_array*np.conj(output_array))
@@ -61,10 +61,10 @@ class Fourier(object):
     def calculate_fast(self):
         """Returns a Data object"""
         output_array = np.zeros(self.grid.bins, dtype=np.complex)
-        kx, ky, kz = self.grid.get_squashed_k_meshgrid()
-        kx *= (2*np.pi)
-        ky *= (2*np.pi)
-        kz *= (2*np.pi)
+        qx, qk, qz = self.grid.get_squashed_q_meshgrid()
+        qx *= (2*np.pi)
+        qk *= (2*np.pi)
+        qz *= (2*np.pi)
         # Get unique list of atomic numbers
         atomic_numbers = self.structure.get_atomic_numbers()
         unique_atomic_numbers = np.unique(atomic_numbers)
@@ -80,9 +80,9 @@ class Fourier(object):
             print("Working on atom number", atomic_number, "Total atoms:", len(atom_positions))
             # Loop over atom positions of type atomic_number
             for atom in atom_positions:
-                dotx = np.exp(kx*atom[0]*1j)
-                doty = np.exp(ky*atom[1]*1j)
-                dotz = np.exp(kz*atom[2]*1j)
+                dotx = np.exp(qx*atom[0]*1j)
+                doty = np.exp(qk*atom[1]*1j)
+                dotz = np.exp(qz*atom[2]*1j)
                 temp_array += dotx * doty * dotz
             output_array += temp_array * f  # scale by form factor
         results = np.real(output_array*np.conj(output_array))

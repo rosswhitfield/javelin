@@ -167,61 +167,61 @@ class Grid(object):
                 str(self._origin) + str(' + y') + str(self.v2),
                 str(self._origin) + str(' + z') + str(self.v3))
 
-    def get_k_meshgrid(self):
+    def get_q_meshgrid(self):
         self.__validate_vectors()
         dx = (self.lr - self.ll)/(self._n1-1)
         dy = (self.ul - self.ll)/(self._n2-1)
         x = np.arange(self._n1).reshape((self._n1, 1))
         y = np.arange(self._n2).reshape((1, self._n2))
         if self._2D:
-            kx = self.ll[0] + x*dx[0] + y*dy[0]
-            ky = self.ll[1] + x*dx[1] + y*dy[1]
-            kz = self.ll[2] + x*dx[2] + y*dy[2]
+            qx = self.ll[0] + x*dx[0] + y*dy[0]
+            qy = self.ll[1] + x*dx[1] + y*dy[1]
+            qz = self.ll[2] + x*dx[2] + y*dy[2]
         else:  # assume _dims == 3
             x.shape = (self._n1, 1, 1)
             y.shape = (1, self._n2, 1)
             z = np.arange(self._n3).reshape((1, 1, self._n3))
             dz = (self.tl - self.ll)/(self._n3-1)
-            kx = self.ll[0] + x*dx[0] + y*dy[0] + z*dz[0]
-            ky = self.ll[1] + x*dx[1] + y*dy[1] + z*dz[1]
-            kz = self.ll[2] + x*dx[2] + y*dy[2] + z*dz[2]
-        return kx, ky, kz
+            qx = self.ll[0] + x*dx[0] + y*dy[0] + z*dz[0]
+            qy = self.ll[1] + x*dx[1] + y*dy[1] + z*dz[1]
+            qz = self.ll[2] + x*dx[2] + y*dy[2] + z*dz[2]
+        return qx, qy, qz
 
-    def get_squashed_k_meshgrid(self):
+    def get_squashed_q_meshgrid(self):
         self.__validate_vectors()
         dx = (self.lr - self.ll)/(self._n1-1)
         dy = (self.ul - self.ll)/(self._n2-1)
-        kx_bins = get_bin_number(self.v1, self.v2, self.v3, self.bins, 0)
-        ky_bins = get_bin_number(self.v1, self.v2, self.v3, self.bins, 1)
-        kz_bins = get_bin_number(self.v1, self.v2, self.v3, self.bins, 2)
-        kx = np.zeros(kx_bins)
-        ky = np.zeros(ky_bins)
-        kz = np.zeros(kz_bins)
+        qx_bins = get_bin_number(self.v1, self.v2, self.v3, self.bins, 0)
+        qy_bins = get_bin_number(self.v1, self.v2, self.v3, self.bins, 1)
+        qz_bins = get_bin_number(self.v1, self.v2, self.v3, self.bins, 2)
+        qx = np.zeros(qx_bins)
+        qy = np.zeros(qy_bins)
+        qz = np.zeros(qz_bins)
         if self._2D:
-            x = np.arange(kx_bins[0]).reshape((kx_bins[0], 1))
-            y = np.arange(kx_bins[1]).reshape((1, kx_bins[1]))
-            kx = self.ll[0] + x*dx[0] + y*dy[0]
-            x = np.arange(ky_bins[0]).reshape((ky_bins[0], 1))
-            y = np.arange(ky_bins[1]).reshape((1, ky_bins[1]))
-            ky = self.ll[1] + x*dx[1] + y*dy[1]
-            x = np.arange(kz_bins[0]).reshape((kz_bins[0], 1))
-            y = np.arange(kz_bins[1]).reshape((1, kz_bins[1]))
-            kz = self.ll[2] + x*dx[2] + y*dy[2]
+            x = np.arange(qx_bins[0]).reshape((qx_bins[0], 1))
+            y = np.arange(qx_bins[1]).reshape((1, qx_bins[1]))
+            qx = self.ll[0] + x*dx[0] + y*dy[0]
+            x = np.arange(qy_bins[0]).reshape((qy_bins[0], 1))
+            y = np.arange(qy_bins[1]).reshape((1, qy_bins[1]))
+            qy = self.ll[1] + x*dx[1] + y*dy[1]
+            x = np.arange(qz_bins[0]).reshape((qz_bins[0], 1))
+            y = np.arange(qz_bins[1]).reshape((1, qz_bins[1]))
+            qz = self.ll[2] + x*dx[2] + y*dy[2]
         else:
             dz = (self.tl - self.ll)/(self._n3-1)
-            x = np.arange(kx_bins[0]).reshape((kx_bins[0], 1, 1))
-            y = np.arange(kx_bins[1]).reshape((1, kx_bins[1], 1))
-            z = np.arange(kx_bins[2]).reshape((1, 1, kx_bins[2]))
-            kx = self.ll[0] + x*dx[0] + y*dy[0] + z*dz[0]
-            x = np.arange(ky_bins[0]).reshape((ky_bins[0], 1, 1))
-            y = np.arange(ky_bins[1]).reshape((1, ky_bins[1], 1))
-            z = np.arange(ky_bins[2]).reshape((1, 1, ky_bins[2]))
-            ky = self.ll[1] + x*dx[1] + y*dy[1] + z*dz[1]
-            x = np.arange(kz_bins[0]).reshape((kz_bins[0], 1, 1))
-            y = np.arange(kz_bins[1]).reshape((1, kz_bins[1], 1))
-            z = np.arange(kz_bins[2]).reshape((1, 1, kz_bins[2]))
-            kz = self.ll[2] + x*dx[2] + y*dy[2] + z*dz[2]
-        return kx, ky, kz
+            x = np.arange(qx_bins[0]).reshape((qx_bins[0], 1, 1))
+            y = np.arange(qx_bins[1]).reshape((1, qx_bins[1], 1))
+            z = np.arange(qx_bins[2]).reshape((1, 1, qx_bins[2]))
+            qx = self.ll[0] + x*dx[0] + y*dy[0] + z*dz[0]
+            x = np.arange(qy_bins[0]).reshape((qy_bins[0], 1, 1))
+            y = np.arange(qy_bins[1]).reshape((1, qy_bins[1], 1))
+            z = np.arange(qy_bins[2]).reshape((1, 1, qy_bins[2]))
+            qy = self.ll[1] + x*dx[1] + y*dy[1] + z*dz[1]
+            x = np.arange(qz_bins[0]).reshape((qz_bins[0], 1, 1))
+            y = np.arange(qz_bins[1]).reshape((1, qz_bins[1], 1))
+            z = np.arange(qz_bins[2]).reshape((1, 1, qz_bins[2]))
+            qz = self.ll[2] + x*dx[2] + y*dy[2] + z*dz[2]
+        return qx, qy, qz
 
 
 def get_bin_number(vabs, vord, vapp, bins, index):
