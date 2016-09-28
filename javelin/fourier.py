@@ -75,7 +75,7 @@ class Fourier(object):
                 ff = self.__get_ff(atomic_number)
             except KeyError as e:
                 print("Skipping fourier calculation for atom " + str(e) +
-                      ", unable to gettting scattering factors.")
+                      ", unable to get scattering factors.")
                 continue
             atom_positions = positions[np.where(atomic_numbers == atomic_number)]
             temp_array = np.zeros(self.grid.bins, dtype=np.complex)
@@ -106,7 +106,7 @@ class Fourier(object):
                 ff = self.__get_ff(atomic_number)
             except KeyError as e:
                 print("Skipping fourier calculation for atom " + str(e) +
-                      ", unable to gettting scattering factors.")
+                      ", unable to get scattering factors.")
                 continue
             atom_positions = positions[np.where(atomic_numbers == atomic_number)]
             temp_array = np.zeros(self.grid.bins, dtype=np.complex)
