@@ -67,6 +67,18 @@ class Fourier(object):
             except AttributeError:
                 raise ValueError("Unable to get positions from structure")
 
+    def __get_atomic_numbers(self):
+        """Wrapper to get the atomic numbers from different structure classes"""
+        from javelin.utils import get_atomic_number_symbol
+        try:  # ASE structure
+            return self._structure.get_atomic_numbers()
+        except AttributeError:
+            try:  # diffpy structure
+                atomic_numbers, _ = get_atomic_number_symbol(symbol=self._structure.element)
+                return atomic_numbers
+            except AttributeError:
+                raise ValueError("Unable to get elements from structure")
+
     def calculate(self):
         """Returns a Data object"""
         output_array = np.zeros(self.grid.bins, dtype=np.complex)
@@ -75,7 +87,7 @@ class Fourier(object):
         qk *= (2*np.pi)
         qz *= (2*np.pi)
         # Get unique list of atomic numbers
-        atomic_numbers = self.structure.get_atomic_numbers()
+        atomic_numbers = self.__get_atomic_numbers()
         unique_atomic_numbers = np.unique(atomic_numbers)
         # Get atom positions
         positions = self.__get_positions()
@@ -106,10 +118,10 @@ class Fourier(object):
         qk *= (2*np.pi)
         qz *= (2*np.pi)
         # Get unique list of atomic numbers
-        atomic_numbers = self.structure.get_atomic_numbers()
+        atomic_numbers = self.__get_atomic_numbers()
         unique_atomic_numbers = np.unique(atomic_numbers)
         # Get atom positions
-        positions = self.structure.get_scaled_positions()
+        positions = self.__get_positions()
         # Loop of atom types
         for atomic_number in unique_atomic_numbers:
             try:
