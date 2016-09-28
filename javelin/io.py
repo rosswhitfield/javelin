@@ -119,7 +119,7 @@ def load_HDF5_to_xarray(filename):
     return DataArray(data, attrs=metadata)
 
 
-def read_stru(filename, starting_cell=[1, 1, 1]):
+def read_stru(filename, starting_cell=(1, 1, 1)):
     """Read in a .stru file saved from DISCUS into a javelin Structure
 
     If the line ncell is not present in the file all the atoms will be
