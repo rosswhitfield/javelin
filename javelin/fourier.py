@@ -30,7 +30,7 @@ class Fourier(object):
         self._structure = stru
 
     def __get_unitcell(self):
-        """Wrapper to be unitcell from different structure classed"""
+        """Wrapper to get the unit cell from different structure classes"""
         from javelin.unitcell import UnitCell
         try:  # javelin structure
             return self._structure.unitcell
@@ -57,6 +57,16 @@ class Fourier(object):
         else:
             raise ValueError("Unknown radition: " + self._radiation)
 
+    def __get_positions(self):
+        """Wrapper to get the positions from different structure classes"""
+        try:  # diffpy structure
+            return self._structure.xyz
+        except AttributeError:
+            try:  # ASE structure
+                return self._structure.get_scaled_positions()
+            except AttributeError:
+                raise ValueError("Unable to get positions from structure")
+
     def calculate(self):
         """Returns a Data object"""
         output_array = np.zeros(self.grid.bins, dtype=np.complex)
@@ -68,7 +78,7 @@ class Fourier(object):
         atomic_numbers = self.structure.get_atomic_numbers()
         unique_atomic_numbers = np.unique(atomic_numbers)
         # Get atom positions
-        positions = self.structure.get_scaled_positions()
+        positions = self.__get_positions()
         # Loop of atom types
         for atomic_number in unique_atomic_numbers:
             try:
