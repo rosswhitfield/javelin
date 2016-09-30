@@ -50,26 +50,32 @@ class Fourier(object):
                 except (ImportError, AttributeError):
                     raise ValueError("Unable to get unit cell from structure")
 
-    def __get_ff(self, atomic_number):
-        if self._radiation == 'neutrons':
-            return periodictable.elements[atomic_number].neutron.b_c
-        elif self._radiation == 'xray':
+    def __get_q(self):
             qx, qy, qz = self.grid.get_q_meshgrid()
             q = np.linalg.norm(np.array([qx.ravel(),
                                          qy.ravel(),
                                          qz.ravel()]).T * self.__get_unitcell().B, axis=1)
             q.shape = qx.shape
-            return periodictable.elements[atomic_number].xray.f0(q*2*np.pi)
+            return q*2*np.pi
+
+    def __get_ff(self, atomic_number):
+        if self._radiation == 'neutrons':
+            return periodictable.elements[atomic_number].neutron.b_c
+        elif self._radiation == 'xray':
+            return periodictable.elements[atomic_number].xray.f0(self.__get_q())
         else:
             raise ValueError("Unknown radition: " + self._radiation)
 
+    def __get_mag_ff(self, atomic_number, ion=0):
+        return periodictable.elements[atomic_number].magnetic_ff[ion].j0_Q(self.__get_q())
+
     def __get_positions(self):
         """Wrapper to get the positions from different structure classes"""
-        try:  # diffpy structure
-            return self._structure.xyz
+        try:  # ASE structure
+            return self._structure.get_scaled_positions()
         except AttributeError:
-            try:  # ASE structure
-                return self._structure.get_scaled_positions()
+            try:  # diffpy structure
+                return self._structure.xyz
             except AttributeError:
                 raise ValueError("Unable to get positions from structure")
 
@@ -88,9 +94,9 @@ class Fourier(object):
     def calculate(self):
         """Returns a Data object"""
         output_array = np.zeros(self.grid.bins, dtype=np.complex)
-        qx, qk, qz = self.grid.get_q_meshgrid()
+        qx, qy, qz = self.grid.get_q_meshgrid()
         qx *= (2*np.pi)
-        qk *= (2*np.pi)
+        qy *= (2*np.pi)
         qz *= (2*np.pi)
         # Get unique list of atomic numbers
         atomic_numbers = self.__get_atomic_numbers()
@@ -110,7 +116,7 @@ class Fourier(object):
             print("Working on atom number", atomic_number, "Total atoms:", len(atom_positions))
             # Loop over atom positions of type atomic_number
             for atom in atom_positions:
-                dot = qx*atom[0] + qk*atom[1] + qz*atom[2]
+                dot = qx*atom[0] + qy*atom[1] + qz*atom[2]
                 temp_array += np.exp(dot*1j)
             output_array += temp_array * ff  # scale by form factor
         results = np.real(output_array*np.conj(output_array))
@@ -119,9 +125,9 @@ class Fourier(object):
     def calculate_fast(self):
         """Returns a Data object"""
         output_array = np.zeros(self.grid.bins, dtype=np.complex)
-        qx, qk, qz = self.grid.get_squashed_q_meshgrid()
+        qx, qy, qz = self.grid.get_squashed_q_meshgrid()
         qx *= (2*np.pi)
-        qk *= (2*np.pi)
+        qy *= (2*np.pi)
         qz *= (2*np.pi)
         # Get unique list of atomic numbers
         atomic_numbers = self.__get_atomic_numbers()
@@ -142,11 +148,109 @@ class Fourier(object):
             # Loop over atom positions of type atomic_number
             for atom in atom_positions:
                 dotx = np.exp(qx*atom[0]*1j)
-                doty = np.exp(qk*atom[1]*1j)
+                doty = np.exp(qy*atom[1]*1j)
                 dotz = np.exp(qz*atom[2]*1j)
                 temp_array += dotx * doty * dotz
             output_array += temp_array * ff  # scale by form factor
         results = np.real(output_array*np.conj(output_array))
+        return self.create_xarray_dataarray(results)
+
+    def calculate_magnetic(self):
+        """Returns a Data object"""
+        qx, qy, qz = self.grid.get_q_meshgrid()
+        qx *= (2*np.pi)
+        qy *= (2*np.pi)
+        qz *= (2*np.pi)
+        q2 = self.__get_q()**2
+        # Get unique list of atomic numbers
+        atomic_numbers = self.__get_atomic_numbers()
+        unique_atomic_numbers = np.unique(atomic_numbers)
+        # Get atom positions
+        positions = self.__get_positions()
+        magmons = self._structure.get_magnetic_moments()
+        # Loop of atom types
+        spinx = np.zeros(self.grid.bins, dtype=np.complex)
+        spiny = np.zeros(self.grid.bins, dtype=np.complex)
+        spinz = np.zeros(self.grid.bins, dtype=np.complex)
+        for atomic_number in unique_atomic_numbers:
+            try:
+                ff = self.__get_mag_ff(atomic_number, ion=3)
+            except (AttributeError, KeyError) as e:
+                print("Skipping fourier calculation for atom " + str(e) +
+                      ", unable to get magnetic scattering factors.")
+                continue
+            atom_positions = positions[np.where(atomic_numbers == atomic_number)]
+            temp_spinx = np.zeros(self.grid.bins, dtype=np.complex)
+            temp_spiny = np.zeros(self.grid.bins, dtype=np.complex)
+            temp_spinz = np.zeros(self.grid.bins, dtype=np.complex)
+            print("Working on atom number", atomic_number, "Total atoms:", len(atom_positions))
+            # Loop over atom positions of type atomic_number
+            for atom, spin in zip(atom_positions, magmons):
+                dot = qx*atom[0] + qy*atom[1] + qz*atom[2]
+                exp_temp = np.exp(dot*1j)
+                temp_spinx += exp_temp*spin[0]
+                temp_spiny += exp_temp*spin[1]
+                temp_spinz += exp_temp*spin[2]
+            spinx += temp_spinx * ff
+            spiny += temp_spiny * ff
+            spinz += temp_spinz * ff
+        # Caluculate vector rejection of spin onto q
+        # M - M.Q/|Q|^2 Q
+        scale = (spinx*qx + spiny*qy + spinz*qz)/q2
+        newx = spinx - scale * qx
+        newy = spiny - scale * qy
+        newz = spinz - scale * qz
+        results = np.real(newx*np.conj(newx) + newy*np.conj(newy) + newz*np.conj(newz))
+        return self.create_xarray_dataarray(results)
+
+    def calculate_fast_magnetic(self):
+        """Returns a Data object"""
+        qx, qy, qz = self.grid.get_squashed_q_meshgrid()
+        qx *= (2*np.pi)
+        qy *= (2*np.pi)
+        qz *= (2*np.pi)
+        q2 = self.__get_q()**2
+        # Get unique list of atomic numbers
+        atomic_numbers = self.__get_atomic_numbers()
+        unique_atomic_numbers = np.unique(atomic_numbers)
+        # Get atom positions
+        positions = self.__get_positions()
+        magmons = self._structure.get_magnetic_moments()
+        # Loop of atom types
+        spinx = np.zeros(self.grid.bins, dtype=np.complex)
+        spiny = np.zeros(self.grid.bins, dtype=np.complex)
+        spinz = np.zeros(self.grid.bins, dtype=np.complex)
+        for atomic_number in unique_atomic_numbers:
+            try:
+                ff = self.__get_mag_ff(atomic_number, ion=3)
+            except (AttributeError, KeyError) as e:
+                print("Skipping fourier calculation for atom " + str(e) +
+                      ", unable to get magnetic scattering factors.")
+                continue
+            atom_positions = positions[np.where(atomic_numbers == atomic_number)]
+            temp_spinx = np.zeros(self.grid.bins, dtype=np.complex)
+            temp_spiny = np.zeros(self.grid.bins, dtype=np.complex)
+            temp_spinz = np.zeros(self.grid.bins, dtype=np.complex)
+            print("Working on atom number", atomic_number, "Total atoms:", len(atom_positions))
+            # Loop over atom positions of type atomic_number
+            for atom, spin in zip(atom_positions, magmons):
+                dotx = np.exp(qx*atom[0]*1j)
+                doty = np.exp(qy*atom[1]*1j)
+                dotz = np.exp(qz*atom[2]*1j)
+                exp_temp = dotx * doty * dotz
+                temp_spinx += exp_temp*spin[0]
+                temp_spiny += exp_temp*spin[1]
+                temp_spinz += exp_temp*spin[2]
+            spinx += temp_spinx * ff
+            spiny += temp_spiny * ff
+            spinz += temp_spinz * ff
+        # Caluculate vector rejection of spin onto q
+        # M - M.Q/|Q|^2 Q
+        scale = (spinx*qx + spiny*qy + spinz*qz)/q2
+        newx = spinx - scale * qx
+        newy = spiny - scale * qy
+        newz = spinz - scale * qz
+        results = np.real(newx*np.conj(newx) + newy*np.conj(newy) + newz*np.conj(newz))
         return self.create_xarray_dataarray(results)
 
     def create_xarray_dataarray(self, values):

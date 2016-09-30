@@ -21,7 +21,7 @@ class Structure(object):
     :type numbers: list
     """
     def __init__(self, symbols=None, numbers=None, unitcell=1, ncells=None,
-                 positions=None, rotations=False, translations=False):
+                 positions=None, rotations=False, translations=False, magnetic_moments=False):
 
         if positions is not None:
             numberOfAtoms = len(positions)
@@ -46,7 +46,8 @@ class Structure(object):
                                         'x', 'y', 'z',
                                         'cartn_x', 'cartn_y', 'cartn_z'])
 
-        self.atoms.Z, self.atoms.symbol = get_atomic_number_symbol(Z=numbers, symbol=symbols)
+        if numbers is not None or symbols is not None:
+            self.atoms.Z, self.atoms.symbol = get_atomic_number_symbol(Z=numbers, symbol=symbols)
 
         positions = np.asarray(positions)
         self.atoms[['x', 'y', 'z']] = positions
@@ -62,6 +63,12 @@ class Structure(object):
                                           columns=['x', 'y', 'z'])
         else:
             self.translations = None
+
+        if magnetic_moments:
+            self.magmons = DataFrame(index=miindex,
+                                     columns=['spinx', 'spiny', 'spinz'])
+        else:
+            self.magmons = None
 
         self._recalculate_cartn()
 
@@ -105,10 +112,16 @@ class Structure(object):
         return self.atoms.symbol.values
 
     def get_scaled_positions(self):
-        return self.xyz
+        return (self.atoms[['x', 'y', 'z']].values +
+                np.asarray([self.atoms.index.get_level_values(0).values,
+                            self.atoms.index.get_level_values(1).values,
+                            self.atoms.index.get_level_values(2).values]).T)
 
     def get_positions(self):
         return self.xyz_cartn
+
+    def get_magnetic_moments(self):
+        return self.magmons.values
 
     def add_atom(self, i=0, j=0, k=0, site=0, Z=None, symbol=None, position=None):
         Z, symbol = get_atomic_number_symbol([Z], [symbol])
