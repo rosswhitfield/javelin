@@ -117,6 +117,37 @@ class Fourier(object):
                 raise ValueError("Unable to get elements from structure")
 
     def calc(self, mag=False, fast=True):
+
+        if self._average != 0:
+            aver = np.zeros(self.grid.bins)
+            levels = self._structure.atoms.index.levels
+            for i in levels[0]:
+                for j in levels[1]:
+                    for k in levels[2]:
+                        atoms = self._structure.atoms.loc[i, j, k, :]
+                        aver += self.calculate(atoms.Z.values,
+                                               atoms[['x', 'y', 'z']].values,
+                                               fast)
+            if self.lots is None:
+                index = self._structure.atoms.index.droplevel(3).drop_duplicates()
+                aver *= self.calculate(np.zeros(len(index)),
+                                       np.asarray([index.get_level_values(0).values,
+                                                   index.get_level_values(1).values,
+                                                   index.get_level_values(2).values]).T,
+                                       fast,
+                                       use_ff=False)
+            else:
+                index = self._structure.atoms.loc[range(self.lots[0]),
+                                                  range(self.lots[1]),
+                                                  range(self.lots[2]),
+                                                  :].index.droplevel(3).drop_duplicates()
+                aver *= self.calculate(np.zeros(len(index)),
+                                       np.asarray([index.get_level_values(0).values,
+                                                   index.get_level_values(1).values,
+                                                   index.get_level_values(2).values]).T,
+                                       fast,
+                                       use_ff=False)
+
         if self.lots is None:
             atomic_numbers = self.__get_atomic_numbers()
             positions = self.__get_positions()
@@ -127,14 +158,18 @@ class Fourier(object):
                                                                             magmons,
                                                                             fast=fast))
             else:
-                return self.create_xarray_dataarray(self.calculate(atomic_numbers,
-                                                                   positions,
-                                                                   fast=fast))
+                results = self.calculate(atomic_numbers,
+                                         positions,
+                                         fast=fast)
+                if self._average != 0:
+                    results -= aver/len(index)
+                return self.create_xarray_dataarray(results)
+
         else:  # needs to be Javelin structure, lots by unit cell
             total = np.zeros(self.grid.bins)
+            levels = self._structure.atoms.index.levels
             for lot in range(self.number_of_lots):
                 print(lot+1, 'out of', self.number_of_lots)
-                levels = self._structure.atoms.index.levels
                 starti = randrange(len(levels[0]))
                 startj = randrange(len(levels[1]))
                 startk = randrange(len(levels[2]))
@@ -155,9 +190,13 @@ class Fourier(object):
                     total += self.calculate_magnetic(atomic_numbers, positions, magmons, fast=fast)
                 else:
                     total += self.calculate(atomic_numbers, positions, fast=fast)
+
+            if self._average != 0:
+                total -= aver/np.prod(self.lots)
+
             return self.create_xarray_dataarray(total)
 
-    def calculate(self, atomic_numbers, positions, fast):
+    def calculate(self, atomic_numbers, positions, fast, use_ff=True):
         """Returns a Data object"""
         if fast:
             qx, qy, qz = self.grid.get_squashed_q_meshgrid()
@@ -174,7 +213,7 @@ class Fourier(object):
         # Loop of atom types
         for atomic_number in unique_atomic_numbers:
             try:
-                ff = self.__get_ff(atomic_number)
+                ff = self.__get_ff(atomic_number) if use_ff else 1
             except KeyError as e:
                 print("Skipping fourier calculation for atom " + str(e) +
                       ", unable to get scattering factors.")
@@ -197,6 +236,7 @@ class Fourier(object):
                     temp_array += np.exp(dot*1j)
 
             results += temp_array * ff  # scale by form factor
+
         return np.real(results*np.conj(results))
 
     def calculate_magnetic(self, atomic_numbers, positions, magmons, fast):
