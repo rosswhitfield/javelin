@@ -22,7 +22,7 @@ def test_Fourier_ASE_single_atom():
     four.grid.bins = [21, 2]
     four.grid.lr = [2.0, 0.0, 0.0]
     four.structure = atom
-    results = four.calculate()
+    results = four.calc()
     expected_result = [1.76804890e+02,   1.59921526e+02,   1.15720303e+02,
                        6.10845872e+01,   1.68833647e+01,   6.62912159e-31,
                        1.68833647e+01,   6.10845872e+01,   1.15720303e+02,
@@ -31,7 +31,7 @@ def test_Fourier_ASE_single_atom():
                        5.96620943e-30,   1.68833647e+01,   6.10845872e+01,
                        1.15720303e+02,   1.59921526e+02,   1.76804890e+02]
     assert_array_almost_equal(results[:, 0], expected_result)
-    results = four.calculate_fast()
+    results = four.calc(fast=False)
     assert_array_almost_equal(results[:, 0], expected_result)
 
 
@@ -46,7 +46,7 @@ def test_Foutier_ASE_C_Ring():
     four.grid.lr = [2.0, 0.0, 0.0]
     four.grid.ul = [0.0, 2.0, 0.0]
     four.grid.tl = [0.0, 0.0, 0.5]
-    results = four.calculate()
+    results = four.calc()
     expected_result = [[[6.36497605e+03,   3.18248802e+03],
                         [5.19826149e+03,   2.62430530e+03],
                         [2.62792897e+03,   1.44984089e+03],
@@ -84,5 +84,5 @@ def test_Foutier_ASE_C_Ring():
                         [1.09292588e+03,   1.35970016e+03],
                         [1.03004750e+03,   8.27690724e+02]]]
     assert_array_almost_equal(results, expected_result, 5)
-    results = four.calculate_fast()
+    results = four.calc(fast=False)
     assert_array_almost_equal(results, expected_result, 5)
