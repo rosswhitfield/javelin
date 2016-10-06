@@ -18,7 +18,7 @@ class Fourier(object):
         self._radiation = 'neutrons'
         self._lots = None
         self._number_of_lots = None
-        self._average = 0.0
+        self._average = False
         self.grid = Grid()
 
     @property
@@ -118,35 +118,8 @@ class Fourier(object):
 
     def calc(self, mag=False, fast=True):
 
-        if self._average != 0:
-            aver = np.zeros(self.grid.bins)
-            levels = self._structure.atoms.index.levels
-            for i in levels[0]:
-                for j in levels[1]:
-                    for k in levels[2]:
-                        atoms = self._structure.atoms.loc[i, j, k, :]
-                        aver += self.calculate(atoms.Z.values,
-                                               atoms[['x', 'y', 'z']].values,
-                                               fast)
-            if self.lots is None:
-                index = self._structure.atoms.index.droplevel(3).drop_duplicates()
-                aver *= self.calculate(np.zeros(len(index)),
-                                       np.asarray([index.get_level_values(0).values,
-                                                   index.get_level_values(1).values,
-                                                   index.get_level_values(2).values]).T,
-                                       fast,
-                                       use_ff=False)
-            else:
-                index = self._structure.atoms.loc[range(self.lots[0]),
-                                                  range(self.lots[1]),
-                                                  range(self.lots[2]),
-                                                  :].index.droplevel(3).drop_duplicates()
-                aver *= self.calculate(np.zeros(len(index)),
-                                       np.asarray([index.get_level_values(0).values,
-                                                   index.get_level_values(1).values,
-                                                   index.get_level_values(2).values]).T,
-                                       fast,
-                                       use_ff=False)
+        if self._average:
+            aver = self.calculate_average(fast)
 
         if self.lots is None:
             atomic_numbers = self.__get_atomic_numbers()
@@ -161,9 +134,10 @@ class Fourier(object):
                 results = self.calculate(atomic_numbers,
                                          positions,
                                          fast=fast)
-                if self._average != 0:
-                    results -= aver/len(index)
-                return self.create_xarray_dataarray(results)
+                if self._average:
+                    results -= aver
+
+                return self.create_xarray_dataarray(np.real(results*np.conj(results)))
 
         else:  # needs to be Javelin structure, lots by unit cell
             total = np.zeros(self.grid.bins)
@@ -191,10 +165,41 @@ class Fourier(object):
                 else:
                     total += self.calculate(atomic_numbers, positions, fast=fast)
 
-            if self._average != 0:
-                total -= aver/np.prod(self.lots)
+            if self._average:
+                total -= aver
 
             return self.create_xarray_dataarray(total)
+
+    def calculate_average(self, fast):
+        aver = np.zeros(self.grid.bins, dtype=np.complex)
+        levels = self._structure.atoms.index.levels
+        for i in levels[0]:
+            for j in levels[1]:
+                for k in levels[2]:
+                    atoms = self._structure.atoms.loc[i, j, k, :]
+                    aver += self.calculate(atoms.Z.values,
+                                           atoms[['x', 'y', 'z']].values,
+                                           fast)
+        if self.lots is None:
+            index = self._structure.atoms.index.droplevel(3).drop_duplicates()
+            aver *= self.calculate(np.zeros(len(index)),
+                                   np.asarray([index.get_level_values(0).values,
+                                               index.get_level_values(1).values,
+                                               index.get_level_values(2).values]).T,
+                                   fast,
+                                   use_ff=False)
+        else:
+            index = self._structure.atoms.loc[range(self.lots[0]),
+                                              range(self.lots[1]),
+                                              range(self.lots[2]),
+                                              :].index.droplevel(3).drop_duplicates()
+            aver *= self.calculate(np.zeros(len(index)),
+                                   np.asarray([index.get_level_values(0).values,
+                                               index.get_level_values(1).values,
+                                               index.get_level_values(2).values]).T,
+                                   fast,
+                                   use_ff=False)
+        return aver/len(index)
 
     def calculate(self, atomic_numbers, positions, fast, use_ff=True):
         """Returns a Data object"""
@@ -237,7 +242,7 @@ class Fourier(object):
 
             results += temp_array * ff  # scale by form factor
 
-        return np.real(results*np.conj(results))
+        return results
 
     def calculate_magnetic(self, atomic_numbers, positions, magmons, fast):
         """Returns a Data object"""
