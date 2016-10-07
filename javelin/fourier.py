@@ -163,43 +163,44 @@ class Fourier(object):
                     magmons = self._structure.magmons.loc[ri, rj, rk, :].values
                     total += self.calculate_magnetic(atomic_numbers, positions, magmons, fast=fast)
                 else:
-                    total += self.calculate(atomic_numbers, positions, fast=fast)
-
-            if self._average:
-                total -= aver
+                    results = self.calculate(atomic_numbers, positions, fast=fast)
+                    if self._average:
+                        results -= aver
+                    total += np.real(results*np.conj(results))
 
             return self.create_xarray_dataarray(total)
 
     def calculate_average(self, fast):
         aver = np.zeros(self.grid.bins, dtype=np.complex)
         levels = self._structure.atoms.index.levels
+        count = 0
         for i in levels[0]:
             for j in levels[1]:
                 for k in levels[2]:
+                    count += 1
                     atoms = self._structure.atoms.loc[i, j, k, :]
                     aver += self.calculate(atoms.Z.values,
                                            atoms[['x', 'y', 'z']].values,
                                            fast)
+
+        aver /= count
+
         if self.lots is None:
             index = self._structure.atoms.index.droplevel(3).drop_duplicates()
-            aver *= self.calculate(np.zeros(len(index)),
-                                   np.asarray([index.get_level_values(0).values,
-                                               index.get_level_values(1).values,
-                                               index.get_level_values(2).values]).T,
-                                   fast,
-                                   use_ff=False)
         else:
             index = self._structure.atoms.loc[range(self.lots[0]),
                                               range(self.lots[1]),
                                               range(self.lots[2]),
                                               :].index.droplevel(3).drop_duplicates()
-            aver *= self.calculate(np.zeros(len(index)),
-                                   np.asarray([index.get_level_values(0).values,
-                                               index.get_level_values(1).values,
-                                               index.get_level_values(2).values]).T,
-                                   fast,
-                                   use_ff=False)
-        return aver/len(index)
+
+        aver *= self.calculate(np.zeros(len(index)),
+                               np.asarray([index.get_level_values(0).values,
+                                           index.get_level_values(1).values,
+                                           index.get_level_values(2).values]).T,
+                               fast,
+                               use_ff=False)
+
+        return aver
 
     def calculate(self, atomic_numbers, positions, fast, use_ff=True):
         """Returns a Data object"""
