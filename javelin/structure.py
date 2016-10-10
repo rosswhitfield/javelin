@@ -145,6 +145,10 @@ class Structure(object):
 
         self._recalculate_cartn()
 
+    def reindex(self, ncells):
+        self.atoms.set_index(get_miindex(ncells=ncells), inplace=True)
+        self._recalculate_cartn()
+
     def _recalculate_cartn(self):
         self.atoms[['cartn_x', 'cartn_y', 'cartn_z']] = self.unitcell.cartesian(
             self.atoms[['x', 'y', 'z']].values +
@@ -197,7 +201,7 @@ def get_rotation_matrix_from_versor(w, x, y, z):
                       [2*(x*z-y*w), 2*(y*z+x*w), 1-2*x**2-2*y**2]]).T
 
 
-def get_miindex(l, ncells):
+def get_miindex(l=0, ncells=None):
     from pandas import MultiIndex
 
     if ncells is None:
