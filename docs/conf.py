@@ -24,7 +24,7 @@ exclude_patterns = ['_build']
 
 pygments_style = 'friendly'
 
-html_theme = 'nature'
+html_theme = 'sphinx_rtd_theme'
 
 # Output file base name for HTML help builder.
 htmlhelp_basename = 'Javelindoc'
