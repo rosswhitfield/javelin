@@ -1,4 +1,8 @@
-"""Grid class to allow the Q-space grid to be definied in different
+"""
+grid
+====
+
+Grid class to allow the Q-space grid to be definied in different
 ways Should allow for corners and bins, or a matrix and the axis to be
 defined.
 

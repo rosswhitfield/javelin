@@ -1,4 +1,9 @@
-"""This module define the Structure object"""
+"""
+fourier
+=======
+
+This module define the Structure object
+"""
 import numpy as np
 import periodictable
 from javelin.grid import Grid

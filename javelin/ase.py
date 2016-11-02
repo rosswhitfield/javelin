@@ -1,4 +1,9 @@
-"""Theses functions read the legacy DISCUS stru file format in ASE Atoms."""
+"""
+ase
+===
+
+Theses functions read the legacy DISCUS stru file format in ASE Atoms.
+"""
 
 from __future__ import absolute_import
 from ase.atoms import Atoms

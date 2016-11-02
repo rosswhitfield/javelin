@@ -1,3 +1,9 @@
+"""
+structure
+=========
+"""
+
+
 import numpy as np
 from pandas import DataFrame
 from javelin.unitcell import UnitCell

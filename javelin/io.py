@@ -1,3 +1,9 @@
+"""
+io
+====
+"""
+
+
 def read_mantid_MDHisto(filename):
     """Read the saved MDHisto from from Mantid and returns an xarray.DataArray object"""
     import h5py

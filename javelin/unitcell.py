@@ -1,3 +1,8 @@
+"""
+unitcell
+========
+"""
+
 import numpy as np
 
 
@@ -69,6 +74,7 @@ class UnitCell(object):
         array([[  2.59807621e+00,  -1.50000000e+00,   3.25954010e-16]])
 
         A array of atoms position can also be passed
+
         >>> positions = [[1,0,0], [0,0,0.5]]
         >>> unitcell.cartesian(positions)
         array([[  2.59807621e+00,  -1.50000000e+00,   3.25954010e-16],
@@ -124,6 +130,7 @@ class UnitCell(object):
         array([[  0.00000000e+00,   1.00000000e+00,  -4.89858720e-17]])
 
         A array of atoms position can also be passed
+
         >>> positions = [[0,2,0], [0,0,5]]
         >>> unitcell.fractional(positions)
         array([[  0.00000000e+00,   5.00000000e-01,  -2.44929360e-17],
