@@ -1,4 +1,5 @@
 """
+=========
 structure
 =========
 """
@@ -11,6 +12,14 @@ from javelin.utils import get_atomic_number_symbol
 
 
 class Structure(object):
+    """
+    Structure class
+
+    :param symbols: atoms symbols to initialize structure
+    :type symbols: list
+    :param numbers: atomic numbers to initialize structure
+    :type numbers: list
+    """
     def __init__(self, symbols=None, numbers=None, unitcell=1, ncells=None,
                  positions=None, rotations=False, translations=False):
 

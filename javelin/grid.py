@@ -1,4 +1,5 @@
 """
+====
 grid
 ====
 
@@ -8,6 +9,7 @@ defined.
 
 The grid can de defined in with reciprocal lattice units (r.l.u) or q.
 """
+
 import numpy as np
 
 
