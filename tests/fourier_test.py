@@ -5,7 +5,7 @@ from numpy.testing import assert_array_equal, assert_array_almost_equal
 
 def test_Fourier_init():
     four = Fourier()
-    assert four.radiation == 'neutrons'
+    assert four.radiation == 'neutron'
     assert four.structure is None
     assert four.grid.bins == (101, 101)
     assert_array_equal(four.grid.ll, [0.0, 0.0, 0.0])

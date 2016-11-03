@@ -15,7 +15,7 @@ class Fourier(object):
 
     def __init__(self):
         self._structure = None
-        self._radiation = 'neutrons'
+        self._radiation = 'neutron'
         self._lots = None
         self._number_of_lots = None
         self._average = False
@@ -327,14 +327,27 @@ def get_ff(atomic_number, radiation, q=None):
 
     :param atomic_number: atomic number
     :type atomic_number: int
-    :param radiation: type of radiation ('xray' or 'neutrons')
+    :param radiation: type of radiation ('xray' or 'neutron')
     :type radiation: str
     :param q: value or values of q for which to get form factors
-    :type q: int, float, list, numpy,ndarray
+    :type q: float, list, numpy,ndarray
+    :return: form factors for given q
+    :rtype: float, numpy,ndarray
+
+    :Examples:
+
+    >>> get_ff(8, 'neutron')
+    5.805
+
+    >>> get_ff(8, 'xray', q=2.0)
+    6.31826029176493
+
+    >>> get_ff(8, 'xray', q=[0.0, 3.5, 7.0])
+    array([ 7.999706  ,  4.38417867,  2.08928068])
     """
     import periodictable
 
-    if radiation == 'neutrons':
+    if radiation == 'neutron':
         return periodictable.elements[atomic_number].neutron.b_c
     elif radiation == 'xray':
         return periodictable.elements[atomic_number].xray.f0(q)
@@ -349,10 +362,22 @@ def get_mag_ff(atomic_number, q, ion=0):
     :param atomic_number: atomic number
     :type atomic_number: int
     :param q: value or values of q for which to get form factors
-    :type q: int, float, list, numpy,ndarray
+    :type q: float, list, numpy,ndarray
     :param ion: charge of selected atom
     :type ion: int
+    :return: magnetic form factor for given q
+    :rtype: float, numpy,ndarray
 
+    :Examples:
+
+    >>> get_mag_ff(8, q=2, ion=1)
+    0.58510426376585045
+
+    >>> get_mag_ff(26, q=[0.0, 3.5, 7.0], ion=2)
+    array([ 1.        ,  0.49729671,  0.09979243])
+
+    >>> get_mag_ff(26, q=[0.0, 3.5, 7.0], ion=4)
+    array([ 0.9997    ,  0.58273549,  0.13948496])
     """
     import periodictable
     return periodictable.elements[atomic_number].magnetic_ff[ion].j0_Q(q)
