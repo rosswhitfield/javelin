@@ -5,6 +5,7 @@ fourier
 
 This module define the Structure object
 """
+from __future__ import absolute_import
 import numpy as np
 from random import randrange
 from javelin.grid import Grid
@@ -63,15 +64,16 @@ class Fourier(object):
         """Wrapper to get the unit cell from different structure classes"""
         from javelin.unitcell import UnitCell
         try:  # javelin structure
-            return self._structure.unitcell
+            return self.structure.unitcell
         except AttributeError:
             try:  # diffpy structure
-                return UnitCell(self._structure.lattice.abcABG())
+                return UnitCell(self.structure.lattice.abcABG())
             except AttributeError:
                 try:  # ASE structure
                     from ase.geometry import cell_to_cellpar
-                    return UnitCell(cell_to_cellpar(self._structure.cell))
-                except (ImportError, AttributeError):
+                    return UnitCell(cell_to_cellpar(self.structure.cell))
+                except (ImportError, AttributeError) as e:
+                    print(e)
                     raise ValueError("Unable to get unit cell from structure")
 
     def __get_q(self):
@@ -85,10 +87,10 @@ class Fourier(object):
     def __get_positions(self):
         """Wrapper to get the positions from different structure classes"""
         try:  # ASE structure
-            return self._structure.get_scaled_positions()
+            return self.structure.get_scaled_positions()
         except AttributeError:
             try:  # diffpy structure
-                return self._structure.xyz
+                return self.structure.xyz
             except AttributeError:
                 raise ValueError("Unable to get positions from structure")
 
@@ -96,10 +98,10 @@ class Fourier(object):
         """Wrapper to get the atomic numbers from different structure classes"""
         from javelin.utils import get_atomic_number_symbol
         try:  # ASE structure
-            return self._structure.get_atomic_numbers()
+            return self.structure.get_atomic_numbers()
         except AttributeError:
             try:  # diffpy structure
-                atomic_numbers, _ = get_atomic_number_symbol(symbol=self._structure.element)
+                atomic_numbers, _ = get_atomic_number_symbol(symbol=self.structure.element)
                 return atomic_numbers
             except AttributeError:
                 raise ValueError("Unable to get elements from structure")
@@ -113,7 +115,7 @@ class Fourier(object):
             atomic_numbers = self.__get_atomic_numbers()
             positions = self.__get_positions()
             if mag:
-                magmons = self._structure.get_magnetic_moments()
+                magmons = self.structure.get_magnetic_moments()
                 return create_xarray_dataarray(self.calculate_magnetic(atomic_numbers,
                                                                        positions,
                                                                        magmons,
@@ -129,7 +131,7 @@ class Fourier(object):
 
         else:  # needs to be Javelin structure, lots by unit cell
             total = np.zeros(self.grid.bins)
-            levels = self._structure.atoms.index.levels
+            levels = self.structure.atoms.index.levels
             for lot in range(self.number_of_lots):
                 print(lot+1, 'out of', self.number_of_lots)
                 starti = randrange(len(levels[0]))
@@ -138,7 +140,7 @@ class Fourier(object):
                 ri = np.roll(levels[0], starti)[:self.lots[0]]
                 rj = np.roll(levels[1], startj)[:self.lots[1]]
                 rk = np.roll(levels[2], startk)[:self.lots[2]]
-                atoms = self._structure.atoms.loc[ri, rj, rk, :]
+                atoms = self.structure.atoms.loc[ri, rj, rk, :]
                 atomic_numbers = atoms.Z.values
                 positions = (atoms[['x', 'y', 'z']].values +
                              np.asarray([atoms.index.get_level_values(0).values,
@@ -148,7 +150,7 @@ class Fourier(object):
                 print(len(atomic_numbers))
                 print(positions.shape)
                 if mag:
-                    magmons = self._structure.magmons.loc[ri, rj, rk, :].values
+                    magmons = self.structure.magmons.loc[ri, rj, rk, :].values
                     total += self.calculate_magnetic(atomic_numbers, positions, magmons, fast=fast)
                 else:
                     results = self.calculate(atomic_numbers, positions, fast=fast)
@@ -160,13 +162,13 @@ class Fourier(object):
 
     def calculate_average(self, fast):
         aver = np.zeros(self.grid.bins, dtype=np.complex)
-        levels = self._structure.atoms.index.levels
+        levels = self.structure.atoms.index.levels
         count = 0
         for i in levels[0]:
             for j in levels[1]:
                 for k in levels[2]:
                     count += 1
-                    atoms = self._structure.atoms.loc[i, j, k, :]
+                    atoms = self.structure.atoms.loc[i, j, k, :]
                     aver += self.calculate(atoms.Z.values,
                                            atoms[['x', 'y', 'z']].values,
                                            fast)
@@ -174,12 +176,12 @@ class Fourier(object):
         aver /= count
 
         if self.lots is None:
-            index = self._structure.atoms.index.droplevel(3).drop_duplicates()
+            index = self.structure.atoms.index.droplevel(3).drop_duplicates()
         else:
-            index = self._structure.atoms.loc[range(self.lots[0]),
-                                              range(self.lots[1]),
-                                              range(self.lots[2]),
-                                              :].index.droplevel(3).drop_duplicates()
+            index = self.structure.atoms.loc[range(self.lots[0]),
+                                             range(self.lots[1]),
+                                             range(self.lots[2]),
+                                             :].index.droplevel(3).drop_duplicates()
 
         aver *= self.calculate(np.zeros(len(index)),
                                np.asarray([index.get_level_values(0).values,
@@ -207,7 +209,7 @@ class Fourier(object):
         # Loop of atom types
         for atomic_number in unique_atomic_numbers:
             try:
-                ff = get_ff(atomic_number, self._radiation, self.__get_q()) if use_ff else 1
+                ff = get_ff(atomic_number, self.radiation, self.__get_q()) if use_ff else 1
             except KeyError as e:
                 print("Skipping fourier calculation for atom " + str(e) +
                       ", unable to get scattering factors.")
@@ -325,7 +327,7 @@ def get_ff(atomic_number, radiation, q=None):
 
     :param atomic_number: atomic number
     :type atomic_number: int
-    :param radiation: type of radiation
+    :param radiation: type of radiation ('xray' or 'neutrons')
     :type radiation: str
     :param q: value or values of q for which to get form factors
     :type q: int, float, list, numpy,ndarray
@@ -348,7 +350,7 @@ def get_mag_ff(atomic_number, q, ion=0):
     :type atomic_number: int
     :param q: value or values of q for which to get form factors
     :type q: int, float, list, numpy,ndarray
-    :param ion: ion charge of selected atom
+    :param ion: charge of selected atom
     :type ion: int
 
     """
