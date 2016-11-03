@@ -6,7 +6,6 @@ fourier
 This module define the Structure object
 """
 import numpy as np
-import periodictable
 from random import randrange
 from javelin.grid import Grid
 
@@ -82,17 +81,6 @@ class Fourier(object):
                                      qz.ravel()]).T * self.__get_unitcell().B, axis=1)
         q.shape = qx.shape
         return q*2*np.pi
-
-    def __get_ff(self, atomic_number):
-        if self._radiation == 'neutrons':
-            return periodictable.elements[atomic_number].neutron.b_c
-        elif self._radiation == 'xray':
-            return periodictable.elements[atomic_number].xray.f0(self.__get_q())
-        else:
-            raise ValueError("Unknown radition: " + self._radiation)
-
-    def __get_mag_ff(self, atomic_number, ion=0):
-        return periodictable.elements[atomic_number].magnetic_ff[ion].j0_Q(self.__get_q())
 
     def __get_positions(self):
         """Wrapper to get the positions from different structure classes"""
@@ -219,7 +207,7 @@ class Fourier(object):
         # Loop of atom types
         for atomic_number in unique_atomic_numbers:
             try:
-                ff = self.__get_ff(atomic_number) if use_ff else 1
+                ff = get_ff(atomic_number, self._radiation, self.__get_q()) if use_ff else 1
             except KeyError as e:
                 print("Skipping fourier calculation for atom " + str(e) +
                       ", unable to get scattering factors.")
@@ -265,7 +253,7 @@ class Fourier(object):
         spinz = np.zeros(self.grid.bins, dtype=np.complex)
         for atomic_number in unique_atomic_numbers:
             try:
-                ff = self.__get_mag_ff(atomic_number, ion=3)
+                ff = get_mag_ff(atomic_number, self.__get_q(), ion=3)
             except (AttributeError, KeyError) as e:
                 print("Skipping fourier calculation for atom " + str(e) +
                       ", unable to get magnetic scattering factors.")
@@ -304,9 +292,10 @@ class Fourier(object):
         spinz = spinz - scale * qz
         return np.real(spinx*np.conj(spinx) + spiny*np.conj(spiny) + spinz*np.conj(spinz))
 
+
 def create_xarray_dataarray(values, grid):
-    """
-    Create a xarry DataArray from the input numpy array and grid object.
+    """Create a xarry DataArray from the input numpy array and grid
+    object.
 
     :param values: Input array containing the scattering intensities
     :type values: numpy.ndarray
@@ -328,3 +317,40 @@ def create_xarray_dataarray(values, grid):
                             dims=("Q1", "Q2", "Q3"),
                             coords=(grid.r1, grid.r2, grid.r3),
                             attrs=(("units", grid.units),))
+
+
+def get_ff(atomic_number, radiation, q=None):
+    """Returns the form factor for a given atomic number, radiation and q
+    values
+
+    :param atomic_number: atomic number
+    :type atomic_number: int
+    :param radiation: type of radiation
+    :type radiation: str
+    :param q: value or values of q for which to get form factors
+    :type q: int, float, list, numpy,ndarray
+    """
+    import periodictable
+
+    if radiation == 'neutrons':
+        return periodictable.elements[atomic_number].neutron.b_c
+    elif radiation == 'xray':
+        return periodictable.elements[atomic_number].xray.f0(q)
+    else:
+        raise ValueError("Unknown radition: " + radiation)
+
+
+def get_mag_ff(atomic_number, q, ion=0):
+    """Returns the j0 magnetic form factor for a given atomic number,
+    radiation and q values
+
+    :param atomic_number: atomic number
+    :type atomic_number: int
+    :param q: value or values of q for which to get form factors
+    :type q: int, float, list, numpy,ndarray
+    :param ion: ion charge of selected atom
+    :type ion: int
+
+    """
+    import periodictable
+    return periodictable.elements[atomic_number].magnetic_ff[ion].j0_Q(q)
