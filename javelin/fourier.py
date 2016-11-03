@@ -76,12 +76,12 @@ class Fourier(object):
                     raise ValueError("Unable to get unit cell from structure")
 
     def __get_q(self):
-            qx, qy, qz = self.grid.get_q_meshgrid()
-            q = np.linalg.norm(np.array([qx.ravel(),
-                                         qy.ravel(),
-                                         qz.ravel()]).T * self.__get_unitcell().B, axis=1)
-            q.shape = qx.shape
-            return q*2*np.pi
+        qx, qy, qz = self.grid.get_q_meshgrid()
+        q = np.linalg.norm(np.array([qx.ravel(),
+                                     qy.ravel(),
+                                     qz.ravel()]).T * self.__get_unitcell().B, axis=1)
+        q.shape = qx.shape
+        return q*2*np.pi
 
     def __get_ff(self, atomic_number):
         if self._radiation == 'neutrons':
@@ -126,10 +126,10 @@ class Fourier(object):
             positions = self.__get_positions()
             if mag:
                 magmons = self._structure.get_magnetic_moments()
-                return self.create_xarray_dataarray(self.calculate_magnetic(atomic_numbers,
-                                                                            positions,
-                                                                            magmons,
-                                                                            fast=fast))
+                return create_xarray_dataarray(self.calculate_magnetic(atomic_numbers,
+                                                                       positions,
+                                                                       magmons,
+                                                                       fast=fast), self.grid)
             else:
                 results = self.calculate(atomic_numbers,
                                          positions,
@@ -137,7 +137,7 @@ class Fourier(object):
                 if self._average:
                     results -= aver
 
-                return self.create_xarray_dataarray(np.real(results*np.conj(results)))
+                return create_xarray_dataarray(np.real(results*np.conj(results)), self.grid)
 
         else:  # needs to be Javelin structure, lots by unit cell
             total = np.zeros(self.grid.bins)
@@ -168,7 +168,7 @@ class Fourier(object):
                         results -= aver
                     total += np.real(results*np.conj(results))
 
-            return self.create_xarray_dataarray(total)
+            return create_xarray_dataarray(total, self.grid)
 
     def calculate_average(self, fast):
         aver = np.zeros(self.grid.bins, dtype=np.complex)
@@ -304,19 +304,27 @@ class Fourier(object):
         spinz = spinz - scale * qz
         return np.real(spinx*np.conj(spinx) + spiny*np.conj(spiny) + spinz*np.conj(spinz))
 
-    def create_xarray_dataarray(self, values):
-        import xarray as xr
-        if self.grid.twoD:
-            return xr.DataArray(data=values,
-                                name="Intensity",
-                                dims=("Q1", "Q2"),
-                                coords=(self.grid.r1, self.grid.r2),
-                                attrs=(("radiation", self._radiation),
-                                       ("units", self.grid.units)))
-        else:
-            return xr.DataArray(data=values,
-                                name="Intensity",
-                                dims=("Q1", "Q2", "Q3"),
-                                coords=(self.grid.r1, self.grid.r2, self.grid.r3),
-                                attrs=(("radiation", self._radiation),
-                                       ("units", self.grid.units)))
+def create_xarray_dataarray(values, grid):
+    """
+    Create a xarry DataArray from the input numpy array and grid object.
+
+    :param values: Input array containing the scattering intensities
+    :type values: numpy.ndarray
+    :param numbers: Grid object describing the array properties
+    :type numbers: javelin.grid
+    :return: DataArray produced from the values and grid object
+    :rtype: xarray.DataArray
+    """
+    import xarray as xr
+    if grid.twoD:
+        return xr.DataArray(data=values,
+                            name="Intensity",
+                            dims=("Q1", "Q2"),
+                            coords=(grid.r1, grid.r2),
+                            attrs=(("units", grid.units),))
+    else:
+        return xr.DataArray(data=values,
+                            name="Intensity",
+                            dims=("Q1", "Q2", "Q3"),
+                            coords=(grid.r1, grid.r2, grid.r3),
+                            attrs=(("units", grid.units),))
