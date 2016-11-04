@@ -330,9 +330,9 @@ def get_ff(atomic_number, radiation, q=None):
     :param radiation: type of radiation ('xray' or 'neutron')
     :type radiation: str
     :param q: value or values of q for which to get form factors
-    :type q: float, list, numpy,ndarray
+    :type q: float, list, numpy.ndarray
     :return: form factors for given q
-    :rtype: float, numpy,ndarray
+    :rtype: float, numpy.ndarray
 
     :Examples:
 
@@ -362,11 +362,11 @@ def get_mag_ff(atomic_number, q, ion=0):
     :param atomic_number: atomic number
     :type atomic_number: int
     :param q: value or values of q for which to get form factors
-    :type q: float, list, numpy,ndarray
+    :type q: float, list, numpy.ndarray
     :param ion: charge of selected atom
     :type ion: int
     :return: magnetic form factor for given q
-    :rtype: float, numpy,ndarray
+    :rtype: float, numpy.ndarray
 
     :Examples:
 
