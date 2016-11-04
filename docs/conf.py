@@ -7,6 +7,7 @@ sys.path.insert(0, os.path.abspath('..'))
 
 extensions = [
     'sphinx.ext.autodoc',
+    'sphinx.ext.intersphinx'
 ]
 
 source_suffix = '.rst'
@@ -33,5 +34,8 @@ latex_documents = [
     (master_doc, 'Javelin.tex', 'Javelin Documentation',
      'Ross Whitfield', 'manual'),
 ]
+
+intersphinx_mapping = {'numpy': ('https://docs.scipy.org/doc/numpy/', None),
+                       'xarray': ('http://xarray.pydata.org/en/stable/', None)}
 
 autodoc_default_flags = ['members', 'undoc-members']

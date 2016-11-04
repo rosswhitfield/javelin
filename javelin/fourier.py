@@ -300,11 +300,11 @@ def create_xarray_dataarray(values, grid):
     object.
 
     :param values: Input array containing the scattering intensities
-    :type values: numpy.ndarray
+    :type values: :class:`numpy.ndarray`
     :param numbers: Grid object describing the array properties
-    :type numbers: javelin.grid.Grid
+    :type numbers: :class:`javelin.grid.Grid`
     :return: DataArray produced from the values and grid object
-    :rtype: xarray.DataArray
+    :rtype: :class:`xarray.DataArray`
     """
     import xarray as xr
     if grid.twoD:
@@ -330,9 +330,9 @@ def get_ff(atomic_number, radiation, q=None):
     :param radiation: type of radiation ('xray' or 'neutron')
     :type radiation: str
     :param q: value or values of q for which to get form factors
-    :type q: float, list, numpy.ndarray
+    :type q: float, list, :class:`numpy.ndarray`
     :return: form factors for given q
-    :rtype: float, numpy.ndarray
+    :rtype: float, :class:`numpy.ndarray`
 
     :Examples:
 
@@ -362,11 +362,11 @@ def get_mag_ff(atomic_number, q, ion=0):
     :param atomic_number: atomic number
     :type atomic_number: int
     :param q: value or values of q for which to get form factors
-    :type q: float, list, numpy.ndarray
+    :type q: float, list, :class:`numpy.ndarray`
     :param ion: charge of selected atom
     :type ion: int
     :return: magnetic form factor for given q
-    :rtype: float, numpy.ndarray
+    :rtype: float, :class:`numpy.ndarray`
 
     :Examples:
 
