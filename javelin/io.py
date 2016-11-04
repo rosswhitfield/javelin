@@ -212,7 +212,7 @@ def read_stru_to_ase(filename):
     :param filename: filename of DISCUS stru file
     :type filename: str
     :return: ASE Atoms object
-    :rtype: ase.atoms.Atoms
+    :rtype: :class:`ase.Atoms`
 
     """
     from ase.atoms import Atoms
