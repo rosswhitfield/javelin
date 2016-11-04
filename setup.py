@@ -1,13 +1,13 @@
 #!/usr/bin/env python
-
 from distutils.core import setup
 
-import javelin
-
 setup(
-    name=javelin.__package_name__,
-    version=javelin.__version__,
-    url=javelin.__url__,
-    license=javelin.__license__,
+    name='javelin',
+    version='0.1.0',
+    description='',
+    author='Ross Whitfield',
+    author_email='whitfieldre@ornl.gov',
+    url='https://github.com/rosswhitfield/javelin',
+    license='MIT',
     packages=['javelin']
 )
