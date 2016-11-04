@@ -302,7 +302,7 @@ def create_xarray_dataarray(values, grid):
     :param values: Input array containing the scattering intensities
     :type values: numpy.ndarray
     :param numbers: Grid object describing the array properties
-    :type numbers: javelin.grid
+    :type numbers: javelin.grid.Grid
     :return: DataArray produced from the values and grid object
     :rtype: xarray.DataArray
     """

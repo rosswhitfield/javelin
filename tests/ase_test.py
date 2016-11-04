@@ -4,9 +4,10 @@ import os
 
 
 def test_read_stru_znse():
-    ase = pytest.importorskip("javelin.ase")
+    pytest.importorskip("ase")
+    from javelin.io import read_stru_to_ase
     filename = os.path.join(os.path.dirname(__file__), 'data', 'znse.cell')
-    znse = ase.read_stru(filename)
+    znse = read_stru_to_ase(filename)
     assert len(znse) == 2
     assert_array_almost_equal(znse.get_cell(), [[3.997, 0, 0],
                                                 [-1.9985, 3.461504, 0],
@@ -18,9 +19,10 @@ def test_read_stru_znse():
 
 
 def test_read_stru_pzn():
-    ase = pytest.importorskip("javelin.ase")
+    pytest.importorskip("ase")
+    from javelin.io import read_stru_to_ase
     filename = os.path.join(os.path.dirname(__file__), 'data', 'pzn.stru')
-    pzn = ase.read_stru(filename)
+    pzn = read_stru_to_ase(filename)
     assert len(pzn) == 5
     assert_array_almost_equal(pzn.get_cell(), [[4.06, 0, 0],
                                                [0, 4.06, 0],
@@ -35,9 +37,10 @@ def test_read_stru_pzn():
 
 
 def test_read_stru_missing_cell():
-    ase = pytest.importorskip("javelin.ase")
+    pytest.importorskip("ase")
+    from javelin.io import read_stru_to_ase
     filename = os.path.join(os.path.dirname(__file__), 'data', 'missing_cell.cell')
-    pzn = ase.read_stru(filename)
+    pzn = read_stru_to_ase(filename)
     assert len(pzn) == 1
     assert_array_equal(pzn.get_cell(), [[1, 0, 0],
                                         [0, 1, 0],
