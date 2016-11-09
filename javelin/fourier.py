@@ -3,7 +3,8 @@
 fourier
 =======
 
-This module define the Structure object
+This module define the Fourier object and other functions related to
+the fourier transformation.
 """
 from __future__ import absolute_import
 import numpy as np
@@ -12,7 +13,8 @@ from javelin.grid import Grid
 
 
 class Fourier(object):
-
+    """The Fourier class
+    """
     def __init__(self):
         self._structure = None
         self._radiation = 'neutron'
@@ -23,6 +25,12 @@ class Fourier(object):
 
     @property
     def radiation(self):
+        """The radiation used
+
+        :getter: Returns the radiation selected
+        :setter: Sets the radiation
+        :type: str ('xray' or 'neutron')
+        """
         return self._radiation
 
     @radiation.setter
@@ -31,14 +39,27 @@ class Fourier(object):
 
     @property
     def structure(self):
+        """The structure from which fourier transform is calculated
+
+        :getter: Returns the structure
+        :setter: Sets the structure
+        :type: :class:`javelin.structure.Structure`, :class:`ase.Atoms`,
+           :class:`diffpy.Structure.structure.Structure`
+        """
         return self._structure
 
     @structure.setter
-    def structure(self, stru):
-        self._structure = stru
+    def structure(self, structure):
+        self._structure = structure
 
     @property
     def lots(self):
+        """The size of lots
+
+        :getter: Returns the lots size
+        :setter: Sets the lots size
+        :type: list of 3 integers or None
+        """
         return self._lots
 
     @lots.setter
@@ -54,6 +75,12 @@ class Fourier(object):
 
     @property
     def number_of_lots(self):
+        """The number of lots to use
+
+        :getter: Returns the number of lots
+        :setter: Sets the number of lots
+        :type: int
+        """
         return self._number_of_lots
 
     @number_of_lots.setter
@@ -107,23 +134,32 @@ class Fourier(object):
                 raise ValueError("Unable to get elements from structure")
 
     def calc(self, mag=False, fast=True):
+        """Calculates the fourier transform
+
+        :param mag: select if calculating magnetic scattering
+        :type mag: bool
+        :param fast: fast option
+        :type fast: bool
+        :return: DataArray containing calculated diffuse scattering
+        :rtype: :class:`xarray.DataArray`
+        """
 
         if self._average:
-            aver = self.calculate_average(fast)
+            aver = self._calculate_average(fast)
 
         if self.lots is None:
             atomic_numbers = self.__get_atomic_numbers()
             positions = self.__get_positions()
             if mag:
                 magmons = self.structure.get_magnetic_moments()
-                return create_xarray_dataarray(self.calculate_magnetic(atomic_numbers,
-                                                                       positions,
-                                                                       magmons,
-                                                                       fast=fast), self.grid)
+                return create_xarray_dataarray(self._calculate_magnetic(atomic_numbers,
+                                                                        positions,
+                                                                        magmons,
+                                                                        fast=fast), self.grid)
             else:
-                results = self.calculate(atomic_numbers,
-                                         positions,
-                                         fast=fast)
+                results = self._calculate(atomic_numbers,
+                                          positions,
+                                          fast=fast)
                 if self._average:
                     results -= aver
 
@@ -151,16 +187,16 @@ class Fourier(object):
                 print(positions.shape)
                 if mag:
                     magmons = self.structure.magmons.loc[ri, rj, rk, :].values
-                    total += self.calculate_magnetic(atomic_numbers, positions, magmons, fast=fast)
+                    total += self._calculate_magnetic(atomic_numbers, positions, magmons, fast=fast)
                 else:
-                    results = self.calculate(atomic_numbers, positions, fast=fast)
+                    results = self._calculate(atomic_numbers, positions, fast=fast)
                     if self._average:
                         results -= aver
                     total += np.real(results*np.conj(results))
 
             return create_xarray_dataarray(total, self.grid)
 
-    def calculate_average(self, fast):
+    def _calculate_average(self, fast):
         aver = np.zeros(self.grid.bins, dtype=np.complex)
         levels = self.structure.atoms.index.levels
         count = 0
@@ -192,8 +228,7 @@ class Fourier(object):
 
         return aver
 
-    def calculate(self, atomic_numbers, positions, fast, use_ff=True):
-        """Returns a Data object"""
+    def _calculate(self, atomic_numbers, positions, fast, use_ff=True):
         if fast:
             qx, qy, qz = self.grid.get_squashed_q_meshgrid()
         else:
@@ -235,8 +270,7 @@ class Fourier(object):
 
         return results
 
-    def calculate_magnetic(self, atomic_numbers, positions, magmons, fast):
-        """Returns a Data object"""
+    def _calculate_magnetic(self, atomic_numbers, positions, magmons, fast):
         if fast:
             qx, qy, qz = self.grid.get_squashed_q_meshgrid()
         else:
