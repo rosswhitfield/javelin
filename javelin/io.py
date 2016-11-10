@@ -215,7 +215,7 @@ def read_stru_to_ase(filename):
     :rtype: :class:`ase.Atoms`
 
     """
-    from ase.atoms import Atoms
+    from ase import Atoms
     from ase.geometry import cellpar_to_cell
 
     with open(filename) as f:

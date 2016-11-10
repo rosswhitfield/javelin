@@ -77,6 +77,10 @@ class Structure(object):
         return len(self.atoms)
 
     @property
+    def element(self):
+        return self.atoms.symbol.values
+
+    @property
     def xyz(self):
         return self.atoms[['x', 'y', 'z']].values
 
@@ -238,7 +242,7 @@ def get_miindex(l=0, ncells=None):
                                  labels=[[], [], [], []],
                                  names=['i', 'j', 'k', 'site'])
         else:
-            miindex = MultiIndex.from_product([0, 0, 0, range(l)],
+            miindex = MultiIndex.from_product([[0], [0], [0], range(l)],
                                               names=['i', 'j', 'k', 'site'])
     else:
         miindex = MultiIndex.from_product([range(ncells[0]),
