@@ -6,7 +6,7 @@ python:
   - "3.5"
 
 before_install:
-  - if [[ "${TRAVIS_PYTHON_VERSION:0:1}" == "2" ]]; then
+  - if [[ "${TRAVIS_PYTHON_VERSION}" == "2.7" ]]; then
         wget https://repo.continuum.io/miniconda/Miniconda-latest-Linux-x86_64.sh -O miniconda.sh;
     else
         wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh;
@@ -18,6 +18,10 @@ before_install:
 
 install:
   - conda create -q -n testenv python=$TRAVIS_PYTHON_VERSION h5py xarray pytables pytest-cov
+  - if [[ "${TRAVIS_PYTHON_VERSION}" == "2.7" ]]; then
+        conda config --add channels diffpy;
+        conda install --yes -n testenv diffpy.structure;
+    fi
   - if [[ "${TRAVIS_PYTHON_VERSION}" == "3.5" ]]; then conda install --yes -n testenv flake8; fi
   - source activate testenv
   - pip install ase codecov periodictable
