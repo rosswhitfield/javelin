@@ -19,6 +19,7 @@ def test_save_read_mantid_MDHisto_ZrO2nxs(tmpdir):
     io.save_mantid_MDHisto(ZrO2, str(save_filename))
     assert os.path.isfile(str(save_filename))
 
+
 def test_save_load_xarray_to_HDF5(tmpdir):
     import xarray as xr
 

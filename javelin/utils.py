@@ -6,6 +6,20 @@ utils
 
 
 def get_atomic_number_symbol(Z=None, symbol=None):
+    """This function returns a tuple of matching arrays of atomic numbers
+    (Z) and chemical symbols (symbol).
+
+    :param Z: atomic numbers
+    :type Z: int, array like object of int's
+    :param symbol: chemical symbols
+    :type symbol: str, array like object of str
+    :return: arrays of atomic numbers and chemical symbols
+    :rtype: tuple of :class:`numpy.ndarray`
+
+    Note: If both Z and symbol are provided the symbol will win out and
+    change the Z to match.
+
+    """
     import numpy as np
     from periodictable import elements
 
