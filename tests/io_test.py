@@ -4,14 +4,20 @@ from numpy.testing import assert_almost_equal, assert_array_equal
 import os
 
 
-def test_read_mantid_MDHisto_ZrO2nxs():
+def test_save_read_mantid_MDHisto_ZrO2nxs(tmpdir):
     pytest.importorskip("h5py")
-    filename = os.path.join(os.path.dirname(__file__), 'data', 'ZrO2.nxs')
-    ZrO2 = io.read_mantid_MDHisto(filename)
+
+    # Test load
+    load_filename = os.path.join(os.path.dirname(__file__), 'data', 'ZrO2.nxs')
+    ZrO2 = io.read_mantid_MDHisto(load_filename)
     assert ZrO2.values.shape == (200, 200)
     assert_almost_equal(ZrO2.attrs['unit_cell'].a, 5.150207)
     assert_almost_equal(ZrO2.attrs['unit_cell'].alpha, 1.5707964)
 
+    # Test Save
+    save_filename = tmpdir.join('test_file.h5')
+    io.save_mantid_MDHisto(ZrO2, str(save_filename))
+    assert os.path.isfile(str(save_filename))
 
 def test_save_load_xarray_to_HDF5(tmpdir):
     import xarray as xr

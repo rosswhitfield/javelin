@@ -15,13 +15,11 @@ def read_mantid_MDHisto(filename):
     with h5py.File(filename, "r") as f:
         if ('SaveMDVersion' not in f['MDHistoWorkspace'].attrs or
                 f['MDHistoWorkspace'].attrs['SaveMDVersion'] < 2):
-            print("Cannot open file, must be saved by SaveMD Version 2")
-            return
+            raise RuntimeError("Cannot open "+filename+", must be saved by SaveMD Version 2")
 
         path = 'MDHistoWorkspace/data/'
         if path+'signal' not in f:
-            print("Can't open "+path+'signal')
-            return
+            raise RuntimeError("Cannot open "+path+'signal in '+filename)
 
         signal = f[path+'signal']
         data = np.array(signal)
