@@ -207,30 +207,14 @@ def axisAngle2Versor(x, y, z, angle, unit='degrees'):
 
 
 def get_rotation_matrix(l, m, n, theta, unit='degrees'):
-
-    norm = np.linalg.norm([l, m, n])
-
-    if norm == 0:
-        raise ValueError("Rotation vector must have non-zero length")
-
-    l /= norm
-    m /= norm
-    n /= norm
-
-    if unit == 'degrees':
-        theta = np.deg2rad(theta)
-
-    ct = np.cos(theta)
-    st = np.sin(theta)
-    return np.matrix([[l*l*(1-ct)+ct,   m*l*(1-ct)-n*st, n*l*(1-ct)+m*st],
-                      [l*m*(1-ct)+n*st, m*m*(1-ct)+ct,   n*m*(1-ct)-l*st],
-                      [l*n*(1-ct)-m*st, m*n*(1-ct)+l*st, n*n*(1-ct)+ct]]).T
+    w, x, y, z = axisAngle2Versor(l, m, n, theta, unit=unit)
+    return get_rotation_matrix_from_versor(w, x, y, z)
 
 
 def get_rotation_matrix_from_versor(w, x, y, z):
     return np.matrix([[1-2*y**2-2*z**2, 2*(x*y-z*w), 2*(x*z+y*w)],
                       [2*(x*y+z*w), 1-2*x**2-2*z**2, 2*(y*z-x*w)],
-                      [2*(x*z-y*w), 2*(y*z+x*w), 1-2*x**2-2*y**2]]).T
+                      [2*(x*z-y*w), 2*(y*z+x*w), 1-2*x**2-2*y**2]]).T.A
 
 
 def get_miindex(l=0, ncells=None):
