@@ -8,7 +8,6 @@ the fourier transformation.
 """
 from __future__ import absolute_import
 import numpy as np
-from random import randrange
 from javelin.grid import Grid
 
 
@@ -35,6 +34,8 @@ class Fourier(object):
 
     @radiation.setter
     def radiation(self, rad):
+        if rad not in ('neutron', 'xray'):
+            raise ValueError("radiation must be one of 'neutron' or 'xray'")
         self._radiation = rad
 
     @property
@@ -170,9 +171,9 @@ class Fourier(object):
             levels = self.structure.atoms.index.levels
             for lot in range(self.number_of_lots):
                 print(lot+1, 'out of', self.number_of_lots)
-                starti = randrange(len(levels[0]))
-                startj = randrange(len(levels[1]))
-                startk = randrange(len(levels[2]))
+                starti = np.random.randint(len(levels[0]))
+                startj = np.random.randint(len(levels[1]))
+                startk = np.random.randint(len(levels[2]))
                 ri = np.roll(levels[0], starti)[:self.lots[0]]
                 rj = np.roll(levels[1], startj)[:self.lots[1]]
                 rk = np.roll(levels[2], startk)[:self.lots[2]]
@@ -205,9 +206,9 @@ class Fourier(object):
                 for k in levels[2]:
                     count += 1
                     atoms = self.structure.atoms.loc[i, j, k, :]
-                    aver += self.calculate(atoms.Z.values,
-                                           atoms[['x', 'y', 'z']].values,
-                                           fast)
+                    aver += self._calculate(atoms.Z.values,
+                                            atoms[['x', 'y', 'z']].values,
+                                            fast)
 
         aver /= count
 
@@ -219,12 +220,12 @@ class Fourier(object):
                                              range(self.lots[2]),
                                              :].index.droplevel(3).drop_duplicates()
 
-        aver *= self.calculate(np.zeros(len(index)),
-                               np.asarray([index.get_level_values(0).values,
-                                           index.get_level_values(1).values,
-                                           index.get_level_values(2).values]).T,
-                               fast,
-                               use_ff=False)
+        aver *= self._calculate(np.zeros(len(index)),
+                                np.asarray([index.get_level_values(0).values,
+                                            index.get_level_values(1).values,
+                                            index.get_level_values(2).values]).T,
+                                fast,
+                                use_ff=False)
 
         return aver
 
