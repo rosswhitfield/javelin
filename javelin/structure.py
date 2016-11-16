@@ -144,6 +144,18 @@ class Structure(object):
         if self.translations is not None:
             self.translations[i, j, k] = [0, 0, 0]
 
+    def rattle(self, scale=0.001, seed=None):
+        """Randomly move all atoms by a normal distbution with a standard
+        deviation given by scale.
+
+        :param scale: standard deviation
+        :type scale: float
+        :param scale: seed for random number generator
+        :type scale: int
+        """
+        rs = np.random.RandomState(seed)
+        self.atoms[['x', 'y', 'z']] += rs.normal(scale=scale, size=self.xyz.shape)
+
     def repeat(self, rep):
         """Repeat the cells a number of time along each dimension
 

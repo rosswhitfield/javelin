@@ -212,8 +212,7 @@ def test_lots():
     assert_allclose(results[0, :], expected_result)
 
     # Random move + average subtraction
-    rs = np.random.RandomState(0)
-    structure.atoms[['x', 'y', 'z']] += rs.normal(scale=0.001, size=(250, 3))
+    structure.rattle(seed=0)
     four._average = True
     results = four.calc()
 
@@ -228,7 +227,6 @@ def test_lots():
 
 
 def test_average():
-    import numpy as np
     structure = Structure(symbols=['C', 'O'], positions=[(0, 0, 0), (0.5, 0, 0)], unitcell=5)
     structure.repeat(5)
 
@@ -250,8 +248,7 @@ def test_average():
     assert_allclose(results[0, :], expected_result)
 
     # Random move
-    rs = np.random.RandomState(0)
-    structure.atoms[['x', 'y', 'z']] += rs.normal(scale=0.001, size=(250, 3))
+    structure.rattle(seed=0)
     results = four.calc()
 
     expected_result = [1.32348898e-23, 8.88939203e-04, 7.27741076e-03,
