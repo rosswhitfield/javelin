@@ -196,7 +196,7 @@ def test_lots():
                        6.70205900e-25, 1.48095071e+05, 1.03080955e-25,
                        9.69294822e+04, 5.35400081e-26, 1.48095071e+05,
                        1.77832044e-25, 1.01505872e+06, 2.42323706e+06]
-    assert_allclose(results[0, :], expected_result)
+    assert_allclose(results[0, :], expected_result, atol=1e-25)
 
     four.lots = 3, 3, 3
     four.number_of_lots = 3
@@ -245,7 +245,7 @@ def test_average():
                        3.46656800e-54, 8.37681929e-25, 5.74150325e-55,
                        5.46068451e-25, 2.74171118e-55, 8.37681929e-25,
                        1.00428514e-54, 5.21188409e-24, 1.32348898e-23]
-    assert_allclose(results[0, :], expected_result)
+    assert_array_almost_equal(results[0, :], expected_result)
 
     # Random move
     structure.rattle(seed=0)
@@ -258,7 +258,7 @@ def test_average():
                        2.60217008e-01, 3.57817285e-01, 7.25525103e-01,
                        1.13842501e+00, 9.60372378e-01, 6.18668588e-01,
                        5.97492048e-01, 3.24844518e-01, 2.34454638e-25]
-    assert_allclose(results[0, :], expected_result)
+    assert_array_almost_equal(results[0, :], expected_result)
 
 
 def test_magnetic():
@@ -289,7 +289,7 @@ def test_magnetic():
                        [4.93162100e+02, 1.86074202e+01]]
 
     results = four.calc(mag=True)
-    assert_allclose(results, expected_result)
+    assert_array_almost_equal(results, expected_result)
     results = four.calc(mag=True, fast=False)
     assert_array_almost_equal(results, expected_result)
 
@@ -308,6 +308,6 @@ def test_magnetic():
                        [7.89059360e-01, 1.86074202e+01]]
 
     results = four.calc(mag=True)
-    assert_allclose(results, expected_result)
+    assert_array_almost_equal(results, expected_result)
     results = four.calc(mag=True, fast=False)
     assert_array_almost_equal(results, expected_result)
