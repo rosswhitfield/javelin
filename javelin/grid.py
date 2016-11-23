@@ -42,7 +42,7 @@ class Grid(object):
         dims = np.asarray(dims)
         if dims.size == 1:
             self._dims = 1
-            self._n1 = dims[0]  # abscissa  (lr - ll)
+            self._n1 = dims  # abscissa  (lr - ll)
             self._n2 = 1
             self._n3 = 1
         elif dims.size == 2:
