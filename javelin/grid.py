@@ -35,35 +35,33 @@ class Grid(object):
 
     @property
     def bins(self):
-        if self._2D:
-            return self._n1, self._n2
-        else:
-            return self._n1, self._n2, self._n3
+        return self._n1, self._n2, self._n3
 
     @bins.setter
     def bins(self, dims):
         dims = np.asarray(dims)
-        if (dims < 2).any():
-            raise ValueError("Must have more than 1 bin in each direction")
-        if len(dims) == 2:
+        if dims.size == 1:
+            self._dims = 1
+            self._n1 = dims[0]  # abscissa  (lr - ll)
+            self._n2 = 1
+            self._n3 = 1
+        elif dims.size == 2:
             self._dims = 2
-            self._2D = True
             self._n1 = dims[0]  # abscissa  (lr - ll)
             self._n2 = dims[1]  # ordinate  (ul - ll)
             self._n3 = 1
-        elif len(dims) == 3:
+        elif dims.size == 3:
             self._dims = 3
-            self._2D = False
             self._n1 = dims[0]  # abscissa  (lr - ll)
             self._n2 = dims[1]  # ordinate  (ul - ll)
             self._n3 = dims[2]  # applicate (tl - ll)
         else:
-            raise ValueError("Must provide 2 or 3 dimensions")
+            raise ValueError("Must provide up to 3 dimensions")
         self.__vertices_to_vectors()
 
     @property
-    def twoD(self):
-        return self._2D
+    def dims(self):
+        return self._dims
 
     @property
     def ll(self):
@@ -134,7 +132,7 @@ class Grid(object):
         return self._r3
 
     def __validate_vectors(self):
-        vertices = ['lr', 'ul'] if self._2D else ['lr', 'ul', 'tl']
+        vertices = ['lr', 'ul'] if self.dims == 2 else ['lr', 'ul', 'tl']
         vector_dict = {}
         for vertex in vertices:
             # Create vector from ll to 'vertex'
@@ -154,19 +152,17 @@ class Grid(object):
         self._origin = self._vertices['ll']
         self._v1 = norm(self._vertices['lr']-self._vertices['ll'])
         self._v2 = norm(self._vertices['ul']-self._vertices['ll'])
-        self._v3 = np.array([0, 0, 1]) if self._2D else norm(self._vertices['tl'] -
-                                                             self._vertices['ll'])
+        self._v3 = np.array([0, 0, 1]) if self.dims == 2 else norm(self._vertices['tl'] -
+                                                                   self._vertices['ll'])
         self._r1 = np.linspace(0,
                                length(self._vertices['lr']-self._vertices['ll'])/length(self.v1),
                                self._n1)
         self._r2 = np.linspace(0,
                                length(self._vertices['ul']-self._vertices['ll'])/length(self.v2),
                                self._n2)
-        self._r3 = np.array([0]) if self._2D else np.linspace(0,
-                                                              length(self._vertices['tl'] -
-                                                                     self._vertices['ll']) /
-                                                              length(self.v3),
-                                                              self._n3)
+        self._r3 = np.linspace(0,
+                               length(self._vertices['tl']-self._vertices['ll'])/length(self.v3),
+                               self._n3)
 
     def get_axis_names(self):
         return (str(self._origin) + str(' + x') + str(self.v1),
@@ -174,70 +170,28 @@ class Grid(object):
                 str(self._origin) + str(' + z') + str(self.v3))
 
     def get_q_meshgrid(self):
-        self.__validate_vectors()
-        dx = (self.lr - self.ll)/(self._n1-1)
-        dy = (self.ul - self.ll)/(self._n2-1)
-        x = np.arange(self._n1).reshape((self._n1, 1))
-        y = np.arange(self._n2).reshape((1, self._n2))
-        if self._2D:
-            qx = self.ll[0] + x*dx[0] + y*dy[0]
-            qy = self.ll[1] + x*dx[1] + y*dy[1]
-            qz = self.ll[2] + x*dx[2] + y*dy[2]
-        else:  # assume _dims == 3
-            x.shape = (self._n1, 1, 1)
-            y.shape = (1, self._n2, 1)
-            z = np.arange(self._n3).reshape((1, 1, self._n3))
-            dz = (self.tl - self.ll)/(self._n3-1)
-            qx = self.ll[0] + x*dx[0] + y*dy[0] + z*dz[0]
-            qy = self.ll[1] + x*dx[1] + y*dy[1] + z*dz[1]
-            qz = self.ll[2] + x*dx[2] + y*dy[2] + z*dz[2]
+        x = self.r1.reshape((self._n1, 1, 1))
+        y = self.r2.reshape((1, self._n2, 1))
+        z = self.r3.reshape((1, 1, self._n3))
+        qx = self.ll[0] + x*self.v1[0] + y*self.v2[0] + z*self.v3[0]
+        qy = self.ll[1] + x*self.v1[1] + y*self.v2[1] + z*self.v3[1]
+        qz = self.ll[2] + x*self.v1[2] + y*self.v2[2] + z*self.v3[2]
         return qx, qy, qz
 
     def get_squashed_q_meshgrid(self):
-        self.__validate_vectors()
-        dx = (self.lr - self.ll)/(self._n1-1)
-        dy = (self.ul - self.ll)/(self._n2-1)
-        qx_bins = get_bin_number(self.v1, self.v2, self.v3, self.bins, 0)
-        qy_bins = get_bin_number(self.v1, self.v2, self.v3, self.bins, 1)
-        qz_bins = get_bin_number(self.v1, self.v2, self.v3, self.bins, 2)
-        qx = np.zeros(qx_bins)
-        qy = np.zeros(qy_bins)
-        qz = np.zeros(qz_bins)
-        if self._2D:
-            x = np.arange(qx_bins[0]).reshape((qx_bins[0], 1))
-            y = np.arange(qx_bins[1]).reshape((1, qx_bins[1]))
-            qx = self.ll[0] + x*dx[0] + y*dy[0]
-            x = np.arange(qy_bins[0]).reshape((qy_bins[0], 1))
-            y = np.arange(qy_bins[1]).reshape((1, qy_bins[1]))
-            qy = self.ll[1] + x*dx[1] + y*dy[1]
-            x = np.arange(qz_bins[0]).reshape((qz_bins[0], 1))
-            y = np.arange(qz_bins[1]).reshape((1, qz_bins[1]))
-            qz = self.ll[2] + x*dx[2] + y*dy[2]
-        else:
-            dz = (self.tl - self.ll)/(self._n3-1)
-            x = np.arange(qx_bins[0]).reshape((qx_bins[0], 1, 1))
-            y = np.arange(qx_bins[1]).reshape((1, qx_bins[1], 1))
-            z = np.arange(qx_bins[2]).reshape((1, 1, qx_bins[2]))
-            qx = self.ll[0] + x*dx[0] + y*dy[0] + z*dz[0]
-            x = np.arange(qy_bins[0]).reshape((qy_bins[0], 1, 1))
-            y = np.arange(qy_bins[1]).reshape((1, qy_bins[1], 1))
-            z = np.arange(qy_bins[2]).reshape((1, 1, qy_bins[2]))
-            qy = self.ll[1] + x*dx[1] + y*dy[1] + z*dz[1]
-            x = np.arange(qz_bins[0]).reshape((qz_bins[0], 1, 1))
-            y = np.arange(qz_bins[1]).reshape((1, qz_bins[1], 1))
-            z = np.arange(qz_bins[2]).reshape((1, 1, qz_bins[2]))
-            qz = self.ll[2] + x*dx[2] + y*dy[2] + z*dz[2]
+        xbins = self._get_bin_number(0)
+        ybins = self._get_bin_number(1)
+        zbins = self._get_bin_number(2)
+        qx = self.ll[0] + xbins[0]*self.v1[0] + xbins[1]*self.v2[0] + xbins[2]*self.v3[0]
+        qy = self.ll[1] + ybins[0]*self.v1[1] + ybins[1]*self.v2[1] + ybins[2]*self.v3[1]
+        qz = self.ll[2] + zbins[0]*self.v1[2] + zbins[1]*self.v2[2] + zbins[2]*self.v3[2]
         return qx, qy, qz
 
-
-def get_bin_number(vabs, vord, vapp, bins, index):
-    binx = 1 if vabs[index] == 0 else bins[0]
-    biny = 1 if vord[index] == 0 else bins[1]
-    if len(bins) == 2:
-        return binx, biny
-    else:
-        binz = 1 if vapp[index] == 0 else bins[2]
-    return binx, biny, binz
+    def _get_bin_number(self, index):
+        binx = np.zeros((1, 1, 1)) if self.v1[index] == 0 else self.r1.reshape((self.bins[0], 1, 1))
+        biny = np.zeros((1, 1, 1)) if self.v2[index] == 0 else self.r2.reshape((1, self.bins[1], 1))
+        binz = np.zeros((1, 1, 1)) if self.v3[index] == 0 else self.r3.reshape((1, 1, self.bins[2]))
+        return binx, biny, binz
 
 
 def length(v):

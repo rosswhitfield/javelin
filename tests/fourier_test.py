@@ -8,7 +8,7 @@ def test_Fourier_init():
     four = Fourier()
     assert four.radiation == 'neutron'
     assert four.structure is None
-    assert four.grid.bins == (101, 101)
+    assert four.grid.bins == (101, 101, 1)
     assert_array_equal(four.grid.ll, [0.0, 0.0, 0.0])
     assert_array_equal(four.grid.lr, [1.0, 0.0, 0.0])
     assert_array_equal(four.grid.ul, [0.0, 1.0, 0.0])
@@ -46,10 +46,10 @@ def test_Fourier_two_atoms():
                        101.75162784, 140.34558984, 155.08717156]
 
     results = four.calc()
-    assert_array_almost_equal(results[:, 0], expected_result)
+    assert_array_almost_equal(results[:, 0, 0], expected_result)
 
     results = four.calc(fast=False)
-    assert_array_almost_equal(results[:, 0], expected_result)
+    assert_array_almost_equal(results[:, 0, 0], expected_result)
 
     four.radiation = 'xray'
     expected_result = [1.95913322e+02, 1.66402201e+02, 1.01484495e+02,
@@ -61,10 +61,10 @@ def test_Fourier_two_atoms():
                        4.72586766e+00, 6.04617986e+00, 6.20124769e+00]
 
     results = four.calc()
-    assert_array_almost_equal(results[:, 0], expected_result)
+    assert_array_almost_equal(results[:, 0, 0], expected_result)
 
     results = four.calc(fast=False)
-    assert_array_almost_equal(results[:, 0], expected_result)
+    assert_array_almost_equal(results[:, 0, 0], expected_result)
 
 
 def test_Foutier_C_Ring():
@@ -196,7 +196,7 @@ def test_lots():
                        6.70205900e-25, 1.48095071e+05, 1.03080955e-25,
                        9.69294822e+04, 5.35400081e-26, 1.48095071e+05,
                        1.77832044e-25, 1.01505872e+06, 2.42323706e+06]
-    assert_allclose(results[0, :], expected_result, atol=1e-25)
+    assert_allclose(results[0, :, 0], expected_result, atol=1e-25)
 
     four.lots = 3, 3, 3
     four.number_of_lots = 3
@@ -209,7 +209,7 @@ def test_lots():
                        98663.70718625,   61677.5841574,   14394.84088099,
                        37686.18268908,   14394.84088099,   61677.5841574,
                        98663.70718625,  202125.69466616,  339175.64420172]
-    assert_allclose(results[0, :], expected_result)
+    assert_allclose(results[0, :, 0], expected_result)
 
     # Random move + average subtraction
     structure.rattle(seed=0)
@@ -223,7 +223,7 @@ def test_lots():
                        2.83427875e+05, 5.86850273e+04, 3.06047773e+04,
                        5.83516439e-02, 3.06324860e+04, 5.87386761e+04,
                        2.83368966e+05, 2.54897708e+05, 1.28156664e+00]
-    assert_allclose(results[0, :], expected_result)
+    assert_allclose(results[0, :, 0], expected_result)
 
 
 def test_average():
@@ -245,7 +245,7 @@ def test_average():
                        3.46656800e-54, 8.37681929e-25, 5.74150325e-55,
                        5.46068451e-25, 2.74171118e-55, 8.37681929e-25,
                        1.00428514e-54, 5.21188409e-24, 1.32348898e-23]
-    assert_array_almost_equal(results[0, :], expected_result)
+    assert_array_almost_equal(results[0, :, 0], expected_result)
 
     # Random move
     structure.rattle(seed=0)
@@ -258,7 +258,7 @@ def test_average():
                        2.60217008e-01, 3.57817285e-01, 7.25525103e-01,
                        1.13842501e+00, 9.60372378e-01, 6.18668588e-01,
                        5.97492048e-01, 3.24844518e-01, 2.34454638e-25]
-    assert_array_almost_equal(results[0, :], expected_result)
+    assert_array_almost_equal(results[0, :, 0], expected_result)
 
 
 def test_magnetic():
@@ -289,9 +289,9 @@ def test_magnetic():
                        [4.93162100e+02, 1.86074202e+01]]
 
     results = four.calc(mag=True)
-    assert_array_almost_equal(results, expected_result)
+    assert_array_almost_equal(results[:, :, 0], expected_result)
     results = four.calc(mag=True, fast=False)
-    assert_array_almost_equal(results, expected_result)
+    assert_array_almost_equal(results[:, :, 0], expected_result)
 
     structure.magmons.spinz[1::2] = -1
 
@@ -308,6 +308,6 @@ def test_magnetic():
                        [7.89059360e-01, 1.86074202e+01]]
 
     results = four.calc(mag=True)
-    assert_array_almost_equal(results, expected_result)
+    assert_array_almost_equal(results[:, :, 0], expected_result)
     results = four.calc(mag=True, fast=False)
-    assert_array_almost_equal(results, expected_result)
+    assert_array_almost_equal(results[:, :, 0], expected_result)

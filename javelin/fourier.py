@@ -145,6 +145,9 @@ class Fourier(object):
         :rtype: :class:`xarray.DataArray`
         """
 
+        if self.structure is None:
+            raise ValueError("You have not set a structure for this calculation")
+
         if self._average:
             aver = self._calculate_average(fast)
 
@@ -321,7 +324,7 @@ class Fourier(object):
             spinx += temp_spinx * ff
             spiny += temp_spiny * ff
             spinz += temp_spinz * ff
-        # Caluculate vector rejection of spin onto q
+        # Calculate vector rejection of spin onto q
         # M - M.Q/|Q|^2 Q
         scale = (spinx*qx + spiny*qy + spinz*qz)/q2
         spinx = spinx - scale * qx
@@ -342,18 +345,11 @@ def create_xarray_dataarray(values, grid):
     :rtype: :class:`xarray.DataArray`
     """
     import xarray as xr
-    if grid.twoD:
-        return xr.DataArray(data=values,
-                            name="Intensity",
-                            dims=("Q1", "Q2"),
-                            coords=(grid.r1, grid.r2),
-                            attrs=(("units", grid.units),))
-    else:
-        return xr.DataArray(data=values,
-                            name="Intensity",
-                            dims=("Q1", "Q2", "Q3"),
-                            coords=(grid.r1, grid.r2, grid.r3),
-                            attrs=(("units", grid.units),))
+    return xr.DataArray(data=values,
+                        name="Intensity",
+                        dims=("Q1", "Q2", "Q3"),
+                        coords=(grid.r1, grid.r2, grid.r3),
+                        attrs=(("units", grid.units),))
 
 
 def get_ff(atomic_number, radiation, q=None):
