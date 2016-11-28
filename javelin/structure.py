@@ -43,8 +43,7 @@ class Structure(object):
 
         self.atoms = DataFrame(index=miindex,
                                columns=['Z', 'symbol',
-                                        'x', 'y', 'z',
-                                        'cartn_x', 'cartn_y', 'cartn_z'])
+                                        'x', 'y', 'z'])
 
         if numbers is not None or symbols is not None:
             self.atoms.Z, self.atoms.symbol = get_atomic_number_symbol(Z=numbers, symbol=symbols)
@@ -69,8 +68,6 @@ class Structure(object):
                                      columns=['spinx', 'spiny', 'spinz'])
         else:
             self.magmons = None
-
-        self._recalculate_cartn()
 
     @property
     def number_of_atoms(self):
@@ -98,7 +95,10 @@ class Structure(object):
 
     @property
     def xyz_cartn(self):
-        return self.atoms[['cartn_x', 'cartn_y', 'cartn_z']].values
+        return self.unitcell.cartesian(self.atoms[['x', 'y', 'z']].values +
+                                       np.asarray([self.atoms.index.get_level_values(0).values,
+                                                   self.atoms.index.get_level_values(1).values,
+                                                   self.atoms.index.get_level_values(2).values]).T)
 
     def get_atom_symbols(self):
         return self.atoms.symbol.unique()
@@ -132,11 +132,8 @@ class Structure(object):
         if position is None:
             raise ValueError("position not provided")
 
-        cartn = self.unitcell.cartesian(position)[0]
-
         self.atoms.loc[i, j, k, site] = [Z[0], symbol[0],
-                                         position[0], position[1], position[2],
-                                         cartn[0], cartn[1], cartn[2]]
+                                         position[0], position[1], position[2]]
 
         if self.rotations is not None:
             self.rotations[i, j, k] = [1, 0, 0, 0]
@@ -178,8 +175,7 @@ class Structure(object):
 
         self.atoms = DataFrame(index=miindex,
                                columns=['Z', 'symbol',
-                                        'x', 'y', 'z',
-                                        'cartn_x', 'cartn_y', 'cartn_z'])
+                                        'x', 'y', 'z'])
 
         self.atoms.Z, self.atoms.symbol = get_atomic_number_symbol(Z=Z)
 
@@ -187,18 +183,8 @@ class Structure(object):
         self.atoms.y = y
         self.atoms.z = z
 
-        self._recalculate_cartn()
-
     def reindex(self, ncells):
         self.atoms.set_index(get_miindex(ncells=ncells), inplace=True)
-        self._recalculate_cartn()
-
-    def _recalculate_cartn(self):
-        self.atoms[['cartn_x', 'cartn_y', 'cartn_z']] = self.unitcell.cartesian(
-            self.atoms[['x', 'y', 'z']].values +
-            np.asarray([self.atoms.index.get_level_values(0).values,
-                        self.atoms.index.get_level_values(1).values,
-                        self.atoms.index.get_level_values(2).values]).T)
 
 
 def axisAngle2Versor(x, y, z, angle, unit='degrees'):
