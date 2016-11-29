@@ -39,24 +39,25 @@ class Grid(object):
 
     @bins.setter
     def bins(self, dims):
-        dims = np.asarray(dims)
-        if dims.size == 1:
+        if isinstance(dims, int):
             self._dims = 1
             self._n1 = dims  # abscissa  (lr - ll)
             self._n2 = 1
             self._n3 = 1
-        elif dims.size == 2:
-            self._dims = 2
-            self._n1 = dims[0]  # abscissa  (lr - ll)
-            self._n2 = dims[1]  # ordinate  (ul - ll)
-            self._n3 = 1
-        elif dims.size == 3:
-            self._dims = 3
-            self._n1 = dims[0]  # abscissa  (lr - ll)
-            self._n2 = dims[1]  # ordinate  (ul - ll)
-            self._n3 = dims[2]  # applicate (tl - ll)
         else:
-            raise ValueError("Must provide up to 3 dimensions")
+            dims = np.asarray(dims)
+            if dims.size == 2:
+                self._dims = 2
+                self._n1 = dims[0]  # abscissa  (lr - ll)
+                self._n2 = dims[1]  # ordinate  (ul - ll)
+                self._n3 = 1
+            elif dims.size == 3:
+                self._dims = 3
+                self._n1 = dims[0]  # abscissa  (lr - ll)
+                self._n2 = dims[1]  # ordinate  (ul - ll)
+                self._n3 = dims[2]  # applicate (tl - ll)
+            else:
+                raise ValueError("Must provide up to 3 dimensions")
         self.__vertices_to_vectors()
 
     @property
