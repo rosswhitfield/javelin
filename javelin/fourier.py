@@ -347,7 +347,7 @@ def create_xarray_dataarray(values, grid):
     import xarray as xr
     return xr.DataArray(data=values,
                         name="Intensity",
-                        dims=("Q1", "Q2", "Q3"),
+                        dims=(grid.get_axes_names()),
                         coords=(grid.r1, grid.r2, grid.r3),
                         attrs=(("units", grid.units),))
 

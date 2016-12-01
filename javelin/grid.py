@@ -43,22 +43,21 @@ class Grid(object):
 
     @bins.setter
     def bins(self, dims):
-        if isinstance(dims, int):
-            self._n1 = dims  # abscissa  (lr - ll)
+        dims = np.asarray(dims, dtype=int)
+        if dims.size == 1:
+            self._n1 = int(dims)  # abscissa  (lr - ll)
             self._n2 = 1
             self._n3 = 1
+        elif dims.size == 2:
+            self._n1 = dims[0]  # abscissa  (lr - ll)
+            self._n2 = dims[1]  # ordinate  (ul - ll)
+            self._n3 = 1
+        elif dims.size == 3:
+            self._n1 = dims[0]  # abscissa  (lr - ll)
+            self._n2 = dims[1]  # ordinate  (ul - ll)
+            self._n3 = dims[2]  # applicate (tl - ll)
         else:
-            dims = np.asarray(dims, dtype=int)
-            if dims.size == 2:
-                self._n1 = dims[0]  # abscissa  (lr - ll)
-                self._n2 = dims[1]  # ordinate  (ul - ll)
-                self._n3 = 1
-            elif dims.size == 3:
-                self._n1 = dims[0]  # abscissa  (lr - ll)
-                self._n2 = dims[1]  # ordinate  (ul - ll)
-                self._n3 = dims[2]  # applicate (tl - ll)
-            else:
-                raise ValueError("Must provide up to 3 dimensions")
+            raise ValueError("Must provide up to 3 dimensions")
 
     @property
     def ll(self):
@@ -136,7 +135,7 @@ class Grid(object):
             raise ValueError("Must provide 2 values, min and max")
         self._r3 = np.asarray(r)
 
-    def get_axis_names(self):
+    def get_axes_names(self):
         return str(self.v1), str(self.v2), str(self.v3)
 
     def get_q_meshgrid(self):
@@ -207,7 +206,7 @@ def corners_to_vectors(ll=None, lr=None, ul=None, tl=None):  # noqa
             try:
                 v2, v3 = next(c)
                 _r0 = np.linalg.solve(np.transpose([v1, v2, v3]), ll)
-            except np.linalg.linalg.LinAlgError:
+            except np.linalg.LinAlgError:
                 continue
             else:
                 break

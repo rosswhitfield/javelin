@@ -18,7 +18,7 @@ def test_init():
     assert_array_equal(grid.r1, np.linspace(0, 1, 101))
     assert_array_equal(grid.r2, np.linspace(0, 1, 101))
     assert_array_equal(grid.r3, [0])
-    assert_array_equal(grid.get_axis_names(), ['[1 0 0]',
+    assert_array_equal(grid.get_axes_names(), ['[1 0 0]',
                                                '[0 1 0]',
                                                '[0 0 1]'])
     qx, qy, qz = grid.get_q_meshgrid()
@@ -66,7 +66,7 @@ def test_init_1D():
     assert_array_equal(grid.r1, np.linspace(0, 1, 101))
     assert_array_equal(grid.r2, [0])
     assert_array_equal(grid.r3, [0])
-    assert_array_equal(grid.get_axis_names(), ['[1 0 0]',
+    assert_array_equal(grid.get_axes_names(), ['[1 0 0]',
                                                '[0 1 0]',
                                                '[0 0 1]'])
     qx, qy, qz = grid.get_q_meshgrid()
@@ -96,7 +96,7 @@ def test_complete():
     assert_array_almost_equal(grid.r1, np.linspace(0, 2, 3))
     assert_array_almost_equal(grid.r2, np.linspace(0, 3, 4))
     assert_array_equal(grid.r3, [0])
-    assert_array_equal(grid.get_axis_names(), ['[ 1.  1.  0.]',
+    assert_array_equal(grid.get_axes_names(), ['[ 1.  1.  0.]',
                                                '[ 1. -1.  0.]',
                                                '[ 0.  0. -1.]'])
     qx, qy, qz = grid.get_q_meshgrid()
@@ -134,7 +134,7 @@ def test_complete_1D():
     assert_array_almost_equal(grid.r1, np.linspace(0, 2, 3))
     assert_array_almost_equal(grid.r2, [0])
     assert_array_equal(grid.r3, [0])
-    assert_array_equal(grid.get_axis_names(), ['[ 1.  1.  0.]',
+    assert_array_equal(grid.get_axes_names(), ['[ 1.  1.  0.]',
                                                '[ 1.  0.  0.]',
                                                '[ 0.  0.  1.]'])
     qx, qy, qz = grid.get_q_meshgrid()
@@ -167,7 +167,7 @@ def test_complete_3D():
     assert_array_equal(grid.r1, [-2, 0, 2])
     assert_array_equal(grid.r2, [-3, -1, 1, 3])
     assert_array_equal(grid.r3, [-4, -2, 0, 2, 4])
-    assert_array_equal(grid.get_axis_names(), ['[ 1.  0.  0.]',
+    assert_array_equal(grid.get_axes_names(), ['[ 1.  0.  0.]',
                                                '[ 0.  1.  0.]',
                                                '[ 0.  0.  1.]'])
     qx, qy, qz = grid.get_q_meshgrid()
