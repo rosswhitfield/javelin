@@ -12,7 +12,6 @@ The grid can de defined in with reciprocal lattice units (r.l.u) or q.
 
 from __future__ import division
 import numpy as np
-from itertools import combinations
 
 
 class Grid(object):
@@ -183,49 +182,34 @@ def norm1(v):
     return v/np.min(np.abs(v[np.nonzero(v)]))
 
 
-def corners_to_vectors(ll=None, lr=None, ul=None, tl=None):  # noqa
-    if lr is None:
+def corners_to_vectors(ll=None, lr=None, ul=None, tl=None):
+    if ll is None or lr is None:
         raise ValueError("Need to provide at least ll (lower-left) and lr (lower-right) corners")
-    elif ul is None:
-        dims = 1
-    elif tl is None:
-        dims = 2
-    else:
-        dims = 3
-
-    ll = np.asarray(ll)
-    lr = np.asarray(lr)
-    ul = np.asarray(ul)
-    tl = np.asarray(tl)
-
-    v1 = norm1(lr - ll)
-
-    if dims == 1:
-        c = combinations(np.eye(3), 2)
-        while True:
-            try:
-                v2, v3 = next(c)
-                _r0 = np.linalg.solve(np.transpose([v1, v2, v3]), ll)
-            except np.linalg.LinAlgError:
-                continue
-            else:
-                break
+    elif ul is None:  # 1D
+        v1 = get_vector_from_points(ll, lr)
+        v2, v3 = find_other_vectors(v1)
+        _r0 = np.linalg.solve(np.transpose([v1, v2, v3]), ll)
         _r1 = np.linalg.solve(np.transpose([v1, v2, v3]), lr)
         r1 = (_r0[0], _r1[0])
         r2 = (_r0[1], _r0[1])
         r3 = (_r0[2], _r0[2])
-    elif dims == 2:
-        v2 = norm1(ul - ll)
-        v3 = norm1(np.cross(v1, v2))
+    elif tl is None:  # 2D
+        v1 = get_vector_from_points(ll, lr)
+        v2 = get_vector_from_points(ll, ul)
+        try:
+            v3 = norm1(np.cross(v1, v2))
+        except ValueError:
+            raise ValueError("Vector from ll to lr is parallel with vector from ll to ul")
         _r0 = np.linalg.solve(np.transpose([v1, v2, v3]), ll)
         _r1 = np.linalg.solve(np.transpose([v1, v2, v3]), lr)
         _r2 = np.linalg.solve(np.transpose([v1, v2, v3]), ul)
         r1 = (_r0[0], _r1[0])
         r2 = (_r0[1], _r2[1])
         r3 = (_r0[2], _r0[2])
-    elif dims == 3:
-        v2 = norm1(ul - ll)
-        v3 = norm1(tl - ll)
+    else:  # 3D
+        v1 = get_vector_from_points(ll, lr)
+        v2 = get_vector_from_points(ll, ul)
+        v3 = get_vector_from_points(ll, tl)
         try:
             _r0 = np.linalg.solve(np.transpose([v1, v2, v3]), ll)
             _r1 = np.linalg.solve(np.transpose([v1, v2, v3]), lr)
@@ -238,3 +222,24 @@ def corners_to_vectors(ll=None, lr=None, ul=None, tl=None):  # noqa
         r3 = (_r0[2], _r3[2])
 
     return v1, v2, v3, r1, r2, r3
+
+
+def get_vector_from_points(p1, p2):
+    p1 = np.asarray(p1)
+    p2 = np.asarray(p2)
+    try:
+        return norm1(p2 - p1)
+    except:
+        raise ValueError("Points provided must be different")
+
+
+def find_other_vectors(v):
+    from itertools import combinations
+    c = combinations(np.eye(3), 2)
+    while True:
+        v0, v1 = next(c)
+        if np.linalg.cond(np.transpose([v, v0, v1])) == np.inf:
+            continue
+        else:
+            break
+    return v0, v1
