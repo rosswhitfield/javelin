@@ -30,9 +30,6 @@ class Grid(object):
 
         self.units = 'r.l.u'
 
-    def show(self):
-        pass
-
     def set_corners(self,
                     ll=(0, 0, 0),
                     lr=None,
@@ -187,7 +184,7 @@ def norm1(v):
     return v/np.min(np.abs(v[np.nonzero(v)]))
 
 
-def corners_to_vectors(ll=None, lr=None, ul=None, tl=None): # noqa
+def corners_to_vectors(ll=None, lr=None, ul=None, tl=None):  # noqa
     if lr is None:
         raise ValueError("Need to provide at least ll (lower-left) and lr (lower-right) corners")
     elif ul is None:
