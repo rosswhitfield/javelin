@@ -34,7 +34,7 @@ def test_Fourier_two_atoms():
     atom = Structure(symbols=['C', 'O'], positions=[(0, 0, 0), (1, 0, 0)])
     four = Fourier()
     four.grid.bins = [21, 2]
-    four.grid.lr = [2.0, 0.0, 0.0]
+    four.grid.set_corners(lr=[2.0, 0.0, 0.0])
     four.structure = atom
 
     expected_result = [155.08717156, 140.34558984, 101.75162784,
@@ -84,10 +84,10 @@ def test_Foutier_C_Ring():
     four = Fourier()
     four.grid.bins = [6, 6, 2]
     four.structure = cnt
-    four.grid.ll = [0.0, 0.0, 0.0]
-    four.grid.lr = [2.0, 0.0, 0.0]
-    four.grid.ul = [0.0, 2.0, 0.0]
-    four.grid.tl = [0.0, 0.0, 0.5]
+    four.grid.set_corners(ll=[0.0, 0.0, 0.0],
+                          lr=[2.0, 0.0, 0.0],
+                          ul=[0.0, 2.0, 0.0],
+                          tl=[0.0, 0.0, 0.5])
     expected_result = [[[6.36497605e+03, 3.18248802e+03],
                         [5.19826149e+03, 2.62430530e+03],
                         [2.62792897e+03, 1.44984089e+03],
@@ -183,8 +183,8 @@ def test_lots():
 
     four = Fourier()
     four.grid.bins = [2, 21]
-    four.grid.lr = [4.0, 0.0, 0.0]
-    four.grid.ul = [0.0, 2.0, 0.0]
+    four.grid.set_corners(lr=[4.0, 0.0, 0.0],
+                          ul=[0.0, 2.0, 0.0])
     four.structure = structure
     four.lots = None
     results = four.calc()
@@ -232,8 +232,8 @@ def test_average():
 
     four = Fourier()
     four.grid.bins = [2, 21]
-    four.grid.lr = [4.0, 0.0, 0.0]
-    four.grid.ul = [0.0, 2.0, 0.0]
+    four.grid.set_corners(lr=[4.0, 0.0, 0.0],
+                          ul=[0.0, 2.0, 0.0])
     four.structure = structure
     four._average = True
     results = four.calc()
@@ -272,8 +272,8 @@ def test_magnetic():
 
     four = Fourier()
     four.grid.bins = [11, 2]
-    four.grid.lr = [1.0, 0.0, 0.0]
-    four.grid.ul = [0.0, 0.5, 0.0]
+    four.grid.set_corners(lr=[1.0, 0.0, 0.0],
+                          ul=[0.0, 0.5, 0.0])
     four.structure = structure
 
     expected_result = [[np.nan, 2.35532329e+01],

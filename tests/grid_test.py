@@ -8,7 +8,6 @@ def test_init():
     grid = Grid()
 
     assert_array_equal(grid.bins, [101, 101, 1])
-    assert grid.dims == 2
     assert_array_equal(grid.ll, [0, 0, 0])
     assert_array_equal(grid.lr, [1, 0, 0])
     assert_array_equal(grid.ul, [0, 1, 0])
@@ -19,9 +18,9 @@ def test_init():
     assert_array_equal(grid.r1, np.linspace(0, 1, 101))
     assert_array_equal(grid.r2, np.linspace(0, 1, 101))
     assert_array_equal(grid.r3, [0])
-    assert_array_equal(grid.get_axis_names(), ['[ 0.  0.  0.] + x[ 1.  0.  0.]',
-                                               '[ 0.  0.  0.] + y[ 0.  1.  0.]',
-                                               '[ 0.  0.  0.] + z[0 0 1]'])
+    assert_array_equal(grid.get_axis_names(), ['[1 0 0]',
+                                               '[0 1 0]',
+                                               '[0 0 1]'])
     qx, qy, qz = grid.get_q_meshgrid()
     assert_array_equal(qx, np.tile(np.linspace(0, 1, 101), (101, 1)).T.reshape((101, 101, 1)))
     assert_array_equal(qy, np.tile(np.linspace(0, 1, 101), (101, 1)).reshape((101, 101, 1)))
@@ -37,7 +36,6 @@ def test_init_3D():
 
     # Set to 3D
     grid.bins = 101, 101, 101
-    assert grid.dims == 3
     assert_array_equal(grid.r1, np.linspace(0, 1, 101))
     assert_array_equal(grid.r2, np.linspace(0, 1, 101))
     assert_array_equal(grid.r3, np.linspace(0, 1, 101))
@@ -55,26 +53,23 @@ def test_init_3D():
 def test_complete():
     grid = Grid()
 
-    grid.ll = 0, 0, 0
-    grid.lr = 2, 2, 0
-    grid.ul = 3, -3, 0
+    grid.set_corners(lr=(2, 2, 0), ul=(3, -3, 0))
     grid.bins = 3, 4
 
     assert_array_equal(grid.bins, [3, 4, 1])
-    assert grid.dims == 2
     assert_array_equal(grid.ll, [0, 0, 0])
     assert_array_equal(grid.lr, [2, 2, 0])
     assert_array_equal(grid.ul, [3, -3, 0])
-    assert_array_equal(grid.tl, [0, 0, 1])
-    assert_array_equal(grid.v1, [1/np.sqrt(2), 1/np.sqrt(2), 0])
-    assert_array_almost_equal(grid.v2, [1/np.sqrt(2), -1/np.sqrt(2), 0])
-    assert_array_equal(grid.v3, [0, 0, 1])
-    assert_array_almost_equal(grid.r1, np.linspace(0, 2*np.sqrt(2), 3))
-    assert_array_almost_equal(grid.r2, np.linspace(0, 3*np.sqrt(2), 4))
+    assert_array_equal(grid.tl, [0, 0, 0])
+    assert_array_equal(grid.v1, [1, 1, 0])
+    assert_array_almost_equal(grid.v2, [1, -1, 0])
+    assert_array_equal(grid.v3, [0, 0, -1])
+    assert_array_almost_equal(grid.r1, np.linspace(0, 2, 3))
+    assert_array_almost_equal(grid.r2, np.linspace(0, 3, 4))
     assert_array_equal(grid.r3, [0])
-    assert_array_equal(grid.get_axis_names(), ['[0 0 0] + x[ 0.70710678  0.70710678  0.        ]',
-                                               '[0 0 0] + y[ 0.70710678 -0.70710678  0.        ]',
-                                               '[0 0 0] + z[0 0 1]'])
+    assert_array_equal(grid.get_axis_names(), ['[ 1.  1.  0.]',
+                                               '[ 1. -1.  0.]',
+                                               '[ 0.  0. -1.]'])
     qx, qy, qz = grid.get_q_meshgrid()
     assert_array_almost_equal(qx, [[[0.],  [1.],  [2.],  [3.]],
                                    [[1.],  [2.],  [3.],  [4.]],
@@ -96,14 +91,13 @@ def test_complete():
 def test_complete_3D():
     grid = Grid()
 
-    grid.ll = -2, -3, -4
-    grid.lr = 2, -3, -4
-    grid.ul = -2, 3, -4
-    grid.tl = -2, -3, 4
+    grid.set_corners(ll=[-2, -3, -4],
+                     lr=[2, -3, -4],
+                     ul=[-2, 3, -4],
+                     tl=[-2, -3, 4])
     grid.bins = 3, 4, 5
 
     assert_array_equal(grid.bins, [3, 4, 5])
-    assert grid.dims == 3
     assert_array_equal(grid.ll, [-2, -3, -4])
     assert_array_equal(grid.lr, [2, -3, -4])
     assert_array_equal(grid.ul, [-2, 3, -4])
@@ -111,12 +105,12 @@ def test_complete_3D():
     assert_array_equal(grid.v1, [1, 0, 0])
     assert_array_equal(grid.v2, [0, 1, 0])
     assert_array_equal(grid.v3, [0, 0, 1])
-    assert_array_equal(grid.r1, [0., 2., 4.])
-    assert_array_equal(grid.r2, [0., 2., 4., 6.])
-    assert_array_equal(grid.r3, [0., 2., 4., 6., 8.])
-    assert_array_equal(grid.get_axis_names(), ['[-2 -3 -4] + x[ 1.  0.  0.]',
-                                               '[-2 -3 -4] + y[ 0.  1.  0.]',
-                                               '[-2 -3 -4] + z[ 0.  0.  1.]'])
+    assert_array_equal(grid.r1, [-2, 0, 2])
+    assert_array_equal(grid.r2, [-3, -1, 1, 3])
+    assert_array_equal(grid.r3, [-4, -2, 0, 2, 4])
+    assert_array_equal(grid.get_axis_names(), ['[ 1.  0.  0.]',
+                                               '[ 0.  1.  0.]',
+                                               '[ 0.  0.  1.]'])
     qx, qy, qz = grid.get_q_meshgrid()
     assert_array_equal(qx, np.transpose(np.tile([-2, 0, 2], (5, 4, 1))))
     assert_array_equal(qy, np.transpose(np.tile([-3, -1, 1, 3], (3, 5, 1)), axes=(0, 2, 1)))
@@ -134,22 +128,22 @@ def test_except():
         grid.bins = 2, 3, 4, 5
 
     with pytest.raises(ValueError):
-        grid.ll = 1, 2
+        grid.set_corners(ll=(1, 2))
 
     with pytest.raises(ValueError):
-        grid.lr = 1, 2, 3, 4
+        grid.set_corners(lr=(1, 2, 3, 4))
 
     with pytest.raises(ValueError):
-        grid.ul = 1,
+        grid.set_corners(lr=(1, 1, 0), ul=(1,))
 
     with pytest.raises(ValueError):
-        grid.tl = 1, 2, 3, 4, 5
+        grid.set_corners(lr=(1, 0, 1), ul=(0, 1, 0), tl=(1, 2, 3, 4, 5))
 
     with pytest.raises(ValueError):
-        grid.ul = 1, 0, 0
+        grid.set_corners(lr=(1, 0, 0), ul=(1, 0, 0))
 
     with pytest.raises(ValueError):
-        grid.lr = 0, 0, 0
+        grid.set_corners(lr=(0, 0, 0))
 
 
 def test_length():
