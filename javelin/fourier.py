@@ -386,7 +386,7 @@ def get_ff(atomic_number, radiation, q=None):
         raise ValueError("Unknown radition: " + radiation)
 
 
-def get_mag_ff(atomic_number, q, ion=0):
+def get_mag_ff(atomic_number, q, ion=0, j=0):
     """Returns the j0 magnetic form factor for a given atomic number,
     radiation and q values
 
@@ -396,6 +396,8 @@ def get_mag_ff(atomic_number, q, ion=0):
     :type q: float, list, :class:`numpy.ndarray`
     :param ion: charge of selected atom
     :type ion: int
+    :param j: order of spherical Bessel function (0, 2, 4 or 6)
+    :type j: int
     :return: magnetic form factor for given q
     :rtype: float, :class:`numpy.ndarray`
 
@@ -409,6 +411,9 @@ def get_mag_ff(atomic_number, q, ion=0):
 
     >>> get_mag_ff(26, q=[0.0, 3.5, 7.0], ion=4)
     array([ 0.9997    ,  0.58273549,  0.13948496])
+
+    >>> get_mag_ff(26, q=[0.0, 3.5, 7.0], ion=4, j=4)
+    array([ 0.       ,  0.0149604,  0.0759222])
     """
     import periodictable
-    return periodictable.elements[atomic_number].magnetic_ff[ion].j0_Q(q)
+    return getattr(periodictable.elements[atomic_number].magnetic_ff[ion], 'j'+str(j)+'_Q')(q)
