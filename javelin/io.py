@@ -235,7 +235,7 @@ def read_stru_to_ase(filename):
             if line[0] == 'atoms':
                 if a == 0:
                     print("Cell not found")
-                    cell = None
+                    cell = [1, 1, 1]
                 reading_atom_list = True
         else:
             symbol, x, y, z = line[:4]
