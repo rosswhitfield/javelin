@@ -1,12 +1,12 @@
-#Javelin
+# Javelin
 
-##Installing
+## Installing
 
 ```
 python setup.py install
 ```
 
-###Using conda for package management
+### Using conda for package management
 
 ```
 conda env create
@@ -14,7 +14,7 @@ source activate javelin
 python setup.py install
 ```
 
-##Running tests
+## Running tests
 
 ### Unit tests
 
