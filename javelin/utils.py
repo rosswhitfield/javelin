@@ -86,3 +86,18 @@ def get_atomic_numbers(structure):
             return atomic_numbers
         except AttributeError:
             raise ValueError("Unable to get elements from structure")
+
+
+def is_structure(structure):
+    """Check if an object is a stucture that javelin can understand.
+
+    ase.atoms with have cell, get_scaled_positions and get_atomic_numbers attributes
+    diffpy.structure with have lattice, xyz, and element attributes
+    """
+    return (((hasattr(structure, 'cell') or hasattr(structure, 'unitcell')) and
+             hasattr(structure, 'get_scaled_positions') and
+             hasattr(structure, 'get_atomic_numbers'))
+            or
+            (hasattr(structure, 'lattice') and
+             hasattr(structure, 'xyz') and
+             hasattr(structure, 'element')))

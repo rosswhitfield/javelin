@@ -8,7 +8,8 @@ structure
 import numpy as np
 from pandas import DataFrame
 from javelin.unitcell import UnitCell
-from javelin.utils import get_atomic_number_symbol
+from javelin.utils import (get_atomic_number_symbol, is_structure, get_unitcell, get_positions,
+                           get_atomic_numbers)
 
 
 class Structure(object):
@@ -21,7 +22,15 @@ class Structure(object):
     :type numbers: list
     """
     def __init__(self, symbols=None, numbers=None, unitcell=1, ncells=None,
-                 positions=None, rotations=False, translations=False, magnetic_moments=False):
+                 positions=None, rotations=False, translations=False, magnetic_moments=False,
+                 *argv):
+
+        # Check if initialising from another structure
+        if symbols and is_structure(symbols):
+            unitcell = get_unitcell(symbols)
+            positions = get_positions(symbols)
+            numbers = get_atomic_numbers(symbols)
+            symbols = None
 
         if positions is not None:
             numberOfAtoms = len(positions)
