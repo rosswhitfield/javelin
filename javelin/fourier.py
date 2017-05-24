@@ -9,6 +9,7 @@ the fourier transformation.
 from __future__ import absolute_import
 import numpy as np
 from javelin.grid import Grid
+from javelin.utils import get_unitcell, get_positions, get_atomic_numbers
 
 
 class Fourier(object):
@@ -88,51 +89,13 @@ class Fourier(object):
     def number_of_lots(self, value):
         self._number_of_lots = value
 
-    def __get_unitcell(self):
-        """Wrapper to get the unit cell from different structure classes"""
-        from javelin.unitcell import UnitCell
-        try:  # javelin structure
-            return self.structure.unitcell
-        except AttributeError:
-            try:  # diffpy structure
-                return UnitCell(self.structure.lattice.abcABG())
-            except AttributeError:
-                try:  # ASE structure
-                    from ase.geometry import cell_to_cellpar
-                    return UnitCell(cell_to_cellpar(self.structure.cell))
-                except (ImportError, AttributeError) as e:
-                    print(e)
-                    raise ValueError("Unable to get unit cell from structure")
-
     def __get_q(self):
         qx, qy, qz = self.grid.get_q_meshgrid()
         q = np.linalg.norm(np.array([qx.ravel(),
                                      qy.ravel(),
-                                     qz.ravel()]).T * self.__get_unitcell().B, axis=1)
+                                     qz.ravel()]).T * get_unitcell(self.structure).B, axis=1)
         q.shape = qx.shape
         return q*2*np.pi
-
-    def __get_positions(self):
-        """Wrapper to get the positions from different structure classes"""
-        try:  # ASE structure
-            return self.structure.get_scaled_positions()
-        except AttributeError:
-            try:  # diffpy structure
-                return self.structure.xyz
-            except AttributeError:
-                raise ValueError("Unable to get positions from structure")
-
-    def __get_atomic_numbers(self):
-        """Wrapper to get the atomic numbers from different structure classes"""
-        from javelin.utils import get_atomic_number_symbol
-        try:  # ASE structure
-            return self.structure.get_atomic_numbers()
-        except AttributeError:
-            try:  # diffpy structure
-                atomic_numbers, _ = get_atomic_number_symbol(symbol=self.structure.element)
-                return atomic_numbers
-            except AttributeError:
-                raise ValueError("Unable to get elements from structure")
 
     def calc(self, mag=False, fast=True):
         """Calculates the fourier transform
@@ -152,8 +115,8 @@ class Fourier(object):
             aver = self._calculate_average(fast)
 
         if self.lots is None:
-            atomic_numbers = self.__get_atomic_numbers()
-            positions = self.__get_positions()
+            atomic_numbers = get_atomic_numbers(self.structure)
+            positions = get_positions(self.structure)
             if mag:
                 magmons = self.structure.get_magnetic_moments()
                 return create_xarray_dataarray(self._calculate_magnetic(atomic_numbers,

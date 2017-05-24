@@ -46,3 +46,43 @@ def get_atomic_number_symbol(Z=None, symbol=None):
             symbol[i] = symbol[i].capitalize()
             Z[i] = elements.symbol(symbol[i]).number
     return (Z, symbol)
+
+
+def get_unitcell(structure):
+    """Wrapper to get the unit cell from different structure classes"""
+    from javelin.unitcell import UnitCell
+    try:  # javelin structure
+        return structure.unitcell
+    except AttributeError:
+        try:  # diffpy structure
+            return UnitCell(structure.lattice.abcABG())
+        except AttributeError:
+            try:  # ASE structure
+                from ase.geometry import cell_to_cellpar
+                return UnitCell(cell_to_cellpar(structure.cell))
+            except (ImportError, AttributeError) as e:
+                raise ValueError("Unable to get unit cell from structure")
+
+
+def get_positions(structure):
+    """Wrapper to get the positions from different structure classes"""
+    try:  # ASE structure
+        return structure.get_scaled_positions()
+    except AttributeError:
+        try:  # diffpy structure
+            return structure.xyz
+        except AttributeError:
+            raise ValueError("Unable to get positions from structure")
+
+
+def get_atomic_numbers(structure):
+    """Wrapper to get the atomic numbers from different structure classes"""
+    from javelin.utils import get_atomic_number_symbol
+    try:  # ASE structure
+        return structure.get_atomic_numbers()
+    except AttributeError:
+        try:  # diffpy structure
+            atomic_numbers, _ = get_atomic_number_symbol(symbol=structure.element)
+            return atomic_numbers
+        except AttributeError:
+            raise ValueError("Unable to get elements from structure")
