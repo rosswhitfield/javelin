@@ -26,7 +26,7 @@ class Structure(object):
                  *argv):
 
         # Check if initialising from another structure
-        if symbols and is_structure(symbols):
+        if symbols is not None and is_structure(symbols):
             unitcell = get_unitcell(symbols)
             positions = get_positions(symbols)
             numbers = get_atomic_numbers(symbols)
