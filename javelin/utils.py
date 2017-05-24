@@ -60,7 +60,7 @@ def get_unitcell(structure):
             try:  # ASE structure
                 from ase.geometry import cell_to_cellpar
                 return UnitCell(cell_to_cellpar(structure.cell))
-            except (ImportError, AttributeError) as e:
+            except (ImportError, AttributeError):
                 raise ValueError("Unable to get unit cell from structure")
 
 

@@ -15,7 +15,7 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 project = 'Javelin'
-copyright = '2016, Ross Whitfield'
+copyright = '2017, Ross Whitfield'
 author = 'Ross Whitfield'
 
 version = '0.1.0'
