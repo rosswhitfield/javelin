@@ -80,3 +80,27 @@ def test_read_stru_pzn():
     # xyz_cartn
     assert_array_almost_equal(pzn_javelin.xyz_cartn,
                               pzn_diffpy.xyz_cartn)
+
+
+def test_diffpy_to_javelin():
+    positions = [[0, 1, 0], [1, 1, 0], [1, 0, 0], [0, -1, 0], [-1, -1, 0], [-1, 0, 0]]
+
+    hex_diffpy = dps.Structure(atoms=[dps.Atom(atype='C', xyz=xyz) for xyz in positions],
+                               lattice=dps.Lattice(1.4, 1.4, 1, 90, 90, 120))
+
+    hex_javelin = Structure(hex_diffpy)
+
+    assert len(hex_diffpy) == 6
+
+    # unitcell
+    assert_array_almost_equal(hex_javelin.unitcell.cell,
+                              hex_diffpy.lattice.abcABG())
+    # element
+    assert_array_equal(hex_javelin.element,
+                       np.array(hex_diffpy.element))
+    # xyz
+    assert_array_almost_equal(hex_javelin.xyz,
+                              hex_diffpy.xyz)
+    # xyz_cartn
+    assert_array_almost_equal(hex_javelin.xyz_cartn,
+                              hex_diffpy.xyz_cartn)

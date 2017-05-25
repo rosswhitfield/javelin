@@ -120,3 +120,21 @@ def test_read_stru_missing_cell():
     # get_scaled_positions
     assert_array_almost_equal(c_javelin.get_scaled_positions(),
                               c_ase.get_scaled_positions())
+
+
+def test_ase_to_javelin():
+    positions = [[0, 1, 0], [1, 1, 0], [1, 0, 0], [0, -1, 0], [-1, -1, 0], [-1, 0, 0]]
+    symbols = ['C']*6
+    unitcell = (1.4, 1.4, 1, 90, 90, 120)
+
+    hex_ase = ase.Atoms(symbols=symbols, scaled_positions=positions,
+                        cell=ase.geometry.cellpar_to_cell(unitcell))
+
+    hex_javelin = Structure(hex_ase)
+
+    # unitcell
+    assert_array_equal(hex_javelin.unitcell.cell,
+                       ase.geometry.cell_to_cellpar(hex_ase.cell))
+    # get_atomic_numbers
+    assert_array_equal(hex_javelin.get_atomic_numbers(),
+                       hex_ase.get_atomic_numbers())
