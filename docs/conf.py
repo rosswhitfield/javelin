@@ -38,6 +38,6 @@ latex_documents = [
 intersphinx_mapping = {'numpy': ('https://docs.scipy.org/doc/numpy/', None),
                        'xarray': ('http://xarray.pydata.org/en/stable/', None),
                        'ase': ('https://wiki.fysik.dtu.dk/ase/', None),
-                       'diffpy.Structure': ('http://www.diffpy.org/diffpy.Structure/', None)}
+                       'diffpy.Structure': ('http://www.diffpy.org/diffpy.structure/', None)}
 
 autodoc_default_flags = ['members', 'undoc-members']
