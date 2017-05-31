@@ -279,3 +279,46 @@ def numpy_to_vti(array, origin, spacing, filename):
     writer.SetFileName(filename)
     writer.SetInputData(imageData)
     writer.Write()
+
+
+def numpy_to_vts(array, meshgrid, filename):
+    """This function write a VtkStructuredGrid vts file from a numpy array.
+
+    :param array: input array
+    :type array: :class:`numpy.ndarray`
+    :param origin: the origin of the array
+    :type origin: array like object of values
+    :param spacing: the step in each dimension
+    :type spacing: array like object of values
+    :param filename: output filename (.vts)
+    :type filename: str
+    """
+
+    if array.ndim != 3:
+        raise ValueError("Only works with 3 dimensional arrays")
+
+    import vtk
+    from vtk.util.numpy_support import numpy_to_vtk, get_vtk_array_type
+
+    vtkArray = numpy_to_vtk(num_array=array.flatten('F'), deep=True,
+                            array_type=get_vtk_array_type(array.dtype))
+
+    points = vtk.vtkPoints()
+    print(meshgrid.shape)
+    print(array.shape)
+    print(array.size)
+    points.SetNumberOfPoints(array.size)
+    points.SetData(numpy_to_vtk(meshgrid))
+
+    data = vtk.vtkStructuredGrid()
+    data.SetDimensions(array.shape)
+    data.SetPoints(points)
+    data.GetPointData().SetScalars(vtkArray)
+    # data.GetCellData().SetScalars(vtkArray)
+    print(data.GetDimensions())
+    print(data.GetCellData().GetScalars())
+
+    writer = vtk.vtkXMLStructuredGridWriter()
+    writer.SetFileName(filename)
+    writer.SetInputData(data)
+    writer.Write()
