@@ -31,7 +31,7 @@ def test_except():
 
 
 def test_Fourier_two_atoms():
-    atom = Structure(symbols=['C', 'O'], positions=[(0, 0, 0), (1, 0, 0)])
+    atom = Structure(symbols=['C', 'O'], positions=[(0., 0., 0.), (1., 0., 0.)])
     four = Fourier()
     four.grid.bins = [21, 2]
     four.grid.set_corners(lr=[2.0, 0.0, 0.0])
@@ -51,6 +51,9 @@ def test_Fourier_two_atoms():
     results = four.calc(fast=False)
     assert_array_almost_equal(results[:, 0, 0], expected_result)
 
+    results = four.calc(cython=True)
+    assert_array_almost_equal(results[:, 0, 0], expected_result)
+
     four.radiation = 'xray'
     expected_result = [1.95913322e+02, 1.66402201e+02, 1.01484495e+02,
                        4.32239232e+01, 1.19068361e+01, 3.45460097e+00,
@@ -64,6 +67,9 @@ def test_Fourier_two_atoms():
     assert_array_almost_equal(results[:, 0, 0], expected_result)
 
     results = four.calc(fast=False)
+    assert_array_almost_equal(results[:, 0, 0], expected_result)
+
+    results = four.calc(cython=True)
     assert_array_almost_equal(results[:, 0, 0], expected_result)
 
 
@@ -128,6 +134,8 @@ def test_Foutier_C_Ring():
     assert_array_almost_equal(results, expected_result, 5)
     results = four.calc(fast=False)
     assert_array_almost_equal(results, expected_result, 5)
+    results = four.calc(cython=True)
+    assert_array_almost_equal(results, expected_result, 5)
 
     four.radiation = 'xray'
 
@@ -172,6 +180,8 @@ def test_Foutier_C_Ring():
     assert_array_almost_equal(results, expected_result, 5)
     results = four.calc(fast=False)
     assert_array_almost_equal(results, expected_result, 5)
+    results = four.calc(cython=True)
+    assert_array_almost_equal(results, expected_result, 5)
 
 
 def test_lots():
@@ -196,6 +206,9 @@ def test_lots():
                        6.70205900e-25, 1.48095071e+05, 1.03080955e-25,
                        9.69294822e+04, 5.35400081e-26, 1.48095071e+05,
                        1.77832044e-25, 1.01505872e+06, 2.42323706e+06]
+    assert_allclose(results[0, :, 0], expected_result, atol=1e-25)
+
+    results = four.calc(cython=True)
     assert_allclose(results[0, :, 0], expected_result, atol=1e-25)
 
     four.lots = 3, 3, 3
@@ -227,7 +240,8 @@ def test_lots():
 
 
 def test_average():
-    structure = Structure(symbols=['C', 'O'], positions=[(0, 0, 0), (0.5, 0, 0)], unitcell=5)
+    structure = Structure(symbols=['C', 'O'],
+                          positions=[(0.0, 0.0, 0.0), (0.5, 0.0, 0.0)], unitcell=5)
     structure.repeat(5)
 
     four = Fourier()
@@ -245,6 +259,13 @@ def test_average():
                        3.46656800e-54, 8.37681929e-25, 5.74150325e-55,
                        5.46068451e-25, 2.74171118e-55, 8.37681929e-25,
                        1.00428514e-54, 5.21188409e-24, 1.32348898e-23]
+
+    assert_array_almost_equal(results[0, :, 0], expected_result)
+
+    results = four.calc(fast=False)
+    assert_array_almost_equal(results[0, :, 0], expected_result)
+
+    results = four.calc(cython=True)
     assert_array_almost_equal(results[0, :, 0], expected_result)
 
     # Random move
@@ -260,10 +281,16 @@ def test_average():
                        5.97492048e-01, 3.24844518e-01, 2.34454638e-25]
     assert_array_almost_equal(results[0, :, 0], expected_result)
 
+    results = four.calc(fast=False)
+    assert_array_almost_equal(results[0, :, 0], expected_result)
+
+    results = four.calc(cython=True)
+    assert_array_almost_equal(results[0, :, 0], expected_result)
+
 
 def test_magnetic():
     import numpy as np
-    structure = Structure(symbols=['V']*25, positions=np.tile([0, 0, 0], (25, 1)),
+    structure = Structure(symbols=['V']*25, positions=np.tile([0.0, 0.0, 0.0], (25, 1)),
                           unitcell=5, ncells=(5, 5, 1, 1), magnetic_moments=True)
 
     structure.magmons.spinx = 0

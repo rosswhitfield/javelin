@@ -10,6 +10,7 @@ from __future__ import absolute_import
 import numpy as np
 from javelin.grid import Grid
 from javelin.utils import get_unitcell, get_positions, get_atomic_numbers
+from javelin.fourier_cython import calculate_cython
 
 
 class Fourier(object):
@@ -97,13 +98,15 @@ class Fourier(object):
         q.shape = qx.shape
         return q*2*np.pi
 
-    def calc(self, mag=False, fast=True):
+    def calc(self, mag=False, fast=True, cython=False):
         """Calculates the fourier transform
 
         :param mag: select if calculating magnetic scattering
         :type mag: bool
         :param fast: fast option
         :type fast: bool
+        :param cython: use cython fourier code
+        :type cython: bool
         :return: DataArray containing calculated diffuse scattering
         :rtype: :class:`xarray.DataArray`
         """
@@ -112,7 +115,7 @@ class Fourier(object):
             raise ValueError("You have not set a structure for this calculation")
 
         if self._average:
-            aver = self._calculate_average(fast)
+            aver = self._calculate_average(fast, cython)
 
         if self.lots is None:
             atomic_numbers = get_atomic_numbers(self.structure)
@@ -126,7 +129,8 @@ class Fourier(object):
             else:
                 results = self._calculate(atomic_numbers,
                                           positions,
-                                          fast=fast)
+                                          fast=fast,
+                                          cython=cython)
                 if self._average:
                     results -= aver
 
@@ -156,14 +160,14 @@ class Fourier(object):
                     magmons = self.structure.magmons.loc[ri, rj, rk, :].values
                     total += self._calculate_magnetic(atomic_numbers, positions, magmons, fast=fast)
                 else:
-                    results = self._calculate(atomic_numbers, positions, fast=fast)
+                    results = self._calculate(atomic_numbers, positions, fast=fast, cython=cython)
                     if self._average:
                         results -= aver
                     total += np.real(results*np.conj(results))
 
             return create_xarray_dataarray(total, self.grid)
 
-    def _calculate_average(self, fast):
+    def _calculate_average(self, fast, cython):
         aver = np.zeros(self.grid.bins, dtype=np.complex)
         levels = self.structure.atoms.index.levels
         count = 0
@@ -174,7 +178,7 @@ class Fourier(object):
                     atoms = self.structure.atoms.loc[i, j, k, :]
                     aver += self._calculate(atoms.Z.values,
                                             atoms[['x', 'y', 'z']].values,
-                                            fast)
+                                            fast, cython=cython)
 
         aver /= count
 
@@ -187,16 +191,17 @@ class Fourier(object):
                                              :].index.droplevel(3).drop_duplicates()
 
         aver *= self._calculate(np.zeros(len(index)),
-                                np.asarray([index.get_level_values(0).values,
-                                            index.get_level_values(1).values,
-                                            index.get_level_values(2).values]).T,
+                                np.asarray([index.get_level_values(0).astype('double').values,
+                                            index.get_level_values(1).astype('double').values,
+                                            index.get_level_values(2).astype('double').values]).T,
                                 fast,
-                                use_ff=False)
+                                use_ff=False,
+                                cython=cython)
 
         return aver
 
-    def _calculate(self, atomic_numbers, positions, fast, use_ff=True):
-        if fast:
+    def _calculate(self, atomic_numbers, positions, fast, use_ff=True, cython=False):
+        if fast and not cython:
             qx, qy, qz = self.grid.get_squashed_q_meshgrid()
         else:
             qx, qy, qz = self.grid.get_q_meshgrid()
@@ -222,16 +227,19 @@ class Fourier(object):
             print("Working on atom number", atomic_number, "Total atoms:", len(atom_positions))
 
             # Loop over atom positions of type atomic_number
-            if fast:
-                for atom in atom_positions:
-                    dotx = np.exp(qx*atom[0]*1j)
-                    doty = np.exp(qy*atom[1]*1j)
-                    dotz = np.exp(qz*atom[2]*1j)
-                    temp_array += dotx * doty * dotz
+            if cython:
+                calculate_cython(qx, qy, qz, atom_positions, temp_array)
             else:
-                for atom in atom_positions:
-                    dot = qx*atom[0] + qy*atom[1] + qz*atom[2]
-                    temp_array += np.exp(dot*1j)
+                if fast:
+                    for atom in atom_positions:
+                        dotx = np.exp(qx*atom[0]*1j)
+                        doty = np.exp(qy*atom[1]*1j)
+                        dotz = np.exp(qz*atom[2]*1j)
+                        temp_array += dotx * doty * dotz
+                else:
+                    for atom in atom_positions:
+                        dot = qx*atom[0] + qy*atom[1] + qz*atom[2]
+                        temp_array += np.exp(dot*1j)
 
             results += temp_array * ff  # scale by form factor
 

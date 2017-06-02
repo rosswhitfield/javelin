@@ -19,7 +19,7 @@ python setup.py install
 ### Unit tests
 
 ```
-py.test tests
+python setup.py test
 ```
 ### Doctests
 

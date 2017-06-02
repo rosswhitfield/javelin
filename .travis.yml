@@ -18,7 +18,7 @@ before_install:
   - conda config --set always_yes yes --set changeps1 no
 
 install:
-  - conda create -q -n testenv python=$TRAVIS_PYTHON_VERSION h5py xarray pytables pytest-cov
+  - conda create -q -n testenv python=$TRAVIS_PYTHON_VERSION h5py xarray pytables pytest-cov cython
   - if [[ "${TRAVIS_PYTHON_VERSION}" == "2.7" ]]; then
         conda config --add channels diffpy;
         conda install --yes -n testenv diffpy.structure;
@@ -26,6 +26,7 @@ install:
   - if [[ "${TRAVIS_PYTHON_VERSION}" == "3.5" ]]; then conda install --yes -n testenv flake8; fi
   - source activate testenv
   - pip install ase codecov periodictable
+  - python setup.py build_ext --inplace
 
 script:
   - py.test --cov=javelin --doctest-modules javelin tests

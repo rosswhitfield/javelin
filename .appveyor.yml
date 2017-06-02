@@ -15,9 +15,10 @@ init:
   - conda config --set always_yes yes --set changeps1 no
 
 install:
-  - "conda create -q -n testenv python=%PYTHON_VERSION% h5py xarray pytables pytest"
+  - "conda create -q -n testenv python=%PYTHON_VERSION% h5py xarray pytables pytest cython"
   - activate testenv
   - pip install ase periodictable
+  - python setup.py build_ext --inplace
 
 build: off
 
