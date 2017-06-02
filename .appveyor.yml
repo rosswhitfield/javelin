@@ -1,7 +1,3 @@
-branches:
-  only:
-  - master
-
 environment:
   matrix:
     - PYTHON_VERSION: 2.7
