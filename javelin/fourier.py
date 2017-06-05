@@ -228,7 +228,7 @@ class Fourier(object):
 
             # Loop over atom positions of type atomic_number
             if cython:
-                calculate_cython(qx, qy, qz, atom_positions, temp_array)
+                calculate_cython(qx, qy, qz, atom_positions, temp_array.real, temp_array.imag)
             else:
                 if fast:
                     for atom in atom_positions:
