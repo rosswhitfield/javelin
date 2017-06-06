@@ -6,12 +6,10 @@ environment:
   matrix:
     - CONDA_PY: 2.7
       MINICONDA: C:\Miniconda-x64
-    - CONDA_PY: 3.4
-      MINICONDA: C:\Miniconda3-x64
     - CONDA_PY: 3.5
       MINICONDA: C:\Miniconda35-x64
     - CONDA_PY: 3.6
-      MINICONDA: C:\Miniconda35-x64
+      MINICONDA: C:\Miniconda36-x64
 
 init:
   - "ECHO %CONDA_PY% %MINICONDA%"
