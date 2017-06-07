@@ -1,5 +1,6 @@
 name: javelin
 dependencies:
+- cython
 - h5py
 - matplotlib
 - numpy

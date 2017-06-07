@@ -8,3 +8,4 @@ xarray
 pip
 ase
 periodictable
+cython
