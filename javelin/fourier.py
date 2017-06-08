@@ -168,19 +168,11 @@ class Fourier(object):
             return create_xarray_dataarray(total, self.grid)
 
     def _calculate_average(self, fast, cython):
-        aver = np.zeros(self.grid.bins, dtype=np.complex)
-        levels = self.structure.atoms.index.levels
-        count = 0
-        for i in levels[0]:
-            for j in levels[1]:
-                for k in levels[2]:
-                    count += 1
-                    atoms = self.structure.atoms.loc[i, j, k, :]
-                    aver += self._calculate(atoms.Z.values,
-                                            atoms[['x', 'y', 'z']].values,
-                                            fast, cython=cython)
+        aver = self._calculate(self.structure.get_atomic_numbers(),
+                               self.structure.xyz,
+                               fast, cython=cython)
 
-        aver /= count
+        aver /= self.structure.atoms.index.droplevel(3).drop_duplicates().size
 
         if self.lots is None:
             index = self.structure.atoms.index.droplevel(3).drop_duplicates()
