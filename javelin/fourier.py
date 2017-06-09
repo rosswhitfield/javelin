@@ -6,7 +6,7 @@ fourier
 This module define the Fourier object and other functions related to
 the fourier transformation.
 """
-from __future__ import absolute_import
+from __future__ import absolute_import, division
 import numpy as np
 from javelin.grid import Grid
 from javelin.utils import get_unitcell, get_positions, get_atomic_numbers
@@ -165,7 +165,9 @@ class Fourier(object):
                         results -= aver
                     total += np.real(results*np.conj(results))
 
-            return create_xarray_dataarray(total, self.grid)
+            scale = self.structure.atoms.index.droplevel(3).drop_duplicates().size/(self.number_of_lots*self.lots.prod())
+
+            return create_xarray_dataarray(total*scale, self.grid)
 
     def _calculate_average(self, fast, cython):
         aver = self._calculate(self.structure.get_atomic_numbers(),
@@ -182,7 +184,7 @@ class Fourier(object):
                                              range(self.lots[2]),
                                              :].index.droplevel(3).drop_duplicates()
 
-        aver *= self._calculate(np.zeros(len(index)),
+        aver *= self._calculate(np.zeros(len(index),dtype=np.int),
                                 np.asarray([index.get_level_values(0).astype('double').values,
                                             index.get_level_values(1).astype('double').values,
                                             index.get_level_values(2).astype('double').values]).T,
