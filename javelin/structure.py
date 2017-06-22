@@ -22,8 +22,7 @@ class Structure(object):
     :type numbers: list
     """
     def __init__(self, symbols=None, numbers=None, unitcell=1, ncells=None,
-                 positions=None, rotations=False, translations=False, magnetic_moments=False,
-                 *argv):
+                 positions=None, rotations=False, translations=False, magnetic_moments=False):
 
         # Check if initialising from another structure
         if symbols is not None and is_structure(symbols):

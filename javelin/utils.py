@@ -77,7 +77,6 @@ def get_positions(structure):
 
 def get_atomic_numbers(structure):
     """Wrapper to get the atomic numbers from different structure classes"""
-    from javelin.utils import get_atomic_number_symbol
     try:  # ASE structure
         return structure.get_atomic_numbers()
     except AttributeError:
