@@ -144,15 +144,18 @@ class Fourier(object):
                 starti = np.random.randint(len(levels[0]))
                 startj = np.random.randint(len(levels[1]))
                 startk = np.random.randint(len(levels[2]))
-                ri = np.roll(levels[0], starti)[:self.lots[0]]
-                rj = np.roll(levels[1], startj)[:self.lots[1]]
-                rk = np.roll(levels[2], startk)[:self.lots[2]]
+                ri = np.roll(levels[0], -starti)[:self.lots[0]]
+                rj = np.roll(levels[1], -startj)[:self.lots[1]]
+                rk = np.roll(levels[2], -startk)[:self.lots[2]]
                 atoms = self.structure.atoms.loc[ri, rj, rk, :]
                 atomic_numbers = atoms.Z.values
                 positions = (atoms[['x', 'y', 'z']].values +
-                             np.asarray([atoms.index.get_level_values(0).values,
-                                         atoms.index.get_level_values(1).values,
-                                         atoms.index.get_level_values(2).values]).T)
+                             np.asarray([np.mod(atoms.index.get_level_values(0).values-starti,
+                                                len(levels[0])),
+                                         np.mod(atoms.index.get_level_values(1).values-startj,
+                                                len(levels[1])),
+                                         np.mod(atoms.index.get_level_values(2).values-startk,
+                                                len(levels[2]))]).T)
                 print(starti, startj, startk, ri, rj, rk)
                 print(len(atomic_numbers))
                 print(positions.shape)
@@ -165,9 +168,14 @@ class Fourier(object):
                         results -= aver
                     total += np.real(results*np.conj(results))
 
-            scale = self.structure.atoms.index.droplevel(3).drop_duplicates().size/(self.number_of_lots*self.lots.prod())
+            scale = (self.structure.atoms.index.droplevel(3).drop_duplicates().size /
+                     (self.number_of_lots*self.lots.prod()))
 
             return create_xarray_dataarray(total*scale, self.grid)
+
+    def calc_average(self, fast=True, cython=False):
+        aver = self._calculate_average(fast, cython)
+        return create_xarray_dataarray(np.real(aver*np.conj(aver)), self.grid)
 
     def _calculate_average(self, fast, cython):
         aver = self._calculate(self.structure.get_atomic_numbers(),
@@ -175,6 +183,8 @@ class Fourier(object):
                                fast, cython=cython)
 
         aver /= self.structure.atoms.index.droplevel(3).drop_duplicates().size
+
+        # compute the interference function of the lot shape
 
         if self.lots is None:
             index = self.structure.atoms.index.droplevel(3).drop_duplicates()
@@ -184,7 +194,7 @@ class Fourier(object):
                                              range(self.lots[2]),
                                              :].index.droplevel(3).drop_duplicates()
 
-        aver *= self._calculate(np.zeros(len(index),dtype=np.int),
+        aver *= self._calculate(np.zeros(len(index), dtype=np.int),
                                 np.asarray([index.get_level_values(0).astype('double').values,
                                             index.get_level_values(1).astype('double').values,
                                             index.get_level_values(2).astype('double').values]).T,
