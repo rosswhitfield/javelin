@@ -10,7 +10,7 @@ from __future__ import absolute_import, division
 import numpy as np
 from javelin.grid import Grid
 from javelin.utils import get_unitcell, get_positions, get_atomic_numbers
-from javelin.fourier_cython import calculate_cython
+from javelin.fourier_cython import calculate_cython, approx_calculate_cython
 
 
 class Fourier(object):
@@ -98,7 +98,7 @@ class Fourier(object):
         q.shape = qx.shape
         return q*2*np.pi
 
-    def calc(self, mag=False, fast=True, cython=False):
+    def calc(self, mag=False, fast=True, cython=False, approx=False):
         """Calculates the fourier transform
 
         :param mag: select if calculating magnetic scattering
@@ -115,7 +115,7 @@ class Fourier(object):
             raise ValueError("You have not set a structure for this calculation")
 
         if self._average:
-            aver = self._calculate_average(fast, cython)
+            aver = self._calculate_average(fast, cython, approx)
 
         if self.lots is None:
             atomic_numbers = get_atomic_numbers(self.structure)
@@ -130,7 +130,8 @@ class Fourier(object):
                 results = self._calculate(atomic_numbers,
                                           positions,
                                           fast=fast,
-                                          cython=cython)
+                                          cython=cython,
+                                          approx=approx)
                 if self._average:
                     results -= aver
 
@@ -163,7 +164,8 @@ class Fourier(object):
                     magmons = self.structure.magmons.loc[ri, rj, rk, :].values
                     total += self._calculate_magnetic(atomic_numbers, positions, magmons, fast=fast)
                 else:
-                    results = self._calculate(atomic_numbers, positions, fast=fast, cython=cython)
+                    results = self._calculate(atomic_numbers, positions, fast=fast,
+                                              cython=cython, approx=approx)
                     if self._average:
                         results -= aver
                     total += np.real(results*np.conj(results))
@@ -177,10 +179,11 @@ class Fourier(object):
         aver = self._calculate_average(fast, cython)
         return create_xarray_dataarray(np.real(aver*np.conj(aver)), self.grid)
 
-    def _calculate_average(self, fast, cython):
+    def _calculate_average(self, fast, cython, approx):
         aver = self._calculate(self.structure.get_atomic_numbers(),
                                self.structure.xyz,
-                               fast, cython=cython)
+                               fast, cython=cython,
+                               approx=approx)
 
         aver /= self.structure.atoms.index.droplevel(3).drop_duplicates().size
 
@@ -200,11 +203,12 @@ class Fourier(object):
                                             index.get_level_values(2).astype('double').values]).T,
                                 fast,
                                 use_ff=False,
-                                cython=cython)
+                                cython=cython,
+                                approx=approx)
 
         return aver
 
-    def _calculate(self, atomic_numbers, positions, fast, use_ff=True, cython=False):
+    def _calculate(self, atomic_numbers, positions, fast, use_ff=True, cython=False, approx=False):
         if fast and not cython:
             qx, qy, qz = self.grid.get_squashed_q_meshgrid()
         else:
@@ -232,7 +236,14 @@ class Fourier(object):
 
             # Loop over atom positions of type atomic_number
             if cython:
-                calculate_cython(qx, qy, qz, atom_positions, temp_array.real, temp_array.imag)
+                if approx:
+                    cex = np.exp(np.linspace(0, 2j*np.pi*(1-2**-16), 2**16))
+                    approx_calculate_cython(self.grid.origin, self.grid.v1_delta,
+                                            self.grid.v2_delta, self.grid.v3_delta,
+                                            atom_positions, temp_array.real,
+                                            temp_array.imag, cex.real, cex.imag)
+                else:
+                    calculate_cython(qx, qy, qz, atom_positions, temp_array.real, temp_array.imag)
             else:
                 if fast:
                     for atom in atom_positions:

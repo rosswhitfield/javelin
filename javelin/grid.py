@@ -134,6 +134,22 @@ class Grid(object):
             raise ValueError("Must provide 2 values, min and max")
         self._r3 = np.asarray(r)
 
+    @property
+    def origin(self):
+        return self.v1 * self.r1[0] + self.v2 * self.r2[0] + self.v3 * self.r3[0]
+
+    @property
+    def v1_delta(self):
+        return self.v1 if self.r1.size == 1 else (self.r1[1]-self.r1[0]) * self.v1
+
+    @property
+    def v2_delta(self):
+        return self.v2 if self.r2.size == 1 else (self.r2[1]-self.r2[0]) * self.v2
+
+    @property
+    def v3_delta(self):
+        return self.v3 if self.r3.size == 1 else (self.r3[1]-self.r3[0]) * self.v3
+
     def get_axes_names(self):
         return str(self.v1), str(self.v2), str(self.v3)
 
