@@ -1,4 +1,11 @@
 # Javelin
+Javelin is inspired by [DISCUS](http://tproffen.github.io/DiffuseCode). It is written in python using modern tools, [Matplotlib](http://matplotlib.org) and [VTK](http://vtk.org) for plotting, [pandas](http://pandas.pydata.org) for storing the atomic structure and [xarray](http://xarray.pydata.org) for storing scattering simulations. It is designed to play well with other atomic structure analysis programs such as [ASE](https://wiki.fysik.dtu.dk/ase) and [diffpy](http://www.diffpy.org).
+
+The scope of javelin is limited to X-ray and neutron single crystal nuclear and magnetic diffuse scattering.
+
+## Diffuse scattering
+While Bragg peaks gives you information on the long-range average diffuse scattering contains a wealth of information from the short-range local structure. Disorder in a material can come in many forms including chemical short-range occupational disorder, displacement disorder, stacking faults and domain structures.
+
 
 ## Installing
 
@@ -32,9 +39,4 @@ py.test --doctest-modules javelin
 [![Build Status](https://travis-ci.org/rosswhitfield/javelin.svg?branch=master)](https://travis-ci.org/rosswhitfield/javelin)
 [![Build status](https://ci.appveyor.com/api/projects/status/32ajp5h0qunugdl3?svg=true)](https://ci.appveyor.com/project/rosswhitfield/javelin)
 [![codecov.io](https://codecov.io/github/rosswhitfield/javelin/coverage.svg?branch=master)](https://codecov.io/github/rosswhitfield/javelin?branch=master)
-
-[![Code Climate](https://codeclimate.com/github/rosswhitfield/javelin/badges/gpa.svg)](https://codeclimate.com/github/rosswhitfield/javelin)
-[![Codacy Badge](https://api.codacy.com/project/badge/grade/1d159bdd70ee4705b8e73238e59cc841)](https://www.codacy.com/app/whitfieldre/javelin)
-[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/rosswhitfield/javelin/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/rosswhitfield/javelin/?branch=master)
-[![Code Issues](https://www.quantifiedcode.com/api/v1/project/b9400bc9e65144499231b2137856ce35/badge.svg)](https://www.quantifiedcode.com/app/project/b9400bc9e65144499231b2137856ce35)
 [![Code Health](https://landscape.io/github/rosswhitfield/javelin/master/landscape.svg?style=flat)](https://landscape.io/github/rosswhitfield/javelin/master)
