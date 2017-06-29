@@ -297,7 +297,7 @@ Reciprocal layer  :
             if self._cython:
                 if self.approximate:
                     cex = np.exp(np.linspace(0, 2j*np.pi*(1-2**-16), 2**16))
-                    approx_calculate_cython(self.grid.origin, self.grid.v1_delta,
+                    approx_calculate_cython(self.grid.ll, self.grid.v1_delta,
                                             self.grid.v2_delta, self.grid.v3_delta,
                                             atom_positions, temp_array.real,
                                             temp_array.imag, cex.real, cex.imag)

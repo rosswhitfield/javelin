@@ -6,8 +6,6 @@ grid
 Grid class to allow the Q-space grid to be definied in different
 ways Should allow for corners and bins, or a matrix and the axis to be
 defined.
-
-The grid can de defined in with reciprocal lattice units (r.l.u) or q.
 """
 
 from __future__ import division
@@ -15,6 +13,8 @@ import numpy as np
 
 
 class Grid(object):
+    """Grid object
+    """
     def __init__(self):
         # vectors of grid
         self._v1 = np.array([1, 0, 0])
@@ -48,10 +48,47 @@ top   increment    :     {}
                     lr=None,
                     ul=None,
                     tl=None):
+        """Define the axis vectors by the corners of the reciprocal
+        volume. The corners values with be converted into axis
+        vectors, see :func:`javelin.grid.corners_to_vectors` for
+        details.
+
+        :param ll: lower-left corner
+        :type ll: array-like of length 3
+        :param lr: lower-right corner
+        :type lr: array-like of length 3
+        :param ul: upper-left corner
+        :type ul: array-like of length 3
+        :param tl: top-left corner
+        :type tl: array-like of length 3
+
+        """
         self.v1, self.v2, self.v3, self.r1, self.r2, self.r3 = corners_to_vectors(ll, lr, ul, tl)
 
     @property
     def bins(self):
+        """The number of bins in each direction
+
+        >>> grid = Grid()
+        >>> grid.bins
+        (101, 101, 1)
+
+        >>> grid.bins = 5
+        >>> grid.bins
+        (5, 1, 1)
+
+        >>> grid.bins = 5, 6
+        >>> grid.bins
+        (5, 6, 1)
+
+        >>> grid.bins = 5, 6, 7
+        >>> grid.bins
+        (5, 6, 7)
+
+        :getter: Returns the number of bins in each direction
+        :setter: Sets the number of bins, provide 1, 2 or 3 integers
+        :type: :class:`numpy.ndarray` of int
+        """
         return self._n1, self._n2, self._n3
 
     @bins.setter
@@ -74,22 +111,37 @@ top   increment    :     {}
 
     @property
     def ll(self):
+        """
+        :return: Lower-left corner of reciprocal volume
+        :rtype: :class:`numpy.ndarray`"""
         return self.v1*self._r1[0] + self.v2*self._r2[0] + self.v3*self._r3[0]
 
     @property
     def lr(self):
+        """
+        :return: Lower-right corner of reciprocal volume
+        :rtype: :class:`numpy.ndarray`"""
         return self.v1*self._r1[1] + self.v2*self._r2[0] + self.v3*self._r3[0]
 
     @property
     def ul(self):
+        """
+        :return: Upper-left corner of reciprocal volume
+        :rtype: :class:`numpy.ndarray`"""
         return self.v1*self._r1[0] + self.v2*self._r2[1] + self.v3*self._r3[0]
 
     @property
     def tl(self):
+        """
+        :return: Top-left corner of reciprocal volume
+        :rtype: :class:`numpy.ndarray`"""
         return self.v1*self._r1[0] + self.v2*self._r2[0] + self.v3*self._r3[1]
 
     @property
     def v1(self):
+        """
+        :return: Vector of first axis
+        :rtype: :class:`numpy.ndarray`"""
         return self._v1
 
     @v1.setter
@@ -100,6 +152,9 @@ top   increment    :     {}
 
     @property
     def v2(self):
+        """
+        :return: Vector of second axis
+        :rtype: :class:`numpy.ndarray`"""
         return self._v2
 
     @v2.setter
@@ -110,6 +165,9 @@ top   increment    :     {}
 
     @property
     def v3(self):
+        """
+        :return: Vector of third axis
+        :rtype: :class:`numpy.ndarray`"""
         return self._v3
 
     @v3.setter
@@ -120,6 +178,9 @@ top   increment    :     {}
 
     @property
     def r1(self):
+        """
+        :return: Range of first axis
+        :rtype: :class:`numpy.ndarray`"""
         return np.linspace(self._r1[0], self._r1[1], self.bins[0])
 
     @r1.setter
@@ -130,6 +191,9 @@ top   increment    :     {}
 
     @property
     def r2(self):
+        """
+        :return: Range of second axis
+        :rtype: :class:`numpy.ndarray`"""
         return np.linspace(self._r2[0], self._r2[1], self.bins[1])
 
     @r2.setter
@@ -140,6 +204,9 @@ top   increment    :     {}
 
     @property
     def r3(self):
+        """
+        :return: Range of third axis
+        :rtype: :class:`numpy.ndarray`"""
         return np.linspace(self._r3[0], self._r3[1], self.bins[2])
 
     @r3.setter
@@ -149,25 +216,42 @@ top   increment    :     {}
         self._r3 = np.asarray(r)
 
     @property
-    def origin(self):
-        return self.v1 * self.r1[0] + self.v2 * self.r2[0] + self.v3 * self.r3[0]
-
-    @property
     def v1_delta(self):
+        """
+        :return: Increment vector of first axis
+        :rtype: :class:`numpy.ndarray`"""
         return self.v1 if self.r1.size == 1 else (self.r1[1]-self.r1[0]) * self.v1
 
     @property
     def v2_delta(self):
+        """
+        :return: Increment vector of second axis
+        :rtype: :class:`numpy.ndarray`"""
         return self.v2 if self.r2.size == 1 else (self.r2[1]-self.r2[0]) * self.v2
 
     @property
     def v3_delta(self):
+        """
+        :return: Increment vector of third axis
+        :rtype: :class:`numpy.ndarray`"""
         return self.v3 if self.r3.size == 1 else (self.r3[1]-self.r3[0]) * self.v3
 
     def get_axes_names(self):
+        """
+        >>> grid = Grid()
+        >>> grid.get_axes_names()
+        ('[1 0 0]', '[0 1 0]', '[0 0 1]')
+
+        :return: Axis names, vector of each direction
+        :rtype: tuple of str"""
         return str(self.v1), str(self.v2), str(self.v3)
 
     def get_q_meshgrid(self):
+        """Equivalent to :obj:`numpy.mgrid` for this volume
+
+        :return: mesh-grid :class:`numpy.ndarray` all of the same dimensions
+        :rtype: tuple of :class:`numpy.ndarray`
+        """
         x = self.r1.reshape((self._n1, 1, 1))
         y = self.r2.reshape((1, self._n2, 1))
         z = self.r3.reshape((1, 1, self._n3))
@@ -177,6 +261,14 @@ top   increment    :     {}
         return qx, qy, qz
 
     def get_squashed_q_meshgrid(self):
+        """Almost equivalent to :obj:`numpy.ogrid` for this volume. It may
+        have more than one dimension not equal to 1. This can be used
+        with numpy broadcasting.
+
+        :return: mesh-grid :class:`numpy.ndarray` with some dimension equal to 1
+        :rtype: tuple of :class:`numpy.ndarray`
+
+        """
         xbins = self._get_bin_number(0)
         ybins = self._get_bin_number(1)
         zbins = self._get_bin_number(2)
