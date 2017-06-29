@@ -22,6 +22,10 @@ class Fourier(object):
         self._lots = None
         self._number_of_lots = None
         self._average = False
+        self._magnetic = False
+        self._cython = True
+        self._approximate = True
+        self._fast = True
         self.grid = Grid()
 
     def __str__(self):
@@ -103,6 +107,43 @@ Reciprocal layer  :
     @number_of_lots.setter
     def number_of_lots(self, value):
         self._number_of_lots = value
+
+    @property
+    def average(self):
+        """This sets the options of calculating average structure and
+        subtracted it from the simulated scattering
+
+        :getter: Returns bool of average structure subtraction option
+        :setter: Sets whether average stucture is subtracted
+        :type: bool
+        """
+        return self._average
+
+    @number_of_lots.setter
+    def average(self, value):
+        if isinstance(value, bool):
+            self._average = value
+        else:
+            raise TypeError("Expected a bool, True or False")
+
+    @property
+    def magnetic(self):
+        """This sets the options of calculating the magnetic scattering
+        instead of nuclear. This assume neutrons are being used.
+
+        :getter: Returns bool of magnetic scattering option
+        :setter: Sets whether magnetic sacttering is calculated
+        :type: bool
+
+        """
+        return self._magnetic
+
+    @number_of_lots.setter
+    def magnetic(self, value):
+        if isinstance(value, bool):
+            self._magnetic = value
+        else:
+            raise TypeError("Expected a bool, True or False")
 
     def __get_q(self):
         qx, qy, qz = self.grid.get_q_meshgrid()
