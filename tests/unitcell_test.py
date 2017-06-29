@@ -102,7 +102,7 @@ def test_UnitCell_init():
                                            [-15.45114225, 36, 0.73300107],
                                            [-1.22148238, 0.73300107, 49]])
     # Test __str__
-    assert str(unitcell) == '(5.0, 6.0, 7.0, 89.0, 92.0, 121.0)'
+    assert str(unitcell) == 'a=5.0, b=6.0, c=7.0, alpha=89.0, beta=92.0, gamma=121.0'
 
 
 def test_UnitCell_cell_setter():

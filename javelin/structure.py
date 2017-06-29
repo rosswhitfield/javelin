@@ -77,6 +77,11 @@ class Structure(object):
         else:
             self.magmons = None
 
+    def __str__(self):
+        return "{}({}, {})".format(self.__class__.__name__,
+                                   self.get_chemical_formula(),
+                                   self.unitcell)
+
     @property
     def number_of_atoms(self):
         return len(self.atoms)
@@ -122,6 +127,9 @@ class Structure(object):
 
     def get_chemical_symbols(self):
         return self.atoms.symbol.values
+
+    def get_chemical_formula(self):
+        return (self.get_atom_count().index.values+self.get_atom_count().values.astype('str')).sum()
 
     def get_scaled_positions(self):
         return (self.atoms[['x', 'y', 'z']].values +

@@ -29,6 +29,20 @@ class Grid(object):
 
         self.units = 'r.l.u'
 
+    def __str__(self):
+        return """lower left  corner :     {}
+lower right corner :     {}
+upper left  corner :     {}
+top   left  corner :     {}
+
+hor. increment     :     {}
+vert. increment    :     {}
+top   increment    :     {}
+
+# of points        :     {} x {} x {}""".format(self.ll, self.lr, self.ul, self.tl,
+                                                self.v1_delta, self.v2_delta, self.v3_delta,
+                                                *self.bins)
+
     def set_corners(self,
                     ll=(0, 0, 0),
                     lr=None,

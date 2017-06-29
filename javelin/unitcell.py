@@ -64,8 +64,8 @@ class UnitCell(object):
     def __eq__(self, other):
         return self.cell == other.cell
 
-    def __str__(self):
-        return str(self.cell)
+    def __repr__(self):
+        return "a={}, b={}, c={}, alpha={}, beta={}, gamma={}".format(*self.cell)
 
     def cartesian(self, u):
         """Return Cartesian coordinates of a lattice vector.

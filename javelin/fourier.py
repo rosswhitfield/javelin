@@ -24,6 +24,20 @@ class Fourier(object):
         self._average = False
         self.grid = Grid()
 
+    def __str__(self):
+        return """Structure         : {}
+Radiation         : {}
+Fourier volume    : {}
+Aver. subtraction : {}
+
+Reciprocal layer  :
+{}""".format(self.structure,
+             self.radiation,
+             "complete crystal" if self.lots is None else "{} lots of {} x {} x {} unit cells"
+             .format(self.number_of_lots, *self.lots),
+             self._average,
+             self.grid)
+
     @property
     def radiation(self):
         """The radiation used
