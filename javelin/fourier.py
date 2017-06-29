@@ -39,7 +39,7 @@ Reciprocal layer  :
              self.radiation,
              "complete crystal" if self.lots is None else "{} lots of {} x {} x {} unit cells"
              .format(self.number_of_lots, *self.lots),
-             self._average,
+             self.average,
              self.grid)
 
     @property
@@ -119,7 +119,7 @@ Reciprocal layer  :
         """
         return self._average
 
-    @number_of_lots.setter
+    @average.setter
     def average(self, value):
         if isinstance(value, bool):
             self._average = value
@@ -138,10 +138,30 @@ Reciprocal layer  :
         """
         return self._magnetic
 
-    @number_of_lots.setter
+    @magnetic.setter
     def magnetic(self, value):
         if isinstance(value, bool):
             self._magnetic = value
+        else:
+            raise TypeError("Expected a bool, True or False")
+
+    @property
+    def approximate(self):
+        """This sets the options of calculating the approximate scattering
+        instead of exact. This is much quicker and is likely good enough for
+        most cases.
+
+        :getter: Returns bool of approximate scattering option
+        :setter: Sets whether approximate sacttering is calculated
+        :type: bool
+
+        """
+        return self._approximate
+
+    @approximate.setter
+    def approximate(self, value):
+        if isinstance(value, bool):
+            self._approximate = value
         else:
             raise TypeError("Expected a bool, True or False")
 
@@ -153,15 +173,9 @@ Reciprocal layer  :
         q.shape = qx.shape
         return q*2*np.pi
 
-    def calc(self, mag=False, fast=True, cython=False, approx=False):
+    def calc(self):
         """Calculates the fourier transform
 
-        :param mag: select if calculating magnetic scattering
-        :type mag: bool
-        :param fast: fast option
-        :type fast: bool
-        :param cython: use cython fourier code
-        :type cython: bool
         :return: DataArray containing calculated diffuse scattering
         :rtype: :class:`xarray.DataArray`
         """
@@ -169,25 +183,21 @@ Reciprocal layer  :
         if self.structure is None:
             raise ValueError("You have not set a structure for this calculation")
 
-        if self._average:
-            aver = self._calculate_average(fast, cython, approx)
+        if self.average:
+            aver = self._calculate_average()
 
         if self.lots is None:
             atomic_numbers = get_atomic_numbers(self.structure)
             positions = get_positions(self.structure)
-            if mag:
+            if self.magnetic:
                 magmons = self.structure.get_magnetic_moments()
                 return create_xarray_dataarray(self._calculate_magnetic(atomic_numbers,
                                                                         positions,
-                                                                        magmons,
-                                                                        fast=fast), self.grid)
+                                                                        magmons), self.grid)
             else:
                 results = self._calculate(atomic_numbers,
-                                          positions,
-                                          fast=fast,
-                                          cython=cython,
-                                          approx=approx)
-                if self._average:
+                                          positions)
+                if self.average:
                     results -= aver
 
                 return create_xarray_dataarray(np.real(results*np.conj(results)), self.grid)
@@ -215,13 +225,12 @@ Reciprocal layer  :
                 print(starti, startj, startk, ri, rj, rk)
                 print(len(atomic_numbers))
                 print(positions.shape)
-                if mag:
+                if self.magnetic:
                     magmons = self.structure.magmons.loc[ri, rj, rk, :].values
-                    total += self._calculate_magnetic(atomic_numbers, positions, magmons, fast=fast)
+                    total += self._calculate_magnetic(atomic_numbers, positions, magmons)
                 else:
-                    results = self._calculate(atomic_numbers, positions, fast=fast,
-                                              cython=cython, approx=approx)
-                    if self._average:
+                    results = self._calculate(atomic_numbers, positions)
+                    if self.average:
                         results -= aver
                     total += np.real(results*np.conj(results))
 
@@ -230,15 +239,13 @@ Reciprocal layer  :
 
             return create_xarray_dataarray(total*scale, self.grid)
 
-    def calc_average(self, fast=True, cython=False):
-        aver = self._calculate_average(fast, cython)
+    def calc_average(self):
+        aver = self._calculate_average()
         return create_xarray_dataarray(np.real(aver*np.conj(aver)), self.grid)
 
-    def _calculate_average(self, fast, cython, approx):
+    def _calculate_average(self):
         aver = self._calculate(self.structure.get_atomic_numbers(),
-                               self.structure.xyz,
-                               fast, cython=cython,
-                               approx=approx)
+                               self.structure.xyz)
 
         aver /= self.structure.atoms.index.droplevel(3).drop_duplicates().size
 
@@ -256,15 +263,12 @@ Reciprocal layer  :
                                 np.asarray([index.get_level_values(0).astype('double').values,
                                             index.get_level_values(1).astype('double').values,
                                             index.get_level_values(2).astype('double').values]).T,
-                                fast,
-                                use_ff=False,
-                                cython=cython,
-                                approx=approx)
+                                use_ff=False)
 
         return aver
 
-    def _calculate(self, atomic_numbers, positions, fast, use_ff=True, cython=False, approx=False):
-        if fast and not cython:
+    def _calculate(self, atomic_numbers, positions, use_ff=True):
+        if self._fast and not self._cython:
             qx, qy, qz = self.grid.get_squashed_q_meshgrid()
         else:
             qx, qy, qz = self.grid.get_q_meshgrid()
@@ -290,8 +294,8 @@ Reciprocal layer  :
             print("Working on atom number", atomic_number, "Total atoms:", len(atom_positions))
 
             # Loop over atom positions of type atomic_number
-            if cython:
-                if approx:
+            if self._cython:
+                if self.approximate:
                     cex = np.exp(np.linspace(0, 2j*np.pi*(1-2**-16), 2**16))
                     approx_calculate_cython(self.grid.origin, self.grid.v1_delta,
                                             self.grid.v2_delta, self.grid.v3_delta,
@@ -300,7 +304,7 @@ Reciprocal layer  :
                 else:
                     calculate_cython(qx, qy, qz, atom_positions, temp_array.real, temp_array.imag)
             else:
-                if fast:
+                if self._fast:
                     for atom in atom_positions:
                         dotx = np.exp(qx*atom[0]*1j)
                         doty = np.exp(qy*atom[1]*1j)
@@ -315,8 +319,8 @@ Reciprocal layer  :
 
         return results
 
-    def _calculate_magnetic(self, atomic_numbers, positions, magmons, fast):
-        if fast:
+    def _calculate_magnetic(self, atomic_numbers, positions, magmons):
+        if self._fast:
             qx, qy, qz = self.grid.get_squashed_q_meshgrid()
         else:
             qx, qy, qz = self.grid.get_q_meshgrid()
@@ -346,7 +350,7 @@ Reciprocal layer  :
             temp_spinz = np.zeros(self.grid.bins, dtype=np.complex)
             print("Working on atom number", atomic_number, "Total atoms:", len(atom_positions))
             # Loop over atom positions of type atomic_number
-            if fast:
+            if self._fast:
                 for atom, spin in zip(atom_positions, magmons):
                     dotx = np.exp(qx*atom[0]*1j)
                     doty = np.exp(qy*atom[1]*1j)

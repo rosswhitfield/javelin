@@ -45,13 +45,19 @@ def test_Fourier_two_atoms():
                        0.71132356, 15.45290528, 54.04686728,
                        101.75162784, 140.34558984, 155.08717156]
 
+    four.approximate = False
+
     results = four.calc()
     assert_array_almost_equal(results[:, 0, 0], expected_result)
 
-    results = four.calc(fast=False)
+    four._fast = True
+    four._cython = False
+    results = four.calc()
     assert_array_almost_equal(results[:, 0, 0], expected_result)
 
-    results = four.calc(cython=True)
+    four._fast = True
+    four._cython = True
+    results = four.calc()
     assert_array_almost_equal(results[:, 0, 0], expected_result)
 
     four.radiation = 'xray'
@@ -66,10 +72,14 @@ def test_Fourier_two_atoms():
     results = four.calc()
     assert_array_almost_equal(results[:, 0, 0], expected_result)
 
-    results = four.calc(fast=False)
+    four._fast = True
+    four._cython = False
+    results = four.calc()
     assert_array_almost_equal(results[:, 0, 0], expected_result)
 
-    results = four.calc(cython=True)
+    four._fast = True
+    four._cython = True
+    results = four.calc()
     assert_array_almost_equal(results[:, 0, 0], expected_result)
 
 
@@ -94,6 +104,7 @@ def test_Foutier_C_Ring():
                           lr=[2.0, 0.0, 0.0],
                           ul=[0.0, 2.0, 0.0],
                           tl=[0.0, 0.0, 0.5])
+    four.approximate = False
     expected_result = [[[6.36497605e+03, 3.18248802e+03],
                         [5.19826149e+03, 2.62430530e+03],
                         [2.62792897e+03, 1.44984089e+03],
@@ -132,9 +143,11 @@ def test_Foutier_C_Ring():
                         [1.03004758e+03, 8.27690735e+02]]]
     results = four.calc()
     assert_array_almost_equal(results, expected_result, 5)
-    results = four.calc(fast=False)
+    four._cython = False
+    results = four.calc()
     assert_array_almost_equal(results, expected_result, 5)
-    results = four.calc(cython=True)
+    four._fast = False
+    results = four.calc()
     assert_array_almost_equal(results, expected_result, 5)
 
     four.radiation = 'xray'
@@ -176,11 +189,15 @@ def test_Foutier_C_Ring():
                         [4.27197174e+02, 4.20451470e+02],
                         [3.54323772e+02, 2.29315232e+02]]]
 
+    four._fast = True
+    four._cython = True
     results = four.calc()
     assert_array_almost_equal(results, expected_result, 5)
-    results = four.calc(fast=False)
+    four._cython = False
+    results = four.calc()
     assert_array_almost_equal(results, expected_result, 5)
-    results = four.calc(cython=True)
+    four._fast = False
+    results = four.calc()
     assert_array_almost_equal(results, expected_result, 5)
 
 
@@ -197,6 +214,7 @@ def test_lots():
                           ul=[0.0, 2.0, 0.0])
     four.structure = structure
     four.lots = None
+    four.approximate = False
     results = four.calc()
 
     expected_result = [2.42323706e+06, 1.01505872e+06, 1.46887112e-26,
@@ -208,11 +226,13 @@ def test_lots():
                        1.77832044e-25, 1.01505872e+06, 2.42323706e+06]
     assert_allclose(results[0, :, 0], expected_result, atol=1e-25)
 
-    results = four.calc(cython=True)
+    four._cython = False
+    results = four.calc()
     assert_allclose(results[0, :, 0], expected_result, atol=1e-25)
 
     four.lots = 3, 3, 3
     four.number_of_lots = 3
+    four._cython = True
     results = four.calc()
 
     expected_result = [523419.204015, 398618.732824, 152258.807386,
@@ -226,7 +246,7 @@ def test_lots():
 
     # Random move + average subtraction
     structure.rattle(seed=0)
-    four._average = True
+    four.average = True
     results = four.calc()
 
     expected_result = [0.,           0.0047178662, 0.015698443,
@@ -245,11 +265,12 @@ def test_average():
     structure.repeat(5)
 
     four = Fourier()
+    four.approximate = False
     four.grid.bins = [2, 21]
     four.grid.set_corners(lr=[4.0, 0.0, 0.0],
                           ul=[0.0, 2.0, 0.0])
     four.structure = structure
-    four._average = True
+    four.average = True
     results = four.calc()
 
     expected_result = [1.32348898e-23, 5.71594728e-24, 8.12875148e-56,
@@ -262,10 +283,12 @@ def test_average():
 
     assert_array_almost_equal(results[0, :, 0], expected_result)
 
-    results = four.calc(fast=False)
+    four._cython = False
+    results = four.calc()
     assert_array_almost_equal(results[0, :, 0], expected_result)
 
-    results = four.calc(cython=True)
+    four._fast = False
+    results = four.calc()
     assert_array_almost_equal(results[0, :, 0], expected_result)
 
     # Random move
@@ -281,10 +304,12 @@ def test_average():
                        5.97492048e-01, 3.24844518e-01, 2.34454638e-25]
     assert_array_almost_equal(results[0, :, 0], expected_result)
 
-    results = four.calc(fast=False)
+    four._fast = True
+    results = four.calc()
     assert_array_almost_equal(results[0, :, 0], expected_result)
 
-    results = four.calc(cython=True)
+    four._cython = True
+    results = four.calc()
     assert_array_almost_equal(results[0, :, 0], expected_result)
 
 
@@ -299,6 +324,7 @@ def test_magnetic():
 
     four = Fourier()
     four.grid.bins = [11, 2]
+    four.magnetic = True
     four.grid.set_corners(lr=[1.0, 0.0, 0.0],
                           ul=[0.0, 0.5, 0.0])
     four.structure = structure
@@ -315,9 +341,10 @@ def test_magnetic():
                        [2.16003995e+02, 8.14786919e+00],
                        [4.93162100e+02, 1.86074202e+01]]
 
-    results = four.calc(mag=True)
+    results = four.calc()
     assert_array_almost_equal(results[:, :, 0], expected_result)
-    results = four.calc(mag=True, fast=False)
+    four._fast = False
+    results = four.calc()
     assert_array_almost_equal(results[:, :, 0], expected_result)
 
     structure.magmons.spinz[1::2] = -1
@@ -334,7 +361,8 @@ def test_magnetic():
                        [2.94920500e-31, 8.84219640e-30],
                        [7.89059360e-01, 1.86074202e+01]]
 
-    results = four.calc(mag=True)
+    results = four.calc()
     assert_array_almost_equal(results[:, :, 0], expected_result)
-    results = four.calc(mag=True, fast=False)
+    four._fast = True
+    results = four.calc()
     assert_array_almost_equal(results[:, :, 0], expected_result)
