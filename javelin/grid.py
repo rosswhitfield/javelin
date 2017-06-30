@@ -2,10 +2,6 @@
 ====
 grid
 ====
-
-Grid class to allow the Q-space grid to be definied in different
-ways Should allow for corners and bins, or a matrix and the axis to be
-defined.
 """
 
 from __future__ import division
@@ -13,17 +9,79 @@ import numpy as np
 
 
 class Grid(object):
-    """Grid object
+    """Grid class to allow the Q-space grid to be definied in different
+    ways. The grid can be defined be either specifying the corners of
+    the volume or by the axis vectors.
+
+    The grid is defined by three vectors **v1**, **v2** and **v3**;
+    the range of these vectors **r1**, **r2** and **r3**; and the
+    number of bin in each of these directions.
+
+    :examples:
+
+    Setting grid by defining corners
+
+    >>> grid = Grid()
+    >>> grid.set_corners(ll=[-2,-2,-3], lr=[2,2,-3], ul=[-2,-2,3])
+    >>> grid.bins = 5, 3
+    >>> grid.v1
+    array([ 1.,  1.,  0.])
+    >>> grid.v2
+    array([ 0.,  0.,  1.])
+    >>> grid.v3
+    array([ 1., -1.,  0.])
+    >>> grid.r1
+    array([-2., -1.,  0.,  1.,  2.])
+    >>> grid.r2
+    array([-3.,  0.,  3.])
+    >>> grid.r3
+    array([ 0.])
+    >>> print(grid)
+    lower left  corner :     [-2. -2. -3.]
+    lower right corner :     [ 2.  2. -3.]
+    upper left  corner :     [-2. -2.  3.]
+    top   left  corner :     [-2. -2. -3.]
+    <BLANKLINE>
+    hor. increment     :     [ 1.  1.  0.]
+    vert. increment    :     [ 0.  0.  3.]
+    top   increment    :     [ 1. -1.  0.]
+    <BLANKLINE>
+    # of points        :     5 x 3 x 1
+
+    Setting grid by vectors and ranges
+
+    >>> grid = Grid()
+    >>> grid.v1 = [1, 1, 1]
+    >>> grid.v2 = [2, -1, -1]
+    >>> grid.v3 = [0, 1, -1]
+    >>> grid.r1 = [-1, 1]
+    >>> grid.r2 = [0, 2]
+    >>> grid.r3 = [0, 2]
+    >>> grid.bins = 3, 3, 3
+    >>> print(grid)
+    lower left  corner :     [-1 -1 -1]
+    lower right corner :     [1 1 1]
+    upper left  corner :     [ 3 -3 -3]
+    top   left  corner :     [-1  1 -3]
+    <BLANKLINE>
+    hor. increment     :     [ 1.  1.  1.]
+    vert. increment    :     [ 2. -1. -1.]
+    top   increment    :     [ 0.  1. -1.]
+    <BLANKLINE>
+    # of points        :     3 x 3 x 3
+
     """
     def __init__(self):
         # vectors of grid
         self._v1 = np.array([1, 0, 0])
         self._v2 = np.array([0, 1, 0])
         self._v3 = np.array([0, 0, 1])
+
         # min max of each vector
         self._r1 = np.array([0, 1])
         self._r2 = np.array([0, 1])
         self._r3 = np.array([0, 1])
+
         # number of bins in each direction
         self.bins = (101, 101, 1)
 
@@ -140,8 +198,9 @@ top   increment    :     {}
     @property
     def v1(self):
         """
-        :return: Vector of first axis
-        :rtype: :class:`numpy.ndarray`"""
+        :getter: Set the first axis
+        :setter: Get the first axis
+        :type: :class:`numpy.ndarray`"""
         return self._v1
 
     @v1.setter
@@ -153,8 +212,9 @@ top   increment    :     {}
     @property
     def v2(self):
         """
-        :return: Vector of second axis
-        :rtype: :class:`numpy.ndarray`"""
+        :getter: Set the second axis
+        :setter: Get the second axis
+        :type: :class:`numpy.ndarray`"""
         return self._v2
 
     @v2.setter
@@ -166,8 +226,9 @@ top   increment    :     {}
     @property
     def v3(self):
         """
-        :return: Vector of third axis
-        :rtype: :class:`numpy.ndarray`"""
+        :getter: Set the third axis
+        :setter: Get the third axis
+        :type: :class:`numpy.ndarray`"""
         return self._v3
 
     @v3.setter
@@ -178,9 +239,11 @@ top   increment    :     {}
 
     @property
     def r1(self):
-        """
-        :return: Range of first axis
-        :rtype: :class:`numpy.ndarray`"""
+        """Set the range of the first axis, two values min and max
+
+        :getter: Array of values for each bin in the axis
+        :setter: Range of first axis, two values
+        :type: :class:`numpy.ndarray`"""
         return np.linspace(self._r1[0], self._r1[1], self.bins[0])
 
     @r1.setter
@@ -191,9 +254,11 @@ top   increment    :     {}
 
     @property
     def r2(self):
-        """
-        :return: Range of second axis
-        :rtype: :class:`numpy.ndarray`"""
+        """Set the range of the second axis, two values min and max
+
+        :getter: Array of values for each bin in the axis
+        :setter: Range of second axis, two values
+        :type: :class:`numpy.ndarray`"""
         return np.linspace(self._r2[0], self._r2[1], self.bins[1])
 
     @r2.setter
@@ -204,9 +269,11 @@ top   increment    :     {}
 
     @property
     def r3(self):
-        """
-        :return: Range of third axis
-        :rtype: :class:`numpy.ndarray`"""
+        """Set the range of the third axis, two values min and max
+
+        :getter: Array of values for each bin in the axis
+        :setter: Range of third axis, two values
+        :type: :class:`numpy.ndarray`"""
         return np.linspace(self._r3[0], self._r3[1], self.bins[2])
 
     @r3.setter
@@ -285,26 +352,156 @@ top   increment    :     {}
 
 
 def length(v):
+    """Calculates the length of a vector
+
+    :param v: vector
+    :type v: array-like object of numbers
+    :return: length of vector
+    :rtype: float
+
+    :examples:
+
+    >>> length([1,0,0])
+    1.0
+
+    >>> length([1,-1,0])
+    1.4142135623730951
+
+    >>> length([2,2,2])
+    3.4641016151377544
+    """
     return np.linalg.norm(v)
 
 
 def check_parallel(v1, v2):
+    """Checks if two vectors are parallel
+
+    :param v1: vector1
+    :type v1: array-like object of numbers
+    :param v2: vector2
+    :type v2: array-like object of numbers
+    :return: if parallel
+    :rtype: bool
+
+    :examples:
+
+    >>> check_parallel([1,0,0], [-1,0,0])
+    True
+
+    >>> check_parallel([1,0,0], [0,1,0])
+    False
+    """
     return (np.cross(v1, v2) == 0).all()
 
 
 def angle(v1, v2):
+    """Calculates the angle between two vectors
+
+    :param v1: vector 1
+    :type v1: array-like object of numbers
+    :param v2: vector 2
+    :type v2: array-like object of numbers
+    :return: angle (radians)
+    :rtype: float
+
+    :examples:
+
+    >>> angle([1,0,0], [-1,0,0])
+    3.1415926535897931
+
+    >>> angle([1,0,0], [0,1,0])
+    1.5707963267948966
+    """
     return np.arccos(np.dot(v1, v2) / (length(v1) * length(v2)))
 
 
 def norm(v):
+    """Calculates the normalised vector
+
+    :param v: vector
+    :type v: array-like object of numbers
+    :return: normalised vector
+    :rtype: :class:`numpy.ndarray`
+
+    :examples:
+
+    >>> norm([5, 0, 0])
+    array([ 1.,  0.,  0.])
+
+    >>> norm([1, 1, 0])
+    array([ 0.70710678,  0.70710678,  0.        ])
+    """
     return v/length(v)
 
 
 def norm1(v):
+    """Calculate the equivalent vector with the smallest non-zero
+    component equal to one.
+
+    :param v: vector
+    :type v: array-like object of numbers
+    :return: normalised1 vector
+    :rtype: :class:`numpy.ndarray`
+
+    :examples:
+
+    >>> norm1([5, 10, 0])
+    array([ 1.,  2.,  0.])
+
+    >>> norm1([1, 1, 0])
+    array([ 1.,  1.,  0.])
+
+    """
+    v=np.asarray(v)
     return v/np.min(np.abs(v[np.nonzero(v)]))
 
 
 def corners_to_vectors(ll=None, lr=None, ul=None, tl=None):
+    """This function converts the provided corners into axes vectors and
+    axes ranges. It will also calculate sensible vectors for any
+    unprovided corners.
+
+    You must provide at minimum the lower-left (**ll**) and
+    lower-right (**lr**) corners.
+
+    :param ll: lower-left corner (required)
+    :type ll: array-like object of numbers
+    :param lr: lower-right corner (requried)
+    :type lr: array-like object of numbers
+    :param ul: upper-left corner
+    :type ul: array-like object of numbers
+    :param tl: top-left corner
+    :type tl: array-like object of numbers
+    :return: three axes vectors and three axes ranges
+    :rtype: tuple of three :class:`numpy.ndarray` and three tuple ranges
+
+    :examples:
+
+    Using only **ll** and **lr**, the other two vector are calculated
+    using :func:`javelin.grid.find_other_vectors`
+
+    >>> corners_to_vectors(ll=[-3,-3,0], lr=[3, 3, 0])
+    (array([ 1.,  1.,  0.]), array([ 1.,  0.,  0.]), array([ 0.,  0.,  1.]), (-3.0, 3.0), (0.0, 0.0), (0.0, 0.0))
+
+    Using **ll**, **lr** and **ul**, the other vector is the
+    :func:`javelin.grid.norm1` of the cross product of the first two
+    vectors defined by the corners.
+
+    >>> corners_to_vectors(ll=[-3,-3,-2], lr=[3, 3, -2], ul=[-3, -3, 2])
+    (array([ 1.,  1.,  0.]), array([ 0.,  0.,  1.]), array([ 1., -1.,  0.]), (-3.0, 3.0), (-2.0, 2.0), (0.0, 0.0))
+
+    Finally defining all corners
+
+    >>> corners_to_vectors(ll=[-5, -6, -7], lr=[-5, -6, 7], ul=[-5, 6, -7], tl=[5, -6, -7])
+    (array([ 0.,  0.,  1.]), array([ 0.,  1.,  0.]), array([ 1.,  0.,  0.]), (-7.0, 7.0), (-6.0, 6.0), (-5.0, 5.0))
+
+    If you provided corners which will create parallel vectors you will get a ValueError
+
+    >>> corners_to_vectors(ll=[0, 0, 0], lr=[1, 0, 0], ul=[1, 0, 0])
+    Traceback (most recent call last):
+        ...
+    ValueError: Vector from ll to lr is parallel with vector from ll to ul
+    """
     if ll is None or lr is None:
         raise ValueError("Need to provide at least ll (lower-left) and lr (lower-right) corners")
     elif ul is None:  # 1D
@@ -347,6 +544,23 @@ def corners_to_vectors(ll=None, lr=None, ul=None, tl=None):
 
 
 def get_vector_from_points(p1, p2):
+    """Calculates the vector form two points
+
+    :param p1: point 1
+    :type p1: array-like object of numbers
+    :param p2: point 2
+    :type p2: array-like object of numbers
+    :return: vector between points
+    :rtype: :class:`numpy.ndarray`
+
+    :examples:
+
+    >>> get_vector_from_points([-1, -1, 0], [1, 1, 0])
+    array([ 1.,  1.,  0.])
+
+    >>> get_vector_from_points([0, 0, 0], [2, 2, 4])
+    array([ 1.,  1.,  2.])
+    """
     p1 = np.asarray(p1)
     p2 = np.asarray(p2)
     try:
@@ -356,6 +570,27 @@ def get_vector_from_points(p1, p2):
 
 
 def find_other_vectors(v):
+    """This will find two new vectors which in combination with the
+    provided vector (**v**) will form a basis for a complete space filling
+    set.
+
+    :param v: vector
+    :type v: array-like object of numbers
+    :return: two new space filling vectors
+    :rtype: tuple of two :class:`numpy.ndarray`
+
+    :examples:
+
+    >>> find_other_vectors([1, 0, 0])
+    (array([ 0.,  1.,  0.]), array([ 0.,  0.,  1.]))
+
+    >>> find_other_vectors([0, 0, 1])
+    (array([ 1.,  0.,  0.]), array([ 0.,  1.,  0.]))
+
+    >>> find_other_vectors([1, 1, 0])
+    (array([ 1.,  0.,  0.]), array([ 0.,  0.,  1.]))
+
+    """
     from itertools import combinations
     c = combinations(np.eye(3), 2)
     while True:
