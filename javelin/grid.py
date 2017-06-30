@@ -4,7 +4,7 @@ grid
 ====
 """
 
-from __future__ import division
+from __future__ import division, print_function
 import numpy as np
 
 
@@ -452,7 +452,7 @@ def norm1(v):
     array([ 1.,  1.,  0.])
 
     """
-    v=np.asarray(v)
+    v = np.asarray(v)
     return v/np.min(np.abs(v[np.nonzero(v)]))
 
 
@@ -480,20 +480,29 @@ def corners_to_vectors(ll=None, lr=None, ul=None, tl=None):
     Using only **ll** and **lr**, the other two vector are calculated
     using :func:`javelin.grid.find_other_vectors`
 
-    >>> corners_to_vectors(ll=[-3,-3,0], lr=[3, 3, 0])
-    (array([ 1.,  1.,  0.]), array([ 1.,  0.,  0.]), array([ 0.,  0.,  1.]), (-3.0, 3.0), (0.0, 0.0), (0.0, 0.0))
+    >>> v1, v2, v3, r1, r2, r3 = corners_to_vectors(ll=[-3,-3,0], lr=[3, 3, 0])
+    >>> print(v1, v2, v3)
+    [ 1.  1.  0.] [ 1.  0.  0.] [ 0.  0.  1.]
+    >>> print(r1, r2, r3)
+    (-3.0, 3.0) (0.0, 0.0) (0.0, 0.0)
 
     Using **ll**, **lr** and **ul**, the other vector is the
     :func:`javelin.grid.norm1` of the cross product of the first two
     vectors defined by the corners.
 
-    >>> corners_to_vectors(ll=[-3,-3,-2], lr=[3, 3, -2], ul=[-3, -3, 2])
-    (array([ 1.,  1.,  0.]), array([ 0.,  0.,  1.]), array([ 1., -1.,  0.]), (-3.0, 3.0), (-2.0, 2.0), (0.0, 0.0))
+    >>> v1, v2, v3, r1, r2, r3 = corners_to_vectors(ll=[-3,-3,-2], lr=[3, 3, -2], ul=[-3, -3, 2])
+    >>> print(v1, v2, v3)
+    [ 1.  1.  0.] [ 0.  0.  1.] [ 1. -1.  0.]
+    >>> print(r1, r2, r3)
+    (-3.0, 3.0) (-2.0, 2.0) (0.0, 0.0)
 
     Finally defining all corners
 
-    >>> corners_to_vectors(ll=[-5, -6, -7], lr=[-5, -6, 7], ul=[-5, 6, -7], tl=[5, -6, -7])
-    (array([ 0.,  0.,  1.]), array([ 0.,  1.,  0.]), array([ 1.,  0.,  0.]), (-7.0, 7.0), (-6.0, 6.0), (-5.0, 5.0))
+    >>> v1,v2,v3,r1,r2,r3 = corners_to_vectors(ll=[-5,-6,-7],lr=[-5,-6,7],ul=[-5,6,-7],tl=[5,-6,-7])
+    >>> print(v1, v2, v3)
+    [ 0.  0.  1.] [ 0.  1.  0.] [ 1.  0.  0.]
+    >>> print(r1, r2, r3)
+    (-7.0, 7.0) (-6.0, 6.0) (-5.0, 5.0)
 
     If you provided corners which will create parallel vectors you will get a ValueError
 
