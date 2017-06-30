@@ -3,10 +3,10 @@
 fourier
 =======
 
-This module define the Fourier object and other functions related to
+This module define the Fourier class and other functions related to
 the fourier transformation.
 """
-from __future__ import absolute_import, division
+from __future__ import absolute_import, division, print_function
 import numpy as np
 from javelin.grid import Grid
 from javelin.utils import get_unitcell, get_positions, get_atomic_numbers
@@ -14,7 +14,68 @@ from javelin.fourier_cython import calculate_cython, approx_calculate_cython
 
 
 class Fourier(object):
-    """The Fourier class
+    """The Fourier class contains everything required to calculate the
+    diffuse scattering. The only required thing to be set is
+    :obj:`javelin.fourier.Fourier.structure`. There are defaults for
+    all other options including **grid**, **radiation**, **average**
+    structure subtraction and **lots** options.
+
+    :examples:
+
+    >>> from javelin.structure import Structure
+    >>> fourier = Fourier()
+    >>> fourier.structure = Structure()
+    >>> print(fourier)
+    Structure         : Structure(False, a=1.0, b=1.0, c=1.0, alpha=90.0, beta=90.0, gamma=90.0)
+    Radiation         : neutron
+    Fourier volume    : complete crystal
+    Aver. subtraction : False
+    <BLANKLINE>
+    Reciprocal layer  :
+    lower left  corner :     [0 0 0]
+    lower right corner :     [1 0 0]
+    upper left  corner :     [0 1 0]
+    top   left  corner :     [0 0 1]
+    <BLANKLINE>
+    hor. increment     :     [ 0.01  0.    0.  ]
+    vert. increment    :     [ 0.    0.01  0.  ]
+    top   increment    :     [0 0 1]
+    <BLANKLINE>
+    # of points        :     101 x 101 x 1
+    >>> results = fourier.calc()
+    >>> print(results) # doctest: +NORMALIZE_WHITESPACE
+    <xarray.DataArray 'Intensity' ([1 0 0]: 101, [0 1 0]: 101, [0 0 1]: 1)>
+    array([[[ 0.],
+            [ 0.],
+            ...,
+            [ 0.],
+            [ 0.]],
+    <BLANKLINE>
+           [[ 0.],
+            [ 0.],
+            ...,
+            [ 0.],
+            [ 0.]],
+    <BLANKLINE>
+           ...,
+           [[ 0.],
+            [ 0.],
+            ...,
+            [ 0.],
+            [ 0.]],
+    <BLANKLINE>
+           [[ 0.],
+            [ 0.],
+            ...,
+            [ 0.],
+            [ 0.]]])
+    Coordinates:
+      * [1 0 0]  ([1 0 0]) float64 0.0 0.01 0.02 0.03 0.04 0.05 0.06 0.07 0.08 ...
+      * [0 1 0]  ([0 1 0]) float64 0.0 0.01 0.02 0.03 0.04 0.05 0.06 0.07 0.08 ...
+      * [0 0 1]  ([0 0 1]) float64 0.0
+    Attributes:
+        units:    r.l.u
+
     """
     def __init__(self):
         self._structure = None
@@ -26,6 +87,12 @@ class Fourier(object):
         self._cython = True
         self._approximate = True
         self._fast = True
+
+        #: The **grid** attribute defines the reciprocal volume from
+        #: which the scattering will be calculated. Must of type
+        #: :class:`javelin.grid.Grid` And check
+        #: :class:`javelin.grid.Grid` for details on how to change the
+        #: grid.
         self.grid = Grid()
 
     def __str__(self):
@@ -60,12 +127,18 @@ Reciprocal layer  :
 
     @property
     def structure(self):
-        """The structure from which fourier transform is calculated
+        """The structure from which fourier transform is calculated. The
+        calculation work with any of the following types of structures
+        :class:`javelin.structure.Structure`, :class:`ase.Atoms` or
+        :class:`diffpy.Structure.structure.Structure` but if you are
+        using average stucture subtraction or the lots option it needs
+        to be :class:`javelin.structure.Structure` type.
 
         :getter: Returns the structure
         :setter: Sets the structure
         :type: :class:`javelin.structure.Structure`, :class:`ase.Atoms`,
            :class:`diffpy.Structure.structure.Structure`
+
         """
         return self._structure
 
@@ -240,6 +313,11 @@ Reciprocal layer  :
             return create_xarray_dataarray(total*scale, self.grid)
 
     def calc_average(self):
+        """Calculates the scattering from the avarage structure
+
+        :return: DataArray containing calculated average scattering
+        :rtype: :class:`xarray.DataArray`
+        """
         aver = self._calculate_average()
         return create_xarray_dataarray(np.real(aver*np.conj(aver)), self.grid)
 

@@ -19,6 +19,25 @@ def get_atomic_number_symbol(Z=None, symbol=None):
     Note: If both Z and symbol are provided the symbol will win out and
     change the Z to match.
 
+    :examples:
+
+    >>> Z, symbol = get_atomic_number_symbol(Z=[12, 24, 26, 48])
+    >>> print(Z)
+    [12 24 26 48]
+    >>> print(symbol[0])
+    Mg
+    >>> print(symbol[1])
+    Cr
+    >>> print(symbol[2])
+    Fe
+    >>> print(symbol[3])
+    Cd
+
+    >>> Z, symbol = get_atomic_number_symbol(symbol=['C', 'H', 'N', 'O'])
+    >>> print(Z)
+    [6 1 7 8]
+    >>> print(symbol)
+    ['C' 'H' 'N' 'O']
     """
     import numpy as np
     from periodictable import elements
