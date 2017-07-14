@@ -32,19 +32,19 @@ class Fourier(object):
     Aver. subtraction : False
     <BLANKLINE>
     Reciprocal layer  :
-    lower left  corner :     [0 0 0]
-    lower right corner :     [1 0 0]
-    upper left  corner :     [0 1 0]
-    top   left  corner :     [0 0 1]
+    lower left  corner :     [ 0.  0.  0.]
+    lower right corner :     [ 1.  0.  0.]
+    upper left  corner :     [ 0.  1.  0.]
+    top   left  corner :     [ 0.  0.  1.]
     <BLANKLINE>
     hor. increment     :     [ 0.01  0.    0.  ]
     vert. increment    :     [ 0.    0.01  0.  ]
-    top   increment    :     [0 0 1]
+    top   increment    :     [ 0.  0.  1.]
     <BLANKLINE>
     # of points        :     101 x 101 x 1
     >>> results = fourier.calc()
     >>> print(results) # doctest: +NORMALIZE_WHITESPACE
-    <xarray.DataArray 'Intensity' ([1 0 0]: 101, [0 1 0]: 101, [0 0 1]: 1)>
+    <xarray.DataArray 'Intensity' ([ 1.  0.  0.]: 101, [ 0.  1.  0.]: 101, [ 0.  0.  1.]: 1)>
     array([[[ 0.],
             [ 0.],
             ...,
@@ -70,9 +70,9 @@ class Fourier(object):
             [ 0.],
             [ 0.]]])
     Coordinates:
-      * [1 0 0]  ([1 0 0]) float64 0.0 0.01 0.02 0.03 0.04 0.05 0.06 0.07 0.08 ...
-      * [0 1 0]  ([0 1 0]) float64 0.0 0.01 0.02 0.03 0.04 0.05 0.06 0.07 0.08 ...
-      * [0 0 1]  ([0 0 1]) float64 0.0
+      * [ 1.  0.  0.]  ([ 1.  0.  0.]) float64 0.0 0.01 0.02 0.03 0.04 0.05 0.06 ...
+      * [ 0.  1.  0.]  ([ 0.  1.  0.]) float64 0.0 0.01 0.02 0.03 0.04 0.05 0.06 ...
+      * [ 0.  0.  1.]  ([ 0.  0.  1.]) float64 0.0
     Attributes:
         units:    r.l.u
 

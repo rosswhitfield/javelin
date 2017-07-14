@@ -73,14 +73,14 @@ class Grid(object):
     """
     def __init__(self):
         # vectors of grid
-        self._v1 = np.array([1, 0, 0])
-        self._v2 = np.array([0, 1, 0])
-        self._v3 = np.array([0, 0, 1])
+        self._v1 = np.array([1., 0., 0.])
+        self._v2 = np.array([0., 1., 0.])
+        self._v3 = np.array([0., 0., 1.])
 
         # min max of each vector
-        self._r1 = np.array([0, 1])
-        self._r2 = np.array([0, 1])
-        self._r3 = np.array([0, 1])
+        self._r1 = np.array([0., 1.])
+        self._r2 = np.array([0., 1.])
+        self._r3 = np.array([0., 1.])
 
         # number of bins in each direction
         self.bins = (101, 101, 1)
@@ -307,7 +307,7 @@ top   increment    :     {}
         """
         >>> grid = Grid()
         >>> grid.get_axes_names()
-        ('[1 0 0]', '[0 1 0]', '[0 0 1]')
+        ('[ 1.  0.  0.]', '[ 0.  1.  0.]', '[ 0.  0.  1.]')
 
         :return: Axis names, vector of each direction
         :rtype: tuple of str"""
