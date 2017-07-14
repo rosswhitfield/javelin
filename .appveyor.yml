@@ -20,7 +20,7 @@ install:
   - powershell -Command "(New-Object Net.WebClient).DownloadFile('https://raw.githubusercontent.com/pelson/Obvious-CI/master/scripts/obvci_appveyor_python_build_env.cmd', 'obvci_appveyor_python_build_env.cmd')"
   - "conda create -q -n testenv python=%CONDA_PY% h5py xarray pytables pytest pytest-runner cython"
   - activate testenv
-  - pip install ase periodictable
+  - pip install periodictable
 
 build: off
 
