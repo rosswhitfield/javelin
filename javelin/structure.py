@@ -254,8 +254,8 @@ class Structure(object):
         :example:
 
         >>> stru = Structure(symbols=['Na','Cl','Na'],positions=[[0,0,0],[0.5,0.5,0.5],[0,1,0]])
-        >>> stru.get_atom_Zs()
-        array([11, 17])
+        >>> print(stru.get_atom_Zs())
+        [11 17]
         """
         return self.atoms.Z.unique()
 
@@ -283,8 +283,8 @@ class Structure(object):
         :example:
 
         >>> stru = Structure(symbols=['Na','Cl','Na'],positions=[[0,0,0],[0.5,0.5,0.5],[0,1,0]])
-        >>> stru.get_atomic_numbers()
-        array([11, 17, 11])
+        >>> print(stru.get_atomic_numbers())
+        [11 17 11]
         """
         return self.atoms.Z.values
 
@@ -360,17 +360,17 @@ class Structure(object):
         Empty DataFrame
         Columns: [Z, symbol, x, y, z]
         Index: []
-        >>> stru.add_atom(Z=12, position=[0,0,0])
+        >>> stru.add_atom(Z=12, position=[0.,0.,0.])
         >>> stru.atoms # doctest: +NORMALIZE_WHITESPACE
-                     Z symbol  x  y  z
+                     Z symbol    x    y    z
         i j k site
-        0 0 0 0     12     Mg  0  0  0
-        >>> stru.add_atom(Z=13, position=[0.5,0,0], i=1)
+        0 0 0 0     12     Mg  0.0  0.0  0.0
+        >>> stru.add_atom(Z=13, position=[0.5,0.,0.], i=1)
         >>> stru.atoms # doctest: +NORMALIZE_WHITESPACE
-                     Z symbol    x  y  z
+                     Z symbol    x    y    z
         i j k site
-        0 0 0 0     12     Mg    0  0  0
-        1 0 0 0     13     Al  0.5  0  0
+        0 0 0 0     12     Mg  0.0  0.0  0.0
+        1 0 0 0     13     Al  0.5  0.0  0.0
 
         """
         Z, symbol = get_atomic_number_symbol([Z], [symbol])
