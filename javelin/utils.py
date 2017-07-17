@@ -24,14 +24,8 @@ def get_atomic_number_symbol(Z=None, symbol=None):
     >>> Z, symbol = get_atomic_number_symbol(Z=[12, 24, 26, 48])
     >>> print(Z)
     [12 24 26 48]
-    >>> print(symbol[0])
-    Mg
-    >>> print(symbol[1])
-    Cr
-    >>> print(symbol[2])
-    Fe
-    >>> print(symbol[3])
-    Cd
+    >>> print(symbol)  # doctest: +ALLOW_UNICODE
+    ['Mg' 'Cr' 'Fe' 'Cd']
 
     >>> Z, symbol = get_atomic_number_symbol(symbol=['C', 'H', 'N', 'O'])
     >>> print(Z)

@@ -427,8 +427,8 @@ class Structure(object):
         [[ 0.    0.    0.  ]
          [ 2.82  2.82  2.82]]
         >>> stru.repeat((2,1,1))
-        >>> print([str(e) for e in stru.element])
-        ['Na', 'Cl', 'Na', 'Cl']
+        >>> print(stru.element)  # doctest: +ALLOW_UNICODE
+        ['Na' 'Cl' 'Na' 'Cl']
         >>> print(stru.xyz_cartn)
         [[  0.00000000e+00   0.00000000e+00   0.00000000e+00]
          [  2.82000000e+00   2.82000000e+00   2.82000000e+00]
@@ -441,8 +441,8 @@ class Structure(object):
         >>> print(stru.xyz_cartn)
         [[ 0.  0.  0.]]
         >>> stru.repeat(2)
-        >>> print([str(e) for e in stru.element])
-        ['Na', 'Na', 'Na', 'Na', 'Na', 'Na', 'Na', 'Na']
+        >>> print(stru.element)  # doctest: +ALLOW_UNICODE
+        ['Na' 'Na' 'Na' 'Na' 'Na' 'Na' 'Na' 'Na']
         >>> print(stru.xyz_cartn)
         [[  0.00000000e+00   0.00000000e+00   0.00000000e+00]
          [  0.00000000e+00   0.00000000e+00   5.64000000e+00]
