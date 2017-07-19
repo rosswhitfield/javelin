@@ -364,21 +364,21 @@ class Structure(object):
         :type position: vector
 
 
-        >>> stru=Structure(unitcell=5.64)
-        >>> stru.atoms
-        Empty DataFrame
-        Columns: [Z, symbol, x, y, z]
-        Index: []
-        >>> stru.add_atom(Z=12, position=[0.,0.,0.])
+        >>> stru=Structure(numbers=[12],positions=[[0.,0.,0.]],unitcell=5.64)
         >>> stru.atoms # doctest: +NORMALIZE_WHITESPACE
                      Z symbol    x    y    z
         i j k site
-        0 0 0 0     12     Mg  0.0  0.0  0.0
+        0 0 0 0     12     Mg  0  0  0
+        >>> stru.add_atom(Z=13, position=[0.,0.5,0.])
+        >>> stru.atoms # doctest: +NORMALIZE_WHITESPACE
+                     Z symbol    x    y    z
+        i j k site
+        0 0 0 0     13     Al  0.0  0.5  0.0
         >>> stru.add_atom(Z=13, position=[0.5,0.,0.], i=1)
         >>> stru.atoms # doctest: +NORMALIZE_WHITESPACE
                      Z symbol    x    y    z
         i j k site
-        0 0 0 0     12     Mg  0.0  0.0  0.0
+        0 0 0 0     13     Al  0.0  0.5  0.0
         1 0 0 0     13     Al  0.5  0.0  0.0
 
         """
