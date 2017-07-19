@@ -106,14 +106,16 @@ class UnitCell(object):
             self.a = self.b = self.c = np.float(args)
             self.alpha = self.beta = self.gamma = np.radians(90)
         elif args.size == 3:  # orthorhombic
-            self.a = np.float(args[0])
-            self.b = np.float(args[1])
-            self.c = np.float(args[2])
+            a, b, c = args[0:3]
+            self.a = 1 if a == 0 else np.float(a)
+            self.b = 1 if b == 0 else np.float(b)
+            self.c = 1 if c == 0 else np.float(c)
             self.alpha = self.beta = self.gamma = np.radians(90)
         elif args.size == 6:
-            self.a = np.float(args[0])
-            self.b = np.float(args[1])
-            self.c = np.float(args[2])
+            a, b, c = args[0:3]
+            self.a = 1 if a == 0 else np.float(a)
+            self.b = 1 if b == 0 else np.float(b)
+            self.c = 1 if c == 0 else np.float(c)
             self.alpha = np.radians(args[3])
             self.beta = np.radians(args[4])
             self.gamma = np.radians(args[5])

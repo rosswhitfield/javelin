@@ -117,6 +117,9 @@ class Structure(object):
                                    self.get_chemical_formula(),
                                    self.unitcell)
 
+    def __len__(self):
+        return self.number_of_atoms
+
     @property
     def number_of_atoms(self):
         """The total number of atoms in the structure
@@ -335,6 +338,12 @@ class Structure(object):
     def get_magnetic_moments(self):
         return self.magmons.values
 
+    def get_cell(self):
+        return self.unitcell.Binv
+
+    def get_celldisp(self):
+        return np.zeros((3, 1))
+
     def add_atom(self, i=0, j=0, k=0, site=0, Z=None, symbol=None, position=None):
         """Adds a single atom to the structure. It the atom exist as provided
         **i**, **j**, **k** and **site** it will be replaced.
@@ -504,6 +513,12 @@ class Structure(object):
 
         """
         self.atoms.set_index(get_miindex(ncells=ncells), inplace=True)
+
+    def to_ase(self):
+        from ase import Atoms
+        return Atoms(symbols=self.get_chemical_symbols(),
+                     scaled_positions=self.get_scaled_positions(),
+                     cell=self.unitcell.cell)
 
 
 def axisAngle2Versor(x, y, z, angle, unit='degrees'):

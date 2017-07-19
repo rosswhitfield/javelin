@@ -7,5 +7,6 @@ pytest-cov
 xarray
 pip
 ase
+diffpy.Structure
 periodictable
 cython
