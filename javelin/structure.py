@@ -520,6 +520,51 @@ class Structure(object):
                      scaled_positions=self.get_scaled_positions(),
                      cell=self.unitcell.cell)
 
+    def get_occupational_correlation(self, site, vector, atom):
+        from pandas import MultiIndex
+        Z = self.atoms.xs(site, level='site').Z
+        Z_temp = Z.reindex(MultiIndex.from_product(
+            [np.roll(Z.index.get_level_values(0).drop_duplicates(), vector[0]),
+             np.roll(Z.index.get_level_values(1).drop_duplicates(), vector[1]),
+             np.roll(Z.index.get_level_values(2).drop_duplicates(), vector[2]),
+             [site]], names=['i', 'j', 'k', 'site']))
+        match_counts = np.logical_and(Z.values == atom, Z_temp.values == atom).sum()
+        theta = Z.value_counts()[atom]/Z.size
+        return (match_counts/Z.size - theta*theta)/(theta*(1-theta))
+
+    def print_average_structure(self, separate_sites=True):
+        # Loop of site than atom type
+        if separate_sites:
+            print("{:>4} {:>4} {:>6} {:>8} {:>8} {:>8}"
+                  .format('Site', 'Atom', 'Occ', 'x', 'y', 'z'))
+        else:
+            print("{:>4} {:>8} {:>8} {:>8}".format('Site', 'x', 'y', 'z'))
+        for site in self.atoms.index.get_level_values(3).unique():
+            if separate_sites:
+                for atom in self.get_average_site(site):
+                    print("{0:4d} {atom:>4} {occ:.4f} {x: .5f} {y: .5f} {z: .5f}"
+                          .format(site, **atom))
+            else:
+                print("{0:4d} {x: .5f} {y: .5f} {z: .5f}"
+                      .format(site, **self.get_average_site(site, separate_site=False)))
+
+    def get_average_site(self, site=0, separate_site=True):
+        atoms_site = self.atoms.xs(site, level='site')
+        if separate_site:
+            output = []
+            for atom in atoms_site.symbol.unique():
+                atoms_site_atom = atoms_site[atoms_site.symbol == atom]
+                output.append({'atom': atom,
+                               'occ': atoms_site_atom.size/atoms_site.size,
+                               'x': atoms_site.x.mean(),
+                               'y': atoms_site.y.mean(),
+                               'z': atoms_site.z.mean()})
+            return output
+        else:
+            return {'x': atoms_site.x.mean(),
+                    'y': atoms_site.y.mean(),
+                    'z': atoms_site.z.mean()}
+
 
 def axisAngle2Versor(x, y, z, angle, unit='degrees'):
     norm = np.linalg.norm([x, y, z])
@@ -539,8 +584,7 @@ def axisAngle2Versor(x, y, z, angle, unit='degrees'):
 
 
 def get_rotation_matrix(l, m, n, theta, unit='degrees'):
-    w, x, y, z = axisAngle2Versor(l, m, n, theta, unit=unit)
-    return get_rotation_matrix_from_versor(w, x, y, z)
+    return get_rotation_matrix_from_versor(*axisAngle2Versor(l, m, n, theta, unit=unit))
 
 
 def get_rotation_matrix_from_versor(w, x, y, z):
