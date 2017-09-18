@@ -52,3 +52,11 @@ def test_save_load_xarray_to_HDF5_with_metadata(tmpdir):
     assert_array_equal(test_data.values, [1, 2, 3])
     assert isinstance(test_data.attrs['unit_cell'], UnitCell)
     assert test_data.attrs['unit_cell'].a == 5
+
+
+def test_numpy_to_vti(tmpdir):
+    pytest.importorskip('vtk')
+    import numpy as np
+    io.numpy_to_vti(np.ones((10, 10, 10)), (0, 0, 0),
+                    (0.1, 0.1, 0.1), str(tmpdir.join('test_file.vti')))
+    assert len(tmpdir.listdir()) == 1
