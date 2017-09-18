@@ -532,33 +532,22 @@ class Structure(object):
         theta = Z.value_counts()[atom]/Z.size
         return (match_counts/Z.size - theta*theta)/(theta*(1-theta))
 
-    def print_average_structure(self, separate_sites=True):
-        # Loop of site than atom type
-        if separate_sites:
-            print("{:>4} {:>4} {:>6} {:>8} {:>8} {:>8}"
-                  .format('Site', 'Atom', 'Occ', 'x', 'y', 'z'))
-        else:
-            print("{:>4} {:>8} {:>8} {:>8}".format('Site', 'x', 'y', 'z'))
+    def get_average_structure(self, separate_sites=True):
+        output = {}
         for site in self.atoms.index.get_level_values(3).unique():
-            if separate_sites:
-                for atom in self.get_average_site(site):
-                    print("{0:4d} {atom:>4} {occ:.4f} {x: .5f} {y: .5f} {z: .5f}"
-                          .format(site, **atom))
-            else:
-                print("{0:4d} {x: .5f} {y: .5f} {z: .5f}"
-                      .format(site, **self.get_average_site(site, separate_site=False)))
+            output[site] = self.get_average_site(site=site, separate_site=separate_sites)
+        return output
 
     def get_average_site(self, site=0, separate_site=True):
         atoms_site = self.atoms.xs(site, level='site')
         if separate_site:
-            output = []
+            output = {}
             for atom in atoms_site.symbol.unique():
                 atoms_site_atom = atoms_site[atoms_site.symbol == atom]
-                output.append({'atom': atom,
-                               'occ': atoms_site_atom.size/atoms_site.size,
-                               'x': atoms_site.x.mean(),
-                               'y': atoms_site.y.mean(),
-                               'z': atoms_site.z.mean()})
+                output[atom] = {'occ': atoms_site_atom.size/atoms_site.size,
+                                'x': atoms_site.x.mean(),
+                                'y': atoms_site.y.mean(),
+                                'z': atoms_site.z.mean()}
             return output
         else:
             return {'x': atoms_site.x.mean(),

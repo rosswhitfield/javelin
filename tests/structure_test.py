@@ -40,6 +40,16 @@ def test_one_atom_init():
     assert_array_almost_equal(structure.xyz_cartn, [[1.5, 0, 1.25]])
     assert_array_almost_equal(structure.get_positions(), [[1.5, 0, 1.25]])
     assert_array_equal(structure.unitcell.cell, (3.0, 4.0, 5.0, 90.0, 90.0, 90.0))
+    av_site = structure.get_average_site(site=0)
+    assert av_site['Au']['x'] == 0.5
+    assert av_site['Au']['y'] == 0.0
+    assert av_site['Au']['z'] == 0.25
+    assert av_site['Au']['occ'] == 1.0
+    av_stru = structure.get_average_structure()
+    assert av_stru[0]['Au']['x'] == 0.5
+    assert av_stru[0]['Au']['y'] == 0.0
+    assert av_stru[0]['Au']['z'] == 0.25
+    assert av_stru[0]['Au']['occ'] == 1.0
 
 
 def test_one_atom_add():
@@ -174,6 +184,33 @@ def test_repeat():
                                                     [5.0, 5.0, 5.0],
                                                     [7.5, 7.5, 7.5]])
 
+    av_site0 = structure.get_average_site(site=0)
+    assert av_site0['Au']['x'] == 0.0
+    assert av_site0['Au']['y'] == 0.0
+    assert av_site0['Au']['z'] == 0.0
+    assert av_site0['Au']['occ'] == 1.0
+    av_site1 = structure.get_average_site(site=1)
+    assert av_site1['Ag']['x'] == 0.5
+    assert av_site1['Ag']['y'] == 0.5
+    assert av_site1['Ag']['z'] == 0.5
+    assert av_site1['Ag']['occ'] == 1.0
+    av_stru = structure.get_average_structure()
+    assert av_stru[0]['Au']['x'] == 0.0
+    assert av_stru[0]['Au']['y'] == 0.0
+    assert av_stru[0]['Au']['z'] == 0.0
+    assert av_stru[0]['Au']['occ'] == 1.0
+    assert av_stru[1]['Ag']['x'] == 0.5
+    assert av_stru[1]['Ag']['y'] == 0.5
+    assert av_stru[1]['Ag']['z'] == 0.5
+    assert av_stru[1]['Ag']['occ'] == 1.0
+    av_stru = structure.get_average_structure(separate_sites=False)
+    assert av_stru[0]['x'] == 0.0
+    assert av_stru[0]['y'] == 0.0
+    assert av_stru[0]['z'] == 0.0
+    assert av_stru[1]['x'] == 0.5
+    assert av_stru[1]['y'] == 0.5
+    assert av_stru[1]['z'] == 0.5
+
 
 def test_reindex():
     structure = Structure(unitcell=5, symbols=['Au', 'Ag', 'Pt', 'Pb'], positions=[[0, 0, 0],
@@ -207,6 +244,20 @@ def test_reindex():
                                                     [0., 0., 0.],
                                                     [0., 0., 5.],
                                                     [0., 0., 5.]])
+
+    av_stru = structure.get_average_structure()
+    assert av_stru[0]['Au']['x'] == 0.0
+    assert av_stru[0]['Au']['y'] == 0.0
+    assert av_stru[0]['Au']['z'] == 0.0
+    assert av_stru[0]['Au']['occ'] == 0.5
+    assert av_stru[0]['Pt']['x'] == 0.0
+    assert av_stru[0]['Pt']['y'] == 0.0
+    assert av_stru[0]['Pt']['z'] == 0.0
+    assert av_stru[0]['Pt']['occ'] == 0.5
+    av_stru = structure.get_average_structure(separate_sites=False)
+    assert av_stru[0]['x'] == 0.0
+    assert av_stru[0]['y'] == 0.0
+    assert av_stru[0]['z'] == 0.0
 
 
 def test_except():
