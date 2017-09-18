@@ -181,6 +181,25 @@ class NeighborList:
         This allows you to directly modify or set the vectors but be
         careful to maintain an (n, 5) array.
 
+        >>> nl = NeighborList([[0,1,1,0,0],[0,1,0,1,0],[0,1,0,0,1]])
+        >>> print(nl)
+              |     site      |    vector
+        index | origin target |   i   j   k
+            0 |      0      1 |   1   0   0
+            1 |      0      1 |   0   1   0
+            2 |      0      1 |   0   0   1
+        >>> nl.values
+        array([[0, 1, 1, 0, 0],
+               [0, 1, 0, 1, 0],
+               [0, 1, 0, 0, 1]])
+        >>> nl.values[:,1] = 2
+        >>> print(nl)
+              |     site      |    vector
+        index | origin target |   i   j   k
+            0 |      0      2 |   1   0   0
+            1 |      0      2 |   0   1   0
+            2 |      0      2 |   0   0   1
+
         :return: array of neighbor vectors
         :rtype: :class:`numpy.ndarray`
 
