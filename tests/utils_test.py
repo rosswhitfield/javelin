@@ -1,6 +1,6 @@
 import pytest
 from numpy.testing import assert_array_equal
-from javelin.utils import get_atomic_number_symbol
+from javelin.utils import get_atomic_number_symbol, get_unitcell, get_positions, get_atomic_numbers
 
 
 def test_one():
@@ -40,3 +40,12 @@ def test_raises():
 
     with pytest.raises(KeyError):
         get_atomic_number_symbol(Z=1000)
+
+    with pytest.raises(ValueError):
+        get_unitcell(0)
+
+    with pytest.raises(ValueError):
+        get_positions(0)
+
+    with pytest.raises(ValueError):
+        get_atomic_numbers(0)
