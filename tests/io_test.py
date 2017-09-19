@@ -60,3 +60,7 @@ def test_numpy_to_vti(tmpdir):
     io.numpy_to_vti(np.ones((10, 10, 10)), (0, 0, 0),
                     (0.1, 0.1, 0.1), str(tmpdir.join('test_file.vti')))
     assert len(tmpdir.listdir()) == 1
+
+    with pytest.raises(ValueError):
+        io.numpy_to_vti(np.ones((10, 10)), (0, 0, 0),
+                        (0.1, 0.1, 0.1), str(tmpdir.join('test_file.vti')))
