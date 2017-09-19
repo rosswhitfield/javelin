@@ -121,6 +121,12 @@ class Structure(object):
     def __len__(self):
         return self.number_of_atoms
 
+    def __getitem__(self, key):
+        from pandas import IndexSlice as idx
+        output = Structure(unitcell=self.unitcell)
+        output.atoms = self.atoms.loc[idx[key], slice(None)]
+        return output
+
     @property
     def number_of_atoms(self):
         """The total number of atoms in the structure

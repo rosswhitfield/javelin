@@ -212,6 +212,28 @@ def test_repeat():
     assert av_stru[1]['z'] == 0.5
 
 
+def test__getitem__():
+    structure = Structure(unitcell=5, symbols=['Au', 'Ag'], positions=[[0, 0, 0], [0.5, 0.5, 0.5]])
+    structure.repeat((2, 3, 1))
+
+    structure_slice = structure[:, :, :, :]
+    assert structure_slice.unitcell == structure.unitcell
+    assert_array_equal(structure_slice.atoms, structure.atoms)
+
+    structure_slice = structure[:, 2, :, :]
+    assert structure_slice.unitcell == structure.unitcell
+    assert_array_equal(structure_slice.atoms, structure.atoms[::3])
+
+    structure_slice = structure[1, 1, 0, 1]
+    assert structure_slice.unitcell == structure.unitcell
+    assert_array_equal(structure_slice.atoms, structure.atoms.loc[1, 1, 0, 1])
+
+    structure_slice = structure[:, 1:3, :, 0]
+    assert structure_slice.unitcell == structure.unitcell
+    assert_array_equal(structure_slice.atoms,
+                       structure.atoms.loc[(slice(None), slice(1, 3), slice(None), 0), :])
+
+
 def test_reindex():
     structure = Structure(unitcell=5, symbols=['Au', 'Ag', 'Pt', 'Pb'], positions=[[0, 0, 0],
                                                                                    [0, 0, 0],
