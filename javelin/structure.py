@@ -521,17 +521,35 @@ class Structure(object):
                      scaled_positions=self.get_scaled_positions(),
                      cell=self.unitcell.cell)
 
-    def get_occupational_correlation(self, site, vector, atom):
+    def get_occupational_correlation(self, vectors, atom):
+        """
+        :param vectors: neighbor vectors
+        :type vectors: :class:`javelin.neighborlist.NeighborList` or `n x 5` array of
+            neighbor vectors
+        :param atom: atom type for which to calculate correlation
+        :type atom: int
+        :return: occupational correlation
+        :rtype: float
+        """
         from pandas import MultiIndex
-        Z = self.atoms.xs(site, level='site').Z
-        Z_temp = Z.reindex(MultiIndex.from_product(
-            [np.roll(Z.index.get_level_values(0).drop_duplicates(), vector[0]),
-             np.roll(Z.index.get_level_values(1).drop_duplicates(), vector[1]),
-             np.roll(Z.index.get_level_values(2).drop_duplicates(), vector[2]),
-             [site]], names=['i', 'j', 'k', 'site']))
-        match_counts = np.logical_and(Z.values == atom, Z_temp.values == atom).sum()
-        theta = Z.value_counts()[atom]/Z.size
-        return (match_counts/Z.size - theta*theta)/(theta*(1-theta))
+        vectors = np.asarray(vectors)
+
+        count = 0
+        total = 0
+        match_count = 0
+        for site1, site2, i, j, k in vectors:
+            Z1 = self.atoms.xs(site1, level='site').Z
+            Z2 = self.atoms.xs(site2, level='site').Z
+            Z2 = Z2.reindex(MultiIndex.from_product(
+                [np.roll(Z2.index.get_level_values(0).drop_duplicates(), i),
+                 np.roll(Z2.index.get_level_values(1).drop_duplicates(), j),
+                 np.roll(Z2.index.get_level_values(2).drop_duplicates(), k)],
+                names=['i', 'j', 'k']))
+            count += Z1.value_counts()[atom]
+            total += Z1.size
+            match_count += np.logical_and(Z1.values == atom, Z2.values == atom).sum()
+        theta = count/total
+        return (match_count/total - theta*theta)/(theta*(1-theta))
 
     def get_average_structure(self, separate_sites=True):
         output = {}

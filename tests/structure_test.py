@@ -260,6 +260,17 @@ def test_reindex():
     assert av_stru[0]['z'] == 0.0
 
 
+def test_get_occupational_correlation():
+    structure = Structure(numbers=[11, 17]*8, positions=[[0, 0, 0]]*16, ncells=[4, 4, 1, 1])
+    assert structure.get_occupational_correlation([[0, 0, 1, 0, 0]], 11) == 1
+    assert structure.get_occupational_correlation([[0, 0, 0, 1, 0]], 11) == -1
+    assert structure.get_occupational_correlation([[0, 0, 1, 0, 0], [0, 0, 0, 1, 0]], 11) == 0
+
+    structure = Structure(numbers=[11, 17, 11, 11, 11, 17, 11, 11, 17, 11, 11, 11],
+                          positions=[[0, 0, 0]]*12, ncells=[12, 1, 1, 1])
+    assert structure.get_occupational_correlation([[0, 0, 1, 0, 0]], 11) == -0.3333333333333333
+
+
 def test_except():
     with pytest.raises(ValueError):
         Structure(symbols=['U'], positions=[[0, 0, 0]], ncells=[1, 1, 1, 2])
