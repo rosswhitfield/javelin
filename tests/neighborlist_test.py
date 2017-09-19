@@ -132,6 +132,13 @@ def test__add__():
     assert_array_equal(nl1.values, nl3.values)
 
 
+def test__array__():
+    import numpy as np
+    nl = NeighborList([[0, 1, 2, 3, 4], [5, 6, 7, 8, 9]])
+    arr = np.asarray(nl)
+    assert_array_equal(arr, [[0, 1, 2, 3, 4], [5, 6, 7, 8, 9]])
+
+
 def test__append():
     nl = NeighborList()
 

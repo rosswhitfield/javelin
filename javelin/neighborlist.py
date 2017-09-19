@@ -134,6 +134,9 @@ class NeighborList:
     def __add__(self, other):
         return NeighborList(np.append(self.values, other.values, axis=0))
 
+    def __array__(self):
+        return self._vectors
+
     def __str__(self):
         return ("      |     site      |    vector\nindex | origin target |   i   j   k\n" +
                 '\n'.join('{: 5} | {: 6} {: 6} | {: 3} {: 3} {: 3}'.
