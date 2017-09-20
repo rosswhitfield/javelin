@@ -557,6 +557,57 @@ class Structure(object):
         theta = count/total
         return (match_count/total - theta*theta)/(theta*(1-theta))
 
+    def get_displacement_correlation(self, vectors, direction='x', direction2=None):
+        """
+        :param vectors: neighbor vectors
+        :type vectors: :class:`javelin.neighborlist.NeighborList` or `n x 5` array of
+            neighbor vectors
+        :param atom: atom type for which to calculate correlation
+        :type atom: int
+        :return: occupational correlation
+        :rtype: float
+        """
+        from pandas import MultiIndex
+        dir_dict = {'x': (1, 0, 0),
+                    'y': (0, 1, 0),
+                    'z': (0, 0, 1)}
+
+        aver_stru = self.get_average_structure(separate_sites=False)
+
+        vectors = np.asarray(vectors)
+
+        if direction2 is None:
+            direction2 = direction
+
+        if direction in dir_dict:
+            direction = dir_dict[direction]
+
+        if direction2 in dir_dict:
+            direction2 = dir_dict[direction2]
+
+        sum0 = 0
+        sum1 = 0
+        sum2 = 0
+        for site1, site2, i, j, k in vectors:
+            atoms1 = self.atoms.xs(site1, level='site')
+            atoms2 = self.atoms.xs(site2, level='site')
+            atoms2 = atoms2.reindex(MultiIndex.from_product(
+                [np.roll(atoms2.index.get_level_values(0).drop_duplicates(), i),
+                 np.roll(atoms2.index.get_level_values(1).drop_duplicates(), j),
+                 np.roll(atoms2.index.get_level_values(2).drop_duplicates(), k)],
+                names=['i', 'j', 'k']))
+            temp1 = ((atoms1.x.values - aver_stru[site1]['x'])*direction[0] +
+                     (atoms1.y.values - aver_stru[site1]['y'])*direction[1] +
+                     (atoms1.z.values - aver_stru[site1]['z'])*direction[2])
+            temp2 = ((atoms2.x.values - aver_stru[site2]['x'])*direction2[0] +
+                     (atoms2.y.values - aver_stru[site2]['y'])*direction2[1] +
+                     (atoms2.z.values - aver_stru[site2]['z'])*direction2[2])
+            sum0 += (temp1*temp2).sum()
+            sum1 += np.square(temp1).sum()
+            sum2 += np.square(temp2).sum()
+
+        return sum0/np.sqrt(sum1*sum2)
+
     def get_average_structure(self, separate_sites=True):
         output = {}
         for site in self.atoms.index.get_level_values(3).unique():
