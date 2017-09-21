@@ -293,6 +293,15 @@ def test_get_occupational_correlation():
     assert structure.get_occupational_correlation([[0, 0, 1, 0, 0]], 11) == -0.3333333333333333
 
 
+def test_get_displacement_correlation():
+    structure = Structure(numbers=[11, 17]*8,
+                          positions=[[0.01, 0.02, 0], [-0.01, 0.02, 0]]*8,
+                          ncells=[4, 4, 1, 1])
+    assert structure.get_displacement_correlation([[0, 0, 1, 0, 0]]) == 1.0
+    assert structure.get_displacement_correlation([[0, 0, 0, 1, 0]]) == -1.0
+    assert structure.get_displacement_correlation([[0, 0, 1, 0, 0], [0, 0, 0, 1, 0]]) == 0.0
+
+
 def test_except():
     with pytest.raises(ValueError):
         Structure(symbols=['U'], positions=[[0, 0, 0]], ncells=[1, 1, 1, 2])
