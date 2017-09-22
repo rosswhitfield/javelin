@@ -138,3 +138,41 @@ def test_ase_to_javelin():
     # get_atomic_numbers
     assert_array_equal(hex_javelin.get_atomic_numbers(),
                        hex_ase.get_atomic_numbers())
+
+
+def test_javelin_to_ase():
+    positions = [[0, 1, 0], [1, 1, 0], [1, 0, 0], [0, -1, 0], [-1, -1, 0], [-1, 0, 0]]
+    symbols = ['C']*6
+    unitcell = (1.4, 1.4, 1, 90, 90, 120)
+
+    hex_javelin = Structure(symbols=symbols,
+                            unitcell=unitcell,
+                            positions=positions)
+
+    hex_ase = hex_javelin.to_ase()
+
+    # unitcell
+    assert_array_equal(hex_javelin.unitcell.cell,
+                       ase.geometry.cell_to_cellpar(hex_ase.cell))
+    # get_atomic_numbers
+    assert_array_equal(hex_javelin.get_atomic_numbers(),
+                       hex_ase.get_atomic_numbers())
+
+
+def test_ase_plot_atoms():
+    matplotlib = pytest.importorskip("matplotlib")
+    matplotlib.use('Agg')
+
+    from ase.visualize.plot import plot_atoms
+
+    positions = [[0, 1, 0], [1, 1, 0], [1, 0, 0], [0, -1, 0], [-1, -1, 0], [-1, 0, 0]]
+    symbols = ['C']*6
+    unitcell = (1.4, 1.4, 1, 90, 90, 120)
+
+    structure = Structure(symbols=symbols,
+                          unitcell=unitcell,
+                          positions=positions)
+
+    ax = plot_atoms(structure)
+
+    assert isinstance(ax, matplotlib.axes.Subplot)
