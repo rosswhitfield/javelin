@@ -2,6 +2,7 @@ import pytest
 from javelin.fourier import Fourier
 from javelin.structure import Structure
 from numpy.testing import assert_array_equal, assert_array_almost_equal, assert_allclose
+import numpy as np
 
 
 def test_Fourier_init():
@@ -25,6 +26,18 @@ def test_except():
 
     with pytest.raises(ValueError):
         four.lots = 4, 1
+
+    with pytest.raises(TypeError):
+        four.average = 0
+
+    with pytest.raises(TypeError):
+        four.magnetic = 0
+
+    with pytest.raises(TypeError):
+        four.approximate = 0
+
+    with pytest.raises(ValueError):
+        four.calc()
 
     with pytest.raises(ValueError):
         get_ff(10, 'electron')
@@ -81,6 +94,14 @@ def test_Fourier_two_atoms():
     four._cython = True
     results = four.calc()
     assert_array_almost_equal(results[:, 0, 0], expected_result)
+
+    # Should skip invalid atom Z
+    four = Fourier()
+    atom = Structure(symbols=['C'], positions=[(0., 0., 0.)])
+    atom.atoms.Z = 1000
+    four.structure = atom
+    results = four.calc()
+    assert_array_equal(results, np.zeros((101, 101, 1)))
 
 
 def test_Foutier_C_Ring():
@@ -202,7 +223,6 @@ def test_Foutier_C_Ring():
 
 
 def test_lots():
-    import numpy as np
     np.random.seed(42)  # Make random lot selection not random
 
     structure = Structure(symbols=['C', 'O'], positions=[(0, 0, 0), (0.5, 0, 0)], unitcell=5)
@@ -314,7 +334,6 @@ def test_average():
 
 
 def test_magnetic():
-    import numpy as np
     structure = Structure(symbols=['V']*25, positions=np.tile([0.0, 0.0, 0.0], (25, 1)),
                           unitcell=5, ncells=(5, 5, 1, 1), magnetic_moments=True)
 
@@ -366,3 +385,24 @@ def test_magnetic():
     four._fast = True
     results = four.calc()
     assert_array_almost_equal(results[:, :, 0], expected_result)
+
+    # Should skip missing magnetic form factor
+    structure = Structure(numbers=[8], positions=[[0.0, 0.0, 0.0]], magnetic_moments=True)
+    structure.magmons.spinx = 0
+    structure.magmons.spiny = 0
+    structure.magmons.spinz = 1
+
+    four.structure = structure
+    results = four.calc()
+
+    assert_array_equal(results[:, :, 0], [[np.nan, 0],
+                                          [0, 0],
+                                          [0, 0],
+                                          [0, 0],
+                                          [0, 0],
+                                          [0, 0],
+                                          [0, 0],
+                                          [0, 0],
+                                          [0, 0],
+                                          [0, 0],
+                                          [0, 0]])
