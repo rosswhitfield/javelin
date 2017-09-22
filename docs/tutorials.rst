@@ -8,3 +8,4 @@ Tutorials
    tutorials/discus
    tutorials/ase
    tutorials/diffpy
+   tutorials/neighbors

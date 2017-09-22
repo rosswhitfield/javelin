@@ -1,0 +1,257 @@
+<?xml version="1.0" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+"http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Creator: fig2dev Version 3.2.6 -->
+<!-- CreationDate: Fri Sep 22 09:50:03 2017 -->
+<!-- Magnification: 1.000 -->
+<svg	xmlns="http://www.w3.org/2000/svg"
+	xmlns:xlink="http://www.w3.org/1999/xlink"
+	width="10.5in" height="8.0in"
+	viewBox="185 186 12630 9628">
+<g style="stroke-width:.025in; fill:none">
+<!-- Line -->
+<polyline points="500,500
+12500,500
+" style="stroke:#000000;stroke-width:7;
+stroke-linejoin:miter; stroke-linecap:butt;
+"/>
+<!-- Line -->
+<polyline points="500,3500
+12500,3500
+" style="stroke:#000000;stroke-width:7;
+stroke-linejoin:miter; stroke-linecap:butt;
+"/>
+<!-- Line -->
+<polyline points="500,6500
+12500,6500
+" style="stroke:#000000;stroke-width:7;
+stroke-linejoin:miter; stroke-linecap:butt;
+"/>
+<!-- Line -->
+<polyline points="500,500
+500,9500
+" style="stroke:#000000;stroke-width:7;
+stroke-linejoin:miter; stroke-linecap:butt;
+"/>
+<!-- Line -->
+<polyline points="3500,500
+3500,9500
+" style="stroke:#000000;stroke-width:7;
+stroke-linejoin:miter; stroke-linecap:butt;
+"/>
+<!-- Line -->
+<polyline points="9500,500
+9500,9500
+" style="stroke:#000000;stroke-width:7;
+stroke-linejoin:miter; stroke-linecap:butt;
+"/>
+<!-- Line -->
+<polyline points="12500,500
+12500,9500
+" style="stroke:#000000;stroke-width:7;
+stroke-linejoin:miter; stroke-linecap:butt;
+"/>
+<!-- Line -->
+<polyline points="6500,500
+6500,9500
+" style="stroke:#000000;stroke-width:7;
+stroke-linejoin:miter; stroke-linecap:butt;
+"/>
+<!-- Line -->
+<polyline points="500,9500
+12500,9500
+" style="stroke:#000000;stroke-width:7;
+stroke-linejoin:miter; stroke-linecap:butt;
+"/>
+<!-- Line: box -->
+<rect x="500" y="500" width="3000" height="3000" rx="0" 
+style="stroke:#000000;stroke-width:7;
+stroke-linejoin:miter; stroke-linecap:butt;
+fill:#cccccc;
+"/>
+<!-- Line -->
+<polyline points="6500,6500
+6500,1039
+" style="stroke:#000000;stroke-width:60;
+stroke-linejoin:miter; stroke-linecap:butt;
+"/>
+<!-- Arrowhead on XXXpoint 6500 6500 - 6500 725-->
+<polygon points="6560 1127
+6500 887
+6440 1127
+6560 1127
+
+" style="stroke:#000000;stroke-width:75;stroke-miterlimit:8;
+fill:#000000;"/>
+<!-- Line -->
+<polyline points="6500,6500
+8960,6500
+" style="stroke:#000000;stroke-width:60;
+stroke-linejoin:miter; stroke-linecap:butt;
+"/>
+<!-- Arrowhead on XXXpoint 6500 6500 - 9275 6500-->
+<polygon points="8873 6560
+9113 6500
+8873 6440
+8873 6560
+
+" style="stroke:#000000;stroke-width:75;stroke-miterlimit:8;
+fill:#000000;"/>
+<!-- Line -->
+<polyline points="6500,6500
+12017,9259
+" style="stroke:#000000;stroke-width:60;
+stroke-linejoin:miter; stroke-linecap:butt;
+"/>
+<!-- Arrowhead on XXXpoint 6500 6500 - 12299 9399-->
+<polygon points="11912 9273
+12154 9327
+11966 9166
+11912 9273
+
+" style="stroke:#000000;stroke-width:75;stroke-miterlimit:8;
+fill:#000000;"/>
+<!-- Line -->
+<polyline points="6500,6500
+7580,5419
+" style="stroke:#000000;stroke-width:60;
+stroke-linejoin:miter; stroke-linecap:butt;
+"/>
+<!-- Arrowhead on XXXpoint 6500 6500 - 7803 5196-->
+<polygon points="7561 5523
+7689 5311
+7476 5438
+7561 5523
+
+" style="stroke:#000000;stroke-width:75;stroke-miterlimit:8;
+fill:#000000;"/>
+<!-- Line -->
+<polyline points="6500,6500
+2627,7799
+" style="stroke:#000000;stroke-width:60;
+stroke-linejoin:miter; stroke-linecap:butt;
+"/>
+<!-- Arrowhead on XXXpoint 6500 6500 - 2328 7898-->
+<polygon points="2690 7713
+2482 7847
+2728 7827
+2690 7713
+
+" style="stroke:#000000;stroke-width:75;stroke-miterlimit:8;
+fill:#000000;"/>
+<!-- Circle -->
+<circle cx="500" cy="500" r="300"
+ style="fill:#87cfff;stroke:#000000;stroke-width:15;"/>
+<!-- Circle -->
+<circle cx="500" cy="3500" r="300"
+ style="fill:#87cfff;stroke:#000000;stroke-width:15;"/>
+<!-- Circle -->
+<circle cx="500" cy="6500" r="300"
+ style="fill:#87cfff;stroke:#000000;stroke-width:15;"/>
+<!-- Circle -->
+<circle cx="500" cy="9500" r="300"
+ style="fill:#87cfff;stroke:#000000;stroke-width:15;"/>
+<!-- Circle -->
+<circle cx="3500" cy="500" r="300"
+ style="fill:#87cfff;stroke:#000000;stroke-width:15;"/>
+<!-- Circle -->
+<circle cx="3500" cy="3500" r="300"
+ style="fill:#87cfff;stroke:#000000;stroke-width:15;"/>
+<!-- Circle -->
+<circle cx="3500" cy="6500" r="300"
+ style="fill:#87cfff;stroke:#000000;stroke-width:15;"/>
+<!-- Circle -->
+<circle cx="3500" cy="9500" r="300"
+ style="fill:#87cfff;stroke:#000000;stroke-width:15;"/>
+<!-- Circle -->
+<circle cx="6500" cy="500" r="300"
+ style="fill:#87cfff;stroke:#000000;stroke-width:15;"/>
+<!-- Circle -->
+<circle cx="6500" cy="3500" r="300"
+ style="fill:#87cfff;stroke:#000000;stroke-width:15;"/>
+<!-- Circle -->
+<circle cx="6500" cy="6500" r="300"
+ style="fill:#87cfff;stroke:#000000;stroke-width:15;"/>
+<!-- Circle -->
+<circle cx="6500" cy="9500" r="300"
+ style="fill:#87cfff;stroke:#000000;stroke-width:15;"/>
+<!-- Circle -->
+<circle cx="9500" cy="500" r="300"
+ style="fill:#87cfff;stroke:#000000;stroke-width:15;"/>
+<!-- Circle -->
+<circle cx="9500" cy="3500" r="300"
+ style="fill:#87cfff;stroke:#000000;stroke-width:15;"/>
+<!-- Circle -->
+<circle cx="9500" cy="6500" r="300"
+ style="fill:#87cfff;stroke:#000000;stroke-width:15;"/>
+<!-- Circle -->
+<circle cx="9500" cy="9500" r="300"
+ style="fill:#87cfff;stroke:#000000;stroke-width:15;"/>
+<!-- Circle -->
+<circle cx="12500" cy="500" r="300"
+ style="fill:#87cfff;stroke:#000000;stroke-width:15;"/>
+<!-- Circle -->
+<circle cx="12500" cy="3500" r="300"
+ style="fill:#87cfff;stroke:#000000;stroke-width:15;"/>
+<!-- Circle -->
+<circle cx="12500" cy="6500" r="300"
+ style="fill:#87cfff;stroke:#000000;stroke-width:15;"/>
+<!-- Circle -->
+<circle cx="12500" cy="9500" r="300"
+ style="fill:#87cfff;stroke:#000000;stroke-width:15;"/>
+<!-- Circle -->
+<circle cx="2000" cy="2000" r="400"
+ style="fill:#00d100;stroke:#000000;stroke-width:15;"/>
+<!-- Circle -->
+<circle cx="2000" cy="5000" r="400"
+ style="fill:#00d100;stroke:#000000;stroke-width:15;"/>
+<!-- Circle -->
+<circle cx="2000" cy="8000" r="400"
+ style="fill:#00d100;stroke:#000000;stroke-width:15;"/>
+<!-- Circle -->
+<circle cx="5000" cy="2000" r="400"
+ style="fill:#00d100;stroke:#000000;stroke-width:15;"/>
+<!-- Circle -->
+<circle cx="5000" cy="5000" r="400"
+ style="fill:#00d100;stroke:#000000;stroke-width:15;"/>
+<!-- Circle -->
+<circle cx="5000" cy="8000" r="400"
+ style="fill:#00d100;stroke:#000000;stroke-width:15;"/>
+<!-- Circle -->
+<circle cx="8000" cy="2000" r="400"
+ style="fill:#00d100;stroke:#000000;stroke-width:15;"/>
+<!-- Circle -->
+<circle cx="8000" cy="5000" r="400"
+ style="fill:#00d100;stroke:#000000;stroke-width:15;"/>
+<!-- Circle -->
+<circle cx="8000" cy="8000" r="400"
+ style="fill:#00d100;stroke:#000000;stroke-width:15;"/>
+<!-- Circle -->
+<circle cx="11000" cy="2000" r="400"
+ style="fill:#00d100;stroke:#000000;stroke-width:15;"/>
+<!-- Circle -->
+<circle cx="11000" cy="5000" r="400"
+ style="fill:#00d100;stroke:#000000;stroke-width:15;"/>
+<!-- Circle -->
+<circle cx="11000" cy="8000" r="400"
+ style="fill:#00d100;stroke:#000000;stroke-width:15;"/>
+<!-- Text -->
+<text xml:space="preserve" x="1000" y="1000" fill="#000000"  font-family="Helvetica" font-style="normal" font-weight="normal" font-size="264" text-anchor="start">Unit cell</text>
+<!-- Text -->
+<text xml:space="preserve" x="750" y="3150" fill="#000000"  font-family="Helvetica" font-style="normal" font-weight="normal" font-size="240" text-anchor="start">Site 0</text>
+<!-- Text -->
+<text xml:space="preserve" x="2500" y="2000" fill="#000000"  font-family="Helvetica" font-style="normal" font-weight="normal" font-size="240" text-anchor="start">Site 1</text>
+<!-- Text -->
+<text xml:space="preserve" x="5250" y="6300" fill="#000000"  font-family="Helvetica" font-style="normal" font-weight="normal" font-size="240" text-anchor="start">Atom A</text>
+<!-- Text -->
+<text xml:space="preserve" x="6825" y="825" fill="#000000"  font-family="Helvetica" font-style="normal" font-weight="normal" font-size="168" text-anchor="start">Cell +0,+2, Site 0</text>
+<!-- Text -->
+<text xml:space="preserve" x="7350" y="4500" fill="#000000"  font-family="Helvetica" font-style="normal" font-weight="normal" font-size="168" text-anchor="start">Cell +0,+0, Site 1</text>
+<!-- Text -->
+<text xml:space="preserve" x="9825" y="6300" fill="#000000"  font-family="Helvetica" font-style="normal" font-weight="normal" font-size="168" text-anchor="start">Cell +1,+0, Site 1</text>
+<!-- Text -->
+<text xml:space="preserve" x="1275" y="7500" fill="#000000"  font-family="Helvetica" font-style="normal" font-weight="normal" font-size="168" text-anchor="start">Cell -2,-1, Site 1</text>
+<!-- Text -->
+<text xml:space="preserve" x="10425" y="9450" fill="#000000"  font-family="Helvetica" font-style="normal" font-weight="normal" font-size="168" text-anchor="start">Cell +2,-1, Site 0</text>
+</g>
+</svg>
