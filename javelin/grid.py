@@ -483,7 +483,7 @@ def corners_to_vectors(ll=None, lr=None, ul=None, tl=None):
     >>> v1, v2, v3, r1, r2, r3 = corners_to_vectors(ll=[-3,-3,0], lr=[3, 3, 0])
     >>> print(v1, v2, v3)
     [ 1.  1.  0.] [ 1.  0.  0.] [ 0.  0.  1.]
-    >>> print(r1, r2, r3)
+    >>> print(r1, r2, r3) # doctest: +SKIP
     (-3.0, 3.0) (0.0, 0.0) (0.0, 0.0)
 
     Using **ll**, **lr** and **ul**, the other vector is the
@@ -493,7 +493,7 @@ def corners_to_vectors(ll=None, lr=None, ul=None, tl=None):
     >>> v1, v2, v3, r1, r2, r3 = corners_to_vectors(ll=[-3,-3,-2], lr=[3, 3, -2], ul=[-3, -3, 2])
     >>> print(v1, v2, v3)
     [ 1.  1.  0.] [ 0.  0.  1.] [ 1. -1.  0.]
-    >>> print(r1, r2, r3)
+    >>> print(r1, r2, r3) # doctest: +SKIP
     (-3.0, 3.0) (-2.0, 2.0) (0.0, 0.0)
 
     Finally defining all corners
