@@ -658,16 +658,16 @@ def get_rotation_matrix_from_versor(w, x, y, z):
                       [2*(x*z-y*w), 2*(y*z+x*w), 1-2*x**2-2*y**2]]).T.A
 
 
-def get_miindex(l=0, ncells=None):
+def get_miindex(length=0, ncells=None):
     from pandas import MultiIndex
 
     if ncells is None:
-        if l == 0:
+        if length == 0:
             miindex = MultiIndex(levels=[[], [], [], []],
                                  labels=[[], [], [], []],
                                  names=['i', 'j', 'k', 'site'])
         else:
-            miindex = MultiIndex.from_product([[0], [0], [0], range(l)],
+            miindex = MultiIndex.from_product([[0], [0], [0], range(length)],
                                               names=['i', 'j', 'k', 'site'])
     else:
         miindex = MultiIndex.from_product([range(ncells[0]),

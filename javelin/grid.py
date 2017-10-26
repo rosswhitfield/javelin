@@ -574,7 +574,7 @@ def get_vector_from_points(p1, p2):
     p2 = np.asarray(p2)
     try:
         return norm1(p2 - p1)
-    except:
+    except ValueError:
         raise ValueError("Points provided must be different")
 
 
