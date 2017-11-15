@@ -6,14 +6,13 @@ fourier
 This module define the Fourier class and other functions related to
 the fourier transformation.
 """
-from __future__ import absolute_import, division, print_function
 import numpy as np
 from javelin.grid import Grid
 from javelin.utils import get_unitcell, get_positions, get_atomic_numbers
 from javelin.fourier_cython import calculate_cython, approx_calculate_cython
 
 
-class Fourier(object):
+class Fourier:
     """The Fourier class contains everything required to calculate the
     diffuse scattering. The only required thing to be set is
     :obj:`javelin.fourier.Fourier.structure`. There are defaults for

@@ -4,8 +4,6 @@ environment:
     TARGET_ARCH: "x64"
 
   matrix:
-    - CONDA_PY: 2.7
-      MINICONDA: C:\Miniconda-x64
     - CONDA_PY: 3.5
       MINICONDA: C:\Miniconda35-x64
     - CONDA_PY: 3.6
@@ -19,8 +17,8 @@ init:
 install:
   - powershell -Command "(New-Object Net.WebClient).DownloadFile('https://raw.githubusercontent.com/pelson/Obvious-CI/master/scripts/obvci_appveyor_python_build_env.cmd', 'obvci_appveyor_python_build_env.cmd')"
   - "conda create -q -n testenv python=%CONDA_PY% h5py xarray pytables pytest pytest-runner cython"
+  - "conda install --yes -n testenv -c conda-forge ase periodictable vtk"
   - activate testenv
-  - pip install periodictable
 
 build: off
 

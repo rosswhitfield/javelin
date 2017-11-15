@@ -14,7 +14,7 @@ import os
 import numpy as np
 from javelin.structure import Structure
 from numpy.testing import assert_array_equal, assert_array_almost_equal
-dps = pytest.importorskip("diffpy.Structure")
+dps = pytest.importorskip("diffpy.structure")
 
 
 def test_hex():

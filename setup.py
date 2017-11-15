@@ -13,7 +13,6 @@ classifiers = [
     'Intended Audience :: Science/Research',
     'License :: OSI Approved :: MIT License',
     'Programming Language :: Python',
-    'Programming Language :: Python :: 2.7',
     'Programming Language :: Python :: 3',
     'Programming Language :: Python :: 3.4',
     'Programming Language :: Python :: 3.5',
@@ -22,9 +21,9 @@ classifiers = [
 ]
 
 install_requires = [
-    'xarray>=0.9.0',
-    'periodictable>=1.4.1',
-    'h5py>=2.5.0'
+    'xarray',
+    'periodictable',
+    'h5py'
 ]
 
 setup(

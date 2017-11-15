@@ -3,7 +3,6 @@
 io
 ==
 """
-from __future__ import absolute_import
 
 
 def read_mantid_MDHisto(filename):

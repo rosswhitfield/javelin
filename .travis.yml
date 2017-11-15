@@ -1,35 +1,25 @@
 language: python
 
 python:
-  - "2.7"
-  - "3.4"
   - "3.5"
   - "3.6"
 
 before_install:
-  - if [[ "${TRAVIS_PYTHON_VERSION}" == "2.7" ]]; then
-        wget https://repo.continuum.io/miniconda/Miniconda-latest-Linux-x86_64.sh -O miniconda.sh;
-    else
-        wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh;
-    fi
+  - wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh;
   - bash miniconda.sh -b -p $HOME/miniconda
   - export PATH="$HOME/miniconda/bin:$PATH"
   - hash -r
   - conda config --set always_yes yes --set changeps1 no
 
 install:
-  - conda create -q -n testenv python=$TRAVIS_PYTHON_VERSION h5py xarray pytables pytest-cov pytest-runner cython
-  - if [[ "${TRAVIS_PYTHON_VERSION}" == "2.7" ]]; then
-        conda config --add channels diffpy;
-        conda install --yes -n testenv diffpy.structure vtk;
-    fi
-  - if [[ "${TRAVIS_PYTHON_VERSION}" == "3.5" ]]; then conda install --yes -n testenv flake8; fi
+  - conda create -q -n testenv python=$TRAVIS_PYTHON_VERSION h5py xarray pytables pytest-cov pytest-runner cython flake8
+  - conda install --yes -n testenv -c conda-forge ase periodictable vtk codecov
+  - conda install --yes -n testenv -c diffpy/label/dev diffpy.structure
   - source activate testenv
-  - pip install ase codecov periodictable
 
 script:
   - python setup.py test --addopts --cov=javelin
-  - if [[ "${TRAVIS_PYTHON_VERSION}" == "3.5" ]]; then flake8; fi
+  - flake8
 
 after_success:
   - codecov

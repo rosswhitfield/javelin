@@ -4,11 +4,10 @@ grid
 ====
 """
 
-from __future__ import division, print_function
 import numpy as np
 
 
-class Grid(object):
+class Grid:
     """Grid class to allow the Q-space grid to be definied in different
     ways. The grid can be defined be either specifying the corners of
     the volume or by the axis vectors.

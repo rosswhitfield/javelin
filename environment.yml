@@ -1,5 +1,11 @@
 name: javelin
+channels:
+- defaults
+- conda-forge
+- diffpy
+- diffpy/label/dev
 dependencies:
+- python=3.6
 - cython
 - h5py
 - matplotlib
@@ -8,7 +14,9 @@ dependencies:
 - pip
 - pytables
 - pytest-cov
+- pytest-runner
 - xarray
-- pip:
-  - ase
-  - periodictable
+- ase
+- periodictable
+- vtk
+- diffpy.structure

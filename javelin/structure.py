@@ -5,7 +5,6 @@ structure
 """
 
 
-from __future__ import division
 import numpy as np
 from pandas import DataFrame
 from javelin.unitcell import UnitCell
@@ -13,7 +12,7 @@ from javelin.utils import (get_atomic_number_symbol, is_structure, get_unitcell,
                            get_atomic_numbers)
 
 
-class Structure(object):
+class Structure:
     """The structure class is made up of a **unitcell** and a list of **atoms**
 
     Structure can be initialize using either another
