@@ -360,10 +360,12 @@ def test_magnetic():
                        [2.16003995e+02, 8.14786919e+00],
                        [4.93162100e+02, 1.86074202e+01]]
 
-    results = four.calc()
+    with pytest.warns(RuntimeWarning):
+        results = four.calc()
     assert_array_almost_equal(results[:, :, 0], expected_result)
     four._fast = False
-    results = four.calc()
+    with pytest.warns(RuntimeWarning):
+        results = four.calc()
     assert_array_almost_equal(results[:, :, 0], expected_result)
 
     structure.magmons.spinz[1::2] = -1
@@ -380,10 +382,12 @@ def test_magnetic():
                        [2.94920500e-31, 8.84219640e-30],
                        [7.89059360e-01, 1.86074202e+01]]
 
-    results = four.calc()
+    with pytest.warns(RuntimeWarning):
+        results = four.calc()
     assert_array_almost_equal(results[:, :, 0], expected_result)
     four._fast = True
-    results = four.calc()
+    with pytest.warns(RuntimeWarning):
+        results = four.calc()
     assert_array_almost_equal(results[:, :, 0], expected_result)
 
     # Should skip missing magnetic form factor
@@ -393,7 +397,8 @@ def test_magnetic():
     structure.magmons.spinz = 1
 
     four.structure = structure
-    results = four.calc()
+    with pytest.warns(RuntimeWarning):
+        results = four.calc()
 
     assert_array_equal(results[:, :, 0], [[np.nan, 0],
                                           [0, 0],
