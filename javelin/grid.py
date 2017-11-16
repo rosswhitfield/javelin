@@ -599,12 +599,18 @@ def find_other_vectors(v):
     (array([ 1.,  0.,  0.]), array([ 0.,  0.,  1.]))
 
     """
+    import warnings
     from itertools import combinations
     c = combinations(np.eye(3), 2)
-    while True:
-        v0, v1 = next(c)
-        if np.linalg.cond(np.transpose([v, v0, v1])) == np.inf:
-            continue
-        else:
-            break
+
+    with warnings.catch_warnings():
+        warnings.filterwarnings('ignore',
+                                message='divide by zero encountered in true_divide',
+                                category=RuntimeWarning)
+        while True:
+            v0, v1 = next(c)
+            if np.linalg.cond(np.transpose([v, v0, v1])) == np.inf:
+                continue
+            else:
+                break
     return v0, v1
