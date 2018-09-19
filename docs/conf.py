@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+import numpy as np
 
 extensions = [
     'sphinx.ext.autodoc',
@@ -40,3 +41,9 @@ intersphinx_mapping = {'numpy': ('https://docs.scipy.org/doc/numpy/', None),
                        'diffpy.Structure': ('http://www.diffpy.org/diffpy.structure/', None)}
 
 autodoc_default_flags = ['members', 'undoc-members']
+
+# Use legacy numpy printing. This fix is made to keep doctests functional.
+try:
+    np.set_printoptions(legacy='1.13')
+except TypeError:
+    pass
