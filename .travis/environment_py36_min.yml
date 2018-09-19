@@ -1,0 +1,21 @@
+name: testenv
+channels:
+- defaults
+- conda-forge
+- diffpy/label/dev
+dependencies:
+- python=3.6
+- cython=0.25
+- h5py=2.6
+- numpy=1.11
+- pandas=0.19
+- pytables=3.3
+- xarray=0.8
+- ase=3.14
+- periodictable=1.5
+- vtk=7.1
+- diffpy.structure=3.0
+- pytest-cov
+- pytest-runner
+- codecov
+- flake8

@@ -10,16 +10,19 @@ Install the latest release
 Requirements
 ============
 
-* Python 2.7-3.5
-* NumPy
-* h5py_
-* pandas_
-* xarray_
-* periodictable_
+* Python >= 3.5
+* NumPy >= 1.10
+* h5py_ >= 2.5
+* pandas_ >= 0.17
+* xarray_ >= 0.7
+* periodictable_ >= 1.4
+* cython >= 0.23
+* pytables >= 3.2
+
 
 Optional:
 
-* ASE_ (to use the ase atoms structue)
+* ASE_ (to use the ase atoms structue) >= 3.14
 
 .. _h5py: 
 .. _pandas: http://pandas.pydata.org/
@@ -30,7 +33,7 @@ Optional:
 Development
 ===========
 
-A development enviroment can easily be set up with either conda of PyPI
+A development enviroment can easily be set up with either conda or PyPI
 
 Using Conda
 ===========

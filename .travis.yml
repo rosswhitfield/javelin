@@ -1,8 +1,15 @@
 language: python
 
-python:
-  - "3.5"
-  - "3.6"
+matrix:
+  include:
+    - name: "Python 3.5 with minimum dependency versions"
+      env: ENVIRONMENT=".travis/environment_py35_min.yml"
+    - name: "Python 3.6 with minimum dependency versions"
+      env: ENVIRONMENT=".travis/environment_py36_min.yml"
+    - name: "Python 3.5 with newest dependency versions"
+      env: ENVIRONMENT=".travis/environment_py35.yml"
+    - name: "Python 3.6 with newest dependency versions"
+      env: ENVIRONMENT=".travis/environment_py36.yml"
 
 before_install:
   - wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh;
@@ -12,10 +19,9 @@ before_install:
   - conda config --set always_yes yes --set changeps1 no
 
 install:
-  - conda create -q -n testenv python=$TRAVIS_PYTHON_VERSION h5py xarray pytables pytest-cov pytest-runner cython flake8
-  - conda install --yes -n testenv -c conda-forge ase periodictable vtk codecov
-  - conda install --yes -n testenv -c diffpy/label/dev diffpy.structure
+  - conda env create --file $ENVIRONMENT
   - source activate testenv
+  - conda list
 
 script:
   - python setup.py test --addopts --cov=javelin
