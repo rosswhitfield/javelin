@@ -135,7 +135,7 @@ def test_UnitCell_exceptions():
     with pytest.raises(ValueError):
         unitcell.cell = (1, 2, 3, 4, 5)
 
-    with pytest.raises(ValueError):
+    with pytest.raises(Exception):
         unitcell.cell = "foobor"
 
     with pytest.raises(ValueError):

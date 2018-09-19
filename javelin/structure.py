@@ -379,13 +379,13 @@ class Structure:
         >>> stru.atoms # doctest: +NORMALIZE_WHITESPACE
                      Z symbol    x    y    z
         i j k site
-        0 0 0 0     13     Al  0.0  0.5  0.0
+        0 0 0 0     13     Al  0...  0.5  0...
         >>> stru.add_atom(Z=13, position=[0.5,0.,0.], i=1)
         >>> stru.atoms # doctest: +NORMALIZE_WHITESPACE
                      Z symbol    x    y    z
         i j k site
-        0 0 0 0     13     Al  0.0  0.5  0.0
-        1 0 0 0     13     Al  0.5  0.0  0.0
+        0 0 0 0     13     Al  0.0  0.5  0...
+        1 0 0 0     13     Al  0.5  0.0  0...
 
         """
         Z, symbol = get_atomic_number_symbol([Z], [symbol])

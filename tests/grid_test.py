@@ -246,8 +246,7 @@ def test_angle():
     from javelin.grid import angle
     assert angle([1, 0, 0], [0, 1, 0]) == np.pi/2
     assert angle([0, 1, 0], [0, 1, 0]) == 0
-    with pytest.warns(RuntimeWarning):
-        assert np.isnan(angle([1, 0, 0], [0, 0, 0]))
+    assert np.isnan(angle([1, 0, 0], [0, 0, 0]))
 
 
 def test_norm():
