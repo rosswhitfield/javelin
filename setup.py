@@ -14,7 +14,6 @@ classifiers = [
     'License :: OSI Approved :: MIT License',
     'Programming Language :: Python',
     'Programming Language :: Python :: 3',
-    'Programming Language :: Python :: 3.4',
     'Programming Language :: Python :: 3.5',
     'Programming Language :: Python :: 3.6',
     'Topic :: Scientific/Engineering :: Physics',
@@ -48,7 +47,7 @@ setup(
     packages=['javelin'],
     classifiers=classifiers,
     install_requires=install_requires,
-    setup_requires='Cython>=0.25.0',
+    setup_requires='Cython>=0.23.0',
     ext_modules=[Extension('javelin.fourier_cython', ['javelin/fourier_cython.pyx'],
                            extra_compile_args=extra_compile_args,
                            extra_link_args=extra_link_args)]

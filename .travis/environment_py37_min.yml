@@ -1,0 +1,18 @@
+name: testenv
+channels:
+- defaults
+- conda-forge
+dependencies:
+- python=3.7
+- cython=0.28
+- h5py=2.8
+- numpy=1.11
+- pandas=0.23
+- pytables=3.4
+- xarray=0.10
+- pytest-cov
+- pytest-runner
+- codecov
+- flake8
+- pip:
+    - periodictable==1.5

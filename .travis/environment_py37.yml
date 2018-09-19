@@ -1,0 +1,18 @@
+name: testenv
+channels:
+- defaults
+- conda-forge
+dependencies:
+- python=3.7
+- cython
+- h5py
+- numpy
+- pandas
+- pytables
+- pytest-cov
+- pytest-runner
+- xarray
+- codecov
+- flake8
+- pip:
+    - periodictable
