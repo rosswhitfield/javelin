@@ -55,9 +55,9 @@ class UnitCell:
         self.ralpha = np.radians(90)  # alpha*
         self.rbeta = np.radians(90)   # beta*
         self.rgamma = np.radians(90)  # gamma*
-        self.__G = np.matrix(np.eye(3))
-        self.__Gstar = np.matrix(np.eye(3))
-        self.__B = np.matrix(np.eye(3))
+        self.__G = np.eye(3)
+        self.__Gstar = np.eye(3)
+        self.__B = np.eye(3)
         if args:
             self.cell = args
 
@@ -72,7 +72,7 @@ class UnitCell:
 
         >>> unitcell = UnitCell(3,4,5,90,90,120)
         >>> unitcell.cartesian([1,0,0])
-        array([[  2.59807621e+00,  -1.50000000e+00,   3.25954010e-16]])
+        array([  2.59807621e+00,  -1.50000000e+00,   3.25954010e-16])
 
         A array of atoms position can also be passed
 
@@ -81,7 +81,7 @@ class UnitCell:
         array([[  2.59807621e+00,  -1.50000000e+00,   3.25954010e-16],
                [  0.00000000e+00,   0.00000000e+00,   2.50000000e+00]])
         """
-        return (u * self.Binv).getA()
+        return np.dot(u, self.Binv)
 
     @property
     def cell(self):
@@ -130,7 +130,7 @@ class UnitCell:
 
         >>> unitcell = UnitCell(3,4,5,90,90,120)
         >>> unitcell.fractional([0,4,0])
-        array([[  0.00000000e+00,   1.00000000e+00,  -4.89858720e-17]])
+        array([  0.00000000e+00,   1.00000000e+00,  -4.89858720e-17])
 
         A array of atoms position can also be passed
 
@@ -139,7 +139,7 @@ class UnitCell:
         array([[  0.00000000e+00,   5.00000000e-01,  -2.44929360e-17],
                [  0.00000000e+00,   0.00000000e+00,   1.00000000e+00]])
         """
-        return (u * self.B).getA()
+        return (u @ self.B)
 
     @property
     def G(self):
@@ -149,7 +149,7 @@ class UnitCell:
     @property
     def Gstar(self):
         """Returns the reciprocal metric tensor **G***"""
-        return self.G.getI()
+        return np.linalg.inv(self.G)
 
     @property
     def B(self):
@@ -159,13 +159,13 @@ class UnitCell:
     @property
     def Binv(self):
         """Returns the inverse **B** matrix"""
-        return self.B.getI()
+        return np.linalg.inv(self.B)
 
     def dstar(self, h, k, l):
         """Returns d*=1/d for given h,k,l"""
-        return np.linalg.norm(self.B * np.matrix([[h],
-                                                  [k],
-                                                  [l]]))
+        return np.linalg.norm(self.B @ np.array([[h],
+                                                 [k],
+                                                 [l]]))
 
     def d(self, h, k, l):
         """Returns d-spacing for given h,k,l"""
@@ -173,10 +173,10 @@ class UnitCell:
 
     def recAngle(self, h1, k1, l1, h2, k2, l2, degrees=False):
         """Calculates the angle between two reciprocal vectors"""
-        q1 = np.matrix([[h1], [k1], [l1]])
-        q2 = np.matrix([[h2], [k2], [l2]])
-        q1 = self.Gstar * q1
-        E = (q1.T * q2).sum()
+        q1 = np.array([[h1], [k1], [l1]])
+        q2 = np.array([[h2], [k2], [l2]])
+        q1 = self.Gstar @ q1
+        E = (q1.T @ q2).sum()
         angle = np.arccos(E / (self.dstar(h1, k1, l1) * self.dstar(h2, k2, l2)))
         if degrees:
             return np.degrees(angle)
@@ -223,14 +223,14 @@ class UnitCell:
         ca = np.cos(self.alpha)
         cb = np.cos(self.beta)
         cg = np.cos(self.gamma)
-        self.__G = np.matrix([[self.a**2,            self.a * self.b * cg, self.a * self.c * cb],
-                              [self.a * self.b * cg, self.b**2,            self.b * self.c * ca],
-                              [self.a * self.c * cb, self.b * self.c * ca, self.c**2]])
+        self.__G = np.array([[self.a**2,            self.a * self.b * cg, self.a * self.c * cb],
+                             [self.a * self.b * cg, self.b**2,            self.b * self.c * ca],
+                             [self.a * self.c * cb, self.b * self.c * ca, self.c**2]])
 
     def __calculateB(self):
         """Calculated B matrix from lattice vectors"""
-        self.__B = np.matrix([[self.ra, self.rb * np.cos(self.rgamma),
-                               self.rc * np.cos(self.rbeta)],
-                              [0, self.rb * np.sin(self.rgamma),
-                               - self.rc * np.sin(self.rbeta) * np.cos(self.alpha)],
-                              [0,        0, 1/self.c]])
+        self.__B = np.array([[self.ra, self.rb * np.cos(self.rgamma),
+                              self.rc * np.cos(self.rbeta)],
+                             [0, self.rb * np.sin(self.rgamma),
+                              - self.rc * np.sin(self.rbeta) * np.cos(self.alpha)],
+                             [0,        0, 1/self.c]])

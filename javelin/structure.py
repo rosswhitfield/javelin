@@ -652,9 +652,9 @@ def get_rotation_matrix(l, m, n, theta, unit='degrees'):
 
 
 def get_rotation_matrix_from_versor(w, x, y, z):
-    return np.matrix([[1-2*y**2-2*z**2, 2*(x*y-z*w), 2*(x*z+y*w)],
-                      [2*(x*y+z*w), 1-2*x**2-2*z**2, 2*(y*z-x*w)],
-                      [2*(x*z-y*w), 2*(y*z+x*w), 1-2*x**2-2*y**2]]).T.A
+    return np.array([[1-2*y**2-2*z**2, 2*(x*y-z*w), 2*(x*z+y*w)],
+                     [2*(x*y+z*w), 1-2*x**2-2*z**2, 2*(y*z-x*w)],
+                     [2*(x*z-y*w), 2*(y*z+x*w), 1-2*x**2-2*y**2]]).T
 
 
 def get_miindex(length=0, ncells=None):

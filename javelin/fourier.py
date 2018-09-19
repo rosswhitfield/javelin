@@ -25,7 +25,7 @@ class Fourier:
     >>> fourier = Fourier()
     >>> fourier.structure = Structure()
     >>> print(fourier)
-    Structure         : Structure(False, a=1.0, b=1.0, c=1.0, alpha=90.0, beta=90.0, gamma=90.0)
+    Structure         : Structure(..., a=1.0, b=1.0, c=1.0, alpha=90.0, beta=90.0, gamma=90.0)
     Radiation         : neutron
     Fourier volume    : complete crystal
     Aver. subtraction : False
@@ -241,7 +241,7 @@ Reciprocal layer  :
         qx, qy, qz = self.grid.get_q_meshgrid()
         q = np.linalg.norm(np.array([qx.ravel(),
                                      qy.ravel(),
-                                     qz.ravel()]).T * get_unitcell(self.structure).B, axis=1)
+                                     qz.ravel()]).T @ get_unitcell(self.structure).B, axis=1)
         q.shape = qx.shape
         return q*2*np.pi
 
