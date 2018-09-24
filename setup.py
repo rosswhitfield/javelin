@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 from setuptools import setup, Extension, distutils
+import versioneer
 
 if distutils.ccompiler.get_default_compiler() == 'msvc':
     extra_compile_args = ['/openmp']
@@ -16,6 +17,7 @@ classifiers = [
     'Programming Language :: Python :: 3',
     'Programming Language :: Python :: 3.5',
     'Programming Language :: Python :: 3.6',
+    'Programming Language :: Python :: 3.7',
     'Topic :: Scientific/Engineering :: Physics',
 ]
 
@@ -27,7 +29,8 @@ install_requires = [
 
 setup(
     name='javelin',
-    version='0.1.0',
+    version=versioneer.get_version(),
+    cmdclass=versioneer.get_cmdclass(),
     description='Disordered materials modelling and single crystal diffuse scattering calculator',
     long_description="""Javelin is inspired by DISCUS. It is written in python using modern
     tools, Matplotlib and VTK for plotting, pandas for storing the
