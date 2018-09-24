@@ -101,7 +101,7 @@ def get_atomic_numbers(structure):
 
 
 def is_structure(structure):
-    """Check if an object is a stucture that javelin can understand.
+    """Check if an object is a structure that javelin can understand.
 
     ase.atoms with have cell, get_scaled_positions and get_atomic_numbers attributes
     diffpy.structure with have lattice, xyz, and element attributes

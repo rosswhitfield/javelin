@@ -8,7 +8,7 @@ import numpy as np
 
 
 class Grid:
-    """Grid class to allow the Q-space grid to be definied in different
+    """Grid class to allow the Q-space grid to be defined in different
     ways. The grid can be defined be either specifying the corners of
     the volume or by the axis vectors.
 
@@ -465,7 +465,7 @@ def corners_to_vectors(ll=None, lr=None, ul=None, tl=None):
 
     :param ll: lower-left corner (required)
     :type ll: array-like object of numbers
-    :param lr: lower-right corner (requried)
+    :param lr: lower-right corner (required)
     :type lr: array-like object of numbers
     :param ul: upper-left corner
     :type ul: array-like object of numbers

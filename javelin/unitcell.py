@@ -8,7 +8,7 @@ import numpy as np
 
 
 class UnitCell:
-    """The UnitCell ojbect can be set with either 1, 3 or 6 parameters
+    """The UnitCell object can be set with either 1, 3 or 6 parameters
     corresponding to cubic ``a`` parameters, ``(a, b, c)`` or ``(a, b,
     c, alpha, beta, gamma)``, where angles are in degrees.
 

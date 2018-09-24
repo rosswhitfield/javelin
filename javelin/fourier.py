@@ -130,7 +130,7 @@ Reciprocal layer  :
         calculation work with any of the following types of structures
         :class:`javelin.structure.Structure`, :class:`ase.Atoms` or
         :class:`diffpy.Structure.structure.Structure` but if you are
-        using average stucture subtraction or the lots option it needs
+        using average structure subtraction or the lots option it needs
         to be :class:`javelin.structure.Structure` type.
 
         :getter: Returns the structure
@@ -186,7 +186,7 @@ Reciprocal layer  :
         subtracted it from the simulated scattering
 
         :getter: Returns bool of average structure subtraction option
-        :setter: Sets whether average stucture is subtracted
+        :setter: Sets whether average structure is subtracted
         :type: bool
         """
         return self._average

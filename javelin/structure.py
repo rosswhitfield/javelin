@@ -143,7 +143,7 @@ class Structure:
 
     @property
     def element(self):
-        """Array of all elements in the stucture
+        """Array of all elements in the structure
 
         :return: array of element symbols
         :rtype: :class:`numpy.ndarray`
@@ -284,7 +284,7 @@ class Structure:
         return self.atoms.symbol.value_counts()
 
     def get_atomic_numbers(self):
-        """Array of all atomic numbers in the stucture
+        """Array of all atomic numbers in the structure
 
         :return: array of atomic numbers
         :rtype: :class:`numpy.ndarray`
