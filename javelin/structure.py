@@ -240,6 +240,14 @@ class Structure:
         """
         return self.unitcell.cartesian(self.get_scaled_positions())
 
+    @property
+    def info(self):
+        """Dictionary of key-value pairs with additional information about the system.
+
+        Not implemented, only for ASE compatibility.
+        """
+        return dict()
+
     def get_atom_symbols(self):
         """Get a list of unique atom symbols in structure
 

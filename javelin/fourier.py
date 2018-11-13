@@ -42,7 +42,7 @@ class Fourier:
     <BLANKLINE>
     # of points        :     101 x 101 x 1
     >>> results = fourier.calc()
-    >>> print(results) # doctest: +NORMALIZE_WHITESPACE
+    >>> print(results) # doctest: +SKIP
     <xarray.DataArray 'Intensity' ([ 1.  0.  0.]: 101, [ 0.  1.  0.]: 101, [ 0.  0.  1.]: 1)>
     array([[[ 0.],
             [ 0.],
