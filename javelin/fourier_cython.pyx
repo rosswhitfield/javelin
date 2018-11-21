@@ -4,12 +4,12 @@ cimport cython
 
 @cython.boundscheck(False)
 @cython.wraparound(False)
-cpdef calculate_cython(double[:,:,:] qx,
-                       double[:,:,:] qy,
-                       double[:,:,:] qz,
-                       double[:,:] atoms,
-                       double[:,:,:] results_real,
-                       double[:,:,:] results_imag):
+cpdef calculate_cython(double[:,:,::1] qx,
+                       double[:,:,::1] qy,
+                       double[:,:,::1] qz,
+                       double[:,::1] atoms,
+                       double[:,:,::1] results_real,
+                       double[:,:,::1] results_imag):
 
     cdef double dot
     cdef int A = atoms.shape[0], I = results_real.shape[0], J = results_real.shape[1], K = results_real.shape[2]
@@ -29,9 +29,9 @@ cpdef approx_calculate_cython(double[:] xm,
                               double[:] uin,
                               double[:] vin,
                               double[:] win,
-                              double[:,:] xat,
-                              double[:,:,:] results_real,
-                              double[:,:,:] results_imag,
+                              double[:,::1] xat,
+                              double[:,:,::1] results_real,
+                              double[:,:,::1] results_imag,
                               double[:] cex_real,
                               double[:] cex_imag):
     """
@@ -39,7 +39,6 @@ cpdef approx_calculate_cython(double[:] xm,
     Butler, B. D. & Welberry T. R. (1992). 3. Appl. Cryst. 25, 391-399.
     """
 
-    cdef double dot
     cdef int A = xat.shape[0], numu = results_real.shape[0], numv = results_real.shape[1], numw = results_real.shape[2]
     cdef int n, i, j, k
 
@@ -54,7 +53,6 @@ cpdef approx_calculate_cython(double[:] xm,
     cdef int iincw = 0;
     cdef int iarg = 0;
     cdef int iadd = 0;
-    cdef int address = 0;
 
     with nogil:
         for i in prange(numu):
