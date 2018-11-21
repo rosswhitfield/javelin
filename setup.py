@@ -1,5 +1,7 @@
 #!/usr/bin/env python
+import sys
 from setuptools import setup, Extension, distutils
+from Cython.Build import cythonize
 import versioneer
 
 if distutils.ccompiler.get_default_compiler() == 'msvc':
@@ -27,6 +29,20 @@ install_requires = [
     'h5py'
 ]
 
+# enable coverage by building cython files by running setup.py with
+# `--with-cython-coverage` enabled
+directives = {'linetrace': False}
+macros = []
+if '--with-cython-coverage' in sys.argv:
+    sys.argv.remove('--with-cython-coverage')
+    directives['linetrace'] = True
+    macros = [('CYTHON_TRACE', '1'), ('CYTHON_TRACE_NOGIL', '1')]
+
+extensions = [Extension('javelin.fourier_cython', ['javelin/fourier_cython.pyx'],
+                        extra_compile_args=extra_compile_args,
+                        extra_link_args=extra_link_args,
+                        define_macros=macros)]
+
 setup(
     name='javelin',
     version=versioneer.get_version(),
@@ -50,8 +66,5 @@ setup(
     packages=['javelin'],
     classifiers=classifiers,
     install_requires=install_requires,
-    setup_requires='Cython>=0.23.0',
-    ext_modules=[Extension('javelin.fourier_cython', ['javelin/fourier_cython.pyx'],
-                           extra_compile_args=extra_compile_args,
-                           extra_link_args=extra_link_args)]
+    ext_modules=cythonize(extensions, compiler_directives=directives)
 )

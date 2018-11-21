@@ -28,7 +28,7 @@ install:
   - conda list
 
 script:
-  - python setup.py test --addopts --cov=javelin
+  - python setup.py test --addopts --cov --with-cython-coverage
   - flake8
 
 after_success:
