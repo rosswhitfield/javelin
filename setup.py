@@ -53,5 +53,10 @@ setup(
     setup_requires='Cython>=0.23.0',
     ext_modules=[Extension('javelin.fourier_cython', ['javelin/fourier_cython.pyx'],
                            extra_compile_args=extra_compile_args,
-                           extra_link_args=extra_link_args)]
+                           extra_link_args=extra_link_args),
+                 Extension(
+                     'javelin.fouriertest',
+                     sources=['javelin/fouriertest.c'],
+                     extra_compile_args=extra_compile_args,
+                     extra_link_args=extra_link_args)]
 )
