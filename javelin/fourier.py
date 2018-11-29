@@ -23,9 +23,7 @@ class Fourier:
 
     >>> from javelin.structure import Structure
     >>> fourier = Fourier()
-    >>> fourier.structure = Structure()
     >>> print(fourier)
-    Structure         : Structure(..., a=1.0, b=1.0, c=1.0, alpha=90.0, beta=90.0, gamma=90.0)
     Radiation         : neutron
     Fourier volume    : complete crystal
     Aver. subtraction : False
@@ -41,7 +39,7 @@ class Fourier:
     top   increment    :     [ 0.  0.  1.]
     <BLANKLINE>
     # of points        :     101 x 101 x 1
-    >>> results = fourier.calc()
+    >>> results = fourier.calc(Structure())
     >>> print(results) # doctest: +SKIP
     <xarray.DataArray 'Intensity' ([ 1.  0.  0.]: 101, [ 0.  1.  0.]: 101, [ 0.  0.  1.]: 1)>
     array([[[ 0.],
@@ -77,7 +75,6 @@ class Fourier:
 
     """
     def __init__(self):
-        self._structure = None
         self._radiation = 'neutron'
         self._lots = None
         self._number_of_lots = None
@@ -95,14 +92,12 @@ class Fourier:
         self.grid = Grid()
 
     def __str__(self):
-        return """Structure         : {}
-Radiation         : {}
+        return """Radiation         : {}
 Fourier volume    : {}
 Aver. subtraction : {}
 
 Reciprocal layer  :
-{}""".format(self.structure,
-             self.radiation,
+{}""".format(self.radiation,
              "complete crystal" if self.lots is None else "{} lots of {} x {} x {} unit cells"
              .format(self.number_of_lots, *self.lots),
              self.average,
@@ -123,27 +118,6 @@ Reciprocal layer  :
         if rad not in ('neutron', 'xray'):
             raise ValueError("radiation must be one of 'neutron' or 'xray'")
         self._radiation = rad
-
-    @property
-    def structure(self):
-        """The structure from which fourier transform is calculated. The
-        calculation work with any of the following types of structures
-        :class:`javelin.structure.Structure`, :class:`ase.Atoms` or
-        :class:`diffpy.Structure.structure.Structure` but if you are
-        using average structure subtraction or the lots option it needs
-        to be :class:`javelin.structure.Structure` type.
-
-        :getter: Returns the structure
-        :setter: Sets the structure
-        :type: :class:`javelin.structure.Structure`, :class:`ase.Atoms`,
-           :class:`diffpy.Structure.structure.Structure`
-
-        """
-        return self._structure
-
-    @structure.setter
-    def structure(self, structure):
-        self._structure = structure
 
     @property
     def lots(self):
@@ -237,38 +211,49 @@ Reciprocal layer  :
         else:
             raise TypeError("Expected a bool, True or False")
 
-    def __get_q(self):
+    def __get_q(self, unitcell):
         qx, qy, qz = self.grid.get_q_meshgrid()
         q = np.linalg.norm(np.array([qx.ravel(),
                                      qy.ravel(),
-                                     qz.ravel()]).T @ get_unitcell(self.structure).B, axis=1)
+                                     qz.ravel()]).T @ unitcell.B, axis=1)
         q.shape = qx.shape
         return q*2*np.pi
 
-    def calc(self):
+    def calc(self, structure):
         """Calculates the fourier transform
+
+        :param structure: The structure from which fourier transform
+        is calculated. The calculation work with any of the following
+        types of structures :class:`javelin.structure.Structure`,
+        :class:`ase.Atoms` or
+        :class:`diffpy.Structure.structure.Structure` but if you are
+        using average structure subtraction or the lots option it
+        needs to be :class:`javelin.structure.Structure` type.
 
         :return: DataArray containing calculated diffuse scattering
         :rtype: :class:`xarray.DataArray`
+
         """
 
-        if self.structure is None:
+        if structure is None:
             raise ValueError("You have not set a structure for this calculation")
 
         if self.average:
-            aver = self._calculate_average()
+            aver = self._calculate_average(structure)
+
+        unitcell = get_unitcell(structure)
 
         if self.lots is None:
-            atomic_numbers = get_atomic_numbers(self.structure)
-            positions = get_positions(self.structure)
+            atomic_numbers = get_atomic_numbers(structure)
+            positions = get_positions(structure)
             if self.magnetic:
-                magmons = self.structure.get_magnetic_moments()
+                magmons = structure.get_magnetic_moments()
                 return create_xarray_dataarray(self._calculate_magnetic(atomic_numbers,
                                                                         positions,
+                                                                        unitcell,
                                                                         magmons), self.grid)
             else:
-                results = self._calculate(atomic_numbers,
-                                          positions)
+                results = self._calculate(atomic_numbers, positions, unitcell)
                 if self.average:
                     results -= aver
 
@@ -276,7 +261,7 @@ Reciprocal layer  :
 
         else:  # needs to be Javelin structure, lots by unit cell
             total = np.zeros(self.grid.bins)
-            levels = self.structure.atoms.index.levels
+            levels = structure.atoms.index.levels
             for lot in range(self.number_of_lots):
                 print(lot+1, 'out of', self.number_of_lots)
                 starti = np.random.randint(len(levels[0]))
@@ -285,7 +270,7 @@ Reciprocal layer  :
                 ri = np.roll(levels[0], -starti)[:self.lots[0]]
                 rj = np.roll(levels[1], -startj)[:self.lots[1]]
                 rk = np.roll(levels[2], -startk)[:self.lots[2]]
-                atoms = self.structure.atoms.loc[ri, rj, rk, :]
+                atoms = structure.atoms.loc[ri, rj, rk, :]
                 atomic_numbers = atoms.Z.values
                 positions = (atoms[['x', 'y', 'z']].values +
                              np.asarray([np.mod(atoms.index.get_level_values(0).values-starti,
@@ -298,43 +283,55 @@ Reciprocal layer  :
                 print(len(atomic_numbers))
                 print(positions.shape)
                 if self.magnetic:
-                    magmons = self.structure.magmons.loc[ri, rj, rk, :].values
-                    total += self._calculate_magnetic(atomic_numbers, positions, magmons)
+                    magmons = structure.magmons.loc[ri, rj, rk, :].values
+                    total += self._calculate_magnetic(atomic_numbers, positions, unitcell, magmons)
                 else:
-                    results = self._calculate(atomic_numbers, positions)
+                    results = self._calculate(atomic_numbers, positions, unitcell)
                     if self.average:
                         results -= aver
                     total += np.real(results*np.conj(results))
 
-            scale = (self.structure.atoms.index.droplevel(3).drop_duplicates().size /
+            scale = (structure.atoms.index.droplevel(3).drop_duplicates().size /
                      (self.number_of_lots*self.lots.prod()))
 
             return create_xarray_dataarray(total*scale, self.grid)
 
-    def calc_average(self):
+    def calc_average(self, structure):
         """Calculates the scattering from the avarage structure
+
+        :param structure: The structure from which fourier transform
+        is calculated. The calculation work with any of the following
+        types of structures :class:`javelin.structure.Structure`,
+        :class:`ase.Atoms` or
+        :class:`diffpy.Structure.structure.Structure` but if you are
+        using average structure subtraction or the lots option it
+        needs to be :class:`javelin.structure.Structure` type.
 
         :return: DataArray containing calculated average scattering
         :rtype: :class:`xarray.DataArray`
         """
-        aver = self._calculate_average()
+
+        if structure is None:
+            raise ValueError("You have not set a structure for this calculation")
+
+        aver = self._calculate_average(structure)
         return create_xarray_dataarray(np.real(aver*np.conj(aver)), self.grid)
 
-    def _calculate_average(self):
-        aver = self._calculate(self.structure.get_atomic_numbers(),
-                               self.structure.xyz)
+    def _calculate_average(self, structure):
+        aver = self._calculate(get_atomic_numbers(structure),
+                               structure.xyz, get_unitcell(structure))
 
-        aver /= self.structure.atoms.index.droplevel(3).drop_duplicates().size
+        aver /= structure.atoms.index.droplevel(3).drop_duplicates().size
 
         # compute the interference function of the lot shape
 
         if self.lots is None:
-            index = self.structure.atoms.index.droplevel(3).drop_duplicates()
+            index = structure.atoms.index.droplevel(3).drop_duplicates()
         else:
-            index = self.structure.atoms.loc[range(self.lots[0]),
-                                             range(self.lots[1]),
-                                             range(self.lots[2]),
-                                             :].index.droplevel(3).drop_duplicates()
+            index = structure.atoms.loc[range(self.lots[0]),
+                                        range(self.lots[1]),
+                                        range(self.lots[2]),
+                                        :].index.droplevel(3).drop_duplicates()
 
         aver *= self._calculate(np.zeros(len(index), dtype=np.int),
                                 np.asarray([index.get_level_values(0).astype('double').values,
@@ -344,7 +341,7 @@ Reciprocal layer  :
 
         return aver
 
-    def _calculate(self, atomic_numbers, positions, use_ff=True):
+    def _calculate(self, atomic_numbers, positions, unitcell=None, use_ff=True):
         if self._fast and not self._cython:
             qx, qy, qz = self.grid.get_squashed_q_meshgrid()
         else:
@@ -360,7 +357,7 @@ Reciprocal layer  :
         # Loop of atom types
         for atomic_number in unique_atomic_numbers:
             try:
-                ff = get_ff(atomic_number, self.radiation, self.__get_q()) if use_ff else 1
+                ff = get_ff(atomic_number, self.radiation, self.__get_q(unitcell)) if use_ff else 1
             except KeyError as e:
                 print("Skipping fourier calculation for atom " + str(e) +
                       ", unable to get scattering factors.")
@@ -396,7 +393,7 @@ Reciprocal layer  :
 
         return results
 
-    def _calculate_magnetic(self, atomic_numbers, positions, magmons):
+    def _calculate_magnetic(self, atomic_numbers, positions, unitcell, magmons):
         if self._fast:
             qx, qy, qz = self.grid.get_squashed_q_meshgrid()
         else:
@@ -404,7 +401,7 @@ Reciprocal layer  :
         qx *= (2*np.pi)
         qy *= (2*np.pi)
         qz *= (2*np.pi)
-        q2 = self.__get_q()**2
+        q2 = self.__get_q(unitcell)**2
 
         # Get unique list of atomic numbers
         unique_atomic_numbers = np.unique(atomic_numbers)
@@ -415,7 +412,7 @@ Reciprocal layer  :
         spinz = np.zeros(self.grid.bins, dtype=np.complex)
         for atomic_number in unique_atomic_numbers:
             try:
-                ff = get_mag_ff(atomic_number, self.__get_q(), ion=3)
+                ff = get_mag_ff(atomic_number, self.__get_q(unitcell), ion=3)
             except (AttributeError, KeyError) as e:
                 print("Skipping fourier calculation for atom " + str(e) +
                       ", unable to get magnetic scattering factors.")

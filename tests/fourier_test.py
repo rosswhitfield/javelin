@@ -8,7 +8,6 @@ import numpy as np
 def test_Fourier_init():
     four = Fourier()
     assert four.radiation == 'neutron'
-    assert four.structure is None
     assert four.grid.bins == (101, 101, 1)
     assert_array_equal(four.grid.ll, [0.0, 0.0, 0.0])
     assert_array_equal(four.grid.lr, [1.0, 0.0, 0.0])
@@ -36,7 +35,7 @@ def test_except():
     with pytest.raises(TypeError):
         four.approximate = 0
 
-    with pytest.raises(ValueError):
+    with pytest.raises(TypeError):
         four.calc()
 
     with pytest.raises(ValueError):
@@ -48,7 +47,6 @@ def test_Fourier_two_atoms():
     four = Fourier()
     four.grid.bins = [21, 2]
     four.grid.set_corners(lr=[2.0, 0.0, 0.0])
-    four.structure = atom
 
     expected_result = [155.08717156, 140.34558984, 101.75162784,
                        54.04686728, 15.45290528, 0.71132356,
@@ -60,17 +58,17 @@ def test_Fourier_two_atoms():
 
     four.approximate = False
 
-    results = four.calc()
+    results = four.calc(atom)
     assert_array_almost_equal(results[:, 0, 0], expected_result)
 
     four._fast = True
     four._cython = False
-    results = four.calc()
+    results = four.calc(atom)
     assert_array_almost_equal(results[:, 0, 0], expected_result)
 
     four._fast = True
     four._cython = True
-    results = four.calc()
+    results = four.calc(atom)
     assert_array_almost_equal(results[:, 0, 0], expected_result)
 
     four.radiation = 'xray'
@@ -82,25 +80,24 @@ def test_Fourier_two_atoms():
                        6.55602457e-02, 8.51717961e-01, 2.71350261e+00,
                        4.72586766e+00, 6.04617986e+00, 6.20124769e+00]
 
-    results = four.calc()
+    results = four.calc(atom)
     assert_array_almost_equal(results[:, 0, 0], expected_result)
 
     four._fast = True
     four._cython = False
-    results = four.calc()
+    results = four.calc(atom)
     assert_array_almost_equal(results[:, 0, 0], expected_result)
 
     four._fast = True
     four._cython = True
-    results = four.calc()
+    results = four.calc(atom)
     assert_array_almost_equal(results[:, 0, 0], expected_result)
 
     # Should skip invalid atom Z
     four = Fourier()
     atom = Structure(symbols=['C'], positions=[(0., 0., 0.)])
     atom.atoms.Z = 1000
-    four.structure = atom
-    results = four.calc()
+    results = four.calc(atom)
     assert_array_equal(results, np.zeros((101, 101, 1)))
 
 
@@ -120,7 +117,6 @@ def test_Foutier_C_Ring():
                                [0.73492316, 0.41449496, 0.75]])
     four = Fourier()
     four.grid.bins = [6, 6, 2]
-    four.structure = cnt
     four.grid.set_corners(ll=[0.0, 0.0, 0.0],
                           lr=[2.0, 0.0, 0.0],
                           ul=[0.0, 2.0, 0.0],
@@ -162,13 +158,13 @@ def test_Foutier_C_Ring():
                         [9.37950983e+02, 1.66971853e+03],
                         [1.09292598e+03, 1.35970021e+03],
                         [1.03004758e+03, 8.27690735e+02]]]
-    results = four.calc()
+    results = four.calc(cnt)
     assert_array_almost_equal(results, expected_result, 5)
     four._cython = False
-    results = four.calc()
+    results = four.calc(cnt)
     assert_array_almost_equal(results, expected_result, 5)
     four._fast = False
-    results = four.calc()
+    results = four.calc(cnt)
     assert_array_almost_equal(results, expected_result, 5)
 
     four.radiation = 'xray'
@@ -212,13 +208,13 @@ def test_Foutier_C_Ring():
 
     four._fast = True
     four._cython = True
-    results = four.calc()
+    results = four.calc(cnt)
     assert_array_almost_equal(results, expected_result, 5)
     four._cython = False
-    results = four.calc()
+    results = four.calc(cnt)
     assert_array_almost_equal(results, expected_result, 5)
     four._fast = False
-    results = four.calc()
+    results = four.calc(cnt)
     assert_array_almost_equal(results, expected_result, 5)
 
 
@@ -232,10 +228,9 @@ def test_lots():
     four.grid.bins = [2, 21]
     four.grid.set_corners(lr=[4.0, 0.0, 0.0],
                           ul=[0.0, 2.0, 0.0])
-    four.structure = structure
     four.lots = None
     four.approximate = False
-    results = four.calc()
+    results = four.calc(structure)
 
     expected_result = [2.42323706e+06, 1.01505872e+06, 1.46887112e-26,
                        1.48095071e+05, 1.16378024e-26, 9.69294822e+04,
@@ -247,13 +242,13 @@ def test_lots():
     assert_allclose(results[0, :, 0], expected_result, atol=1e-25)
 
     four._cython = False
-    results = four.calc()
+    results = four.calc(structure)
     assert_allclose(results[0, :, 0], expected_result, atol=1e-25)
 
     four.lots = 3, 3, 3
     four.number_of_lots = 3
     four._cython = True
-    results = four.calc()
+    results = four.calc(structure)
 
     expected_result = [523419.204015, 398618.732824, 152258.807386,
                        8485.092521,   22214.260619,  58157.689335,
@@ -267,7 +262,7 @@ def test_lots():
     # Random move + average subtraction
     structure.rattle(seed=0)
     four.average = True
-    results = four.calc()
+    results = four.calc(structure)
 
     expected_result = [0.,           0.0047178662, 0.015698443,
                        0.0362217496, 0.0796665753, 0.1387246122,
@@ -289,9 +284,8 @@ def test_average():
     four.grid.bins = [2, 21]
     four.grid.set_corners(lr=[4.0, 0.0, 0.0],
                           ul=[0.0, 2.0, 0.0])
-    four.structure = structure
     four.average = True
-    results = four.calc()
+    results = four.calc(structure)
 
     expected_result = [1.32348898e-23, 5.71594728e-24, 8.12875148e-56,
                        8.37681929e-25, 6.37686377e-56, 5.46068451e-25,
@@ -304,16 +298,16 @@ def test_average():
     assert_array_almost_equal(results[0, :, 0], expected_result)
 
     four._cython = False
-    results = four.calc()
+    results = four.calc(structure)
     assert_array_almost_equal(results[0, :, 0], expected_result)
 
     four._fast = False
-    results = four.calc()
+    results = four.calc(structure)
     assert_array_almost_equal(results[0, :, 0], expected_result)
 
     # Random move
     structure.rattle(seed=0)
-    results = four.calc()
+    results = four.calc(structure)
 
     expected_result = [1.32348898e-23, 8.88939203e-04, 7.27741076e-03,
                        1.91258313e-02, 5.94954973e-02, 1.26500450e-01,
@@ -325,11 +319,11 @@ def test_average():
     assert_array_almost_equal(results[0, :, 0], expected_result)
 
     four._fast = True
-    results = four.calc()
+    results = four.calc(structure)
     assert_array_almost_equal(results[0, :, 0], expected_result)
 
     four._cython = True
-    results = four.calc()
+    results = four.calc(structure)
     assert_array_almost_equal(results[0, :, 0], expected_result)
 
 
@@ -346,7 +340,6 @@ def test_magnetic():
     four.magnetic = True
     four.grid.set_corners(lr=[1.0, 0.0, 0.0],
                           ul=[0.0, 0.5, 0.0])
-    four.structure = structure
 
     expected_result = [[np.nan, 2.35532329e+01],
                        [2.61228206e+02, 9.84260348e+00],
@@ -360,10 +353,10 @@ def test_magnetic():
                        [2.16003995e+02, 8.14786919e+00],
                        [4.93162100e+02, 1.86074202e+01]]
 
-    results = four.calc()
+    results = four.calc(structure)
     assert_array_almost_equal(results[:, :, 0], expected_result)
     four._fast = False
-    results = four.calc()
+    results = four.calc(structure)
     assert_array_almost_equal(results[:, :, 0], expected_result)
 
     structure.magmons.spinz[1::2] = -1
@@ -380,10 +373,10 @@ def test_magnetic():
                        [2.94920500e-31, 8.84219640e-30],
                        [7.89059360e-01, 1.86074202e+01]]
 
-    results = four.calc()
+    results = four.calc(structure)
     assert_array_almost_equal(results[:, :, 0], expected_result)
     four._fast = True
-    results = four.calc()
+    results = four.calc(structure)
     assert_array_almost_equal(results[:, :, 0], expected_result)
 
     # Should skip missing magnetic form factor
@@ -392,8 +385,7 @@ def test_magnetic():
     structure.magmons.spiny = 0
     structure.magmons.spinz = 1
 
-    four.structure = structure
-    results = four.calc()
+    results = four.calc(structure)
 
     assert_array_equal(results[:, :, 0], [[np.nan, 0],
                                           [0, 0],
