@@ -8,8 +8,8 @@ cpdef calculate_cython(double[:,:,::1] qx,
                        double[:,:,::1] qy,
                        double[:,:,::1] qz,
                        double[:,::1] atoms,
-                       double[:,:,::1] results_real,
-                       double[:,:,::1] results_imag):
+                       double[:,:,:] results_real,
+                       double[:,:,:] results_imag):
 
     cdef double dot
     cdef int A = atoms.shape[0], I = results_real.shape[0], J = results_real.shape[1], K = results_real.shape[2]
@@ -25,13 +25,34 @@ cpdef calculate_cython(double[:,:,::1] qx,
 
 @cython.boundscheck(False)
 @cython.wraparound(False)
+cpdef calculate_cython2(double[:] qx,
+                       double[:] qy,
+                       double[:] qz,
+                       double[:] atoms_x,
+                       double[:] atoms_y,
+                       double[:] atoms_z,
+                       double[:] results_real,
+                       double[:] results_imag):
+
+    cdef double dot
+    cdef int A = atoms_x.shape[0], I = results_real.shape[0]
+    cdef int a, i, j, k
+    with nogil:
+        for i in prange(I):
+            for a in range(A):
+                        dot = qx[i]*atoms_x[a] + qy[i]*atoms_y[a] + qz[i]*atoms_z[a]
+                        results_real[i] = results_real[i] + cos(dot)
+                        results_imag[i] = results_imag[i] + sin(dot)
+
+@cython.boundscheck(False)
+@cython.wraparound(False)
 cpdef approx_calculate_cython(double[:] xm,
                               double[:] uin,
                               double[:] vin,
                               double[:] win,
                               double[:,::1] xat,
-                              double[:,:,::1] results_real,
-                              double[:,:,::1] results_imag,
+                              double[:,:,:] results_real,
+                              double[:,:,:] results_imag,
                               double[:] cex_real,
                               double[:] cex_imag):
     """

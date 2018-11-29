@@ -8,7 +8,7 @@ if distutils.ccompiler.get_default_compiler() == 'msvc':
     extra_compile_args = ['/openmp']
     extra_link_args = None
 else:
-    extra_compile_args = ['-fopenmp']
+    extra_compile_args = ['-fopenmp', '-O3', '-ffast-math']
     extra_link_args = ['-fopenmp']
 
 classifiers = [
