@@ -3,6 +3,7 @@ import sys
 from setuptools import setup, Extension, distutils
 from Cython.Build import cythonize
 import versioneer
+import numpy
 
 if distutils.ccompiler.get_default_compiler() == 'msvc':
     extra_compile_args = ['/openmp']
@@ -41,7 +42,12 @@ if '--with-cython-coverage' in sys.argv:
 extensions = [Extension('javelin.fourier_cython', ['javelin/fourier_cython.pyx'],
                         extra_compile_args=extra_compile_args,
                         extra_link_args=extra_link_args,
-                        define_macros=macros)]
+                        define_macros=macros),
+              Extension('javelin.energies', ['javelin/energies.pyx'], define_macros=macros),
+              Extension('javelin.mccore', ['javelin/mccore.pyx'], define_macros=macros),
+              Extension('javelin.modifier', ['javelin/modifier.pyx'],
+                        include_dirs=[numpy.get_include()], define_macros=macros),
+              Extension('javelin.random', ['javelin/random.pyx'], define_macros=macros)]
 
 setup(
     name='javelin',
