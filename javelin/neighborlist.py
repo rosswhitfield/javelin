@@ -131,6 +131,9 @@ class NeighborList:
     def __delitem__(self, key):
         self._vectors = np.delete(self._vectors, key, axis=0)
 
+    def __iter__(self):
+        return iter(self._vectors)
+
     def __add__(self, other):
         return NeighborList(np.append(self.values, other.values, axis=0))
 

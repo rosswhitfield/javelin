@@ -276,6 +276,12 @@ class Structure:
         """
         return self.atoms.Z.unique()
 
+    def update_atom_symbols(self):
+        """This will update the atom symbol list from the Z numbers, this
+        should be run if the Z numbers are modified directly
+        """
+        _, self.atoms.symbol = get_atomic_number_symbol(self.get_atomic_numbers())
+
     def get_atom_count(self):
         """Returns a count of each different type of atom in the structure
 
@@ -533,6 +539,30 @@ class Structure:
         return Atoms(symbols=self.get_chemical_symbols(),
                      scaled_positions=self.get_scaled_positions(),
                      cell=self.unitcell.cell)
+
+    def get_neighbours(self, site=0, target_site=None, minD=0.01, maxD=1.1):
+        """
+
+
+        Return a :class:`javelin.neighborlist.NeighborList` for the given sites and distances
+        """
+        from javelin.neighborlist import NeighborList
+        from math import ceil, floor
+        nl = NeighborList()
+        site_aver = self.get_average_site(site, separate_site=False)
+        for other_site in self.atoms.index.get_level_values(3).unique():
+            if target_site is not None and other_site != target_site:
+                continue
+            other_site_aver = self.get_average_site(other_site, separate_site=False)
+            for i in range(-ceil(maxD), floor(maxD+1)):
+                di = site_aver['x'] - (other_site_aver['x'] + i)
+                for j in range(-ceil(maxD), floor(maxD+1)):
+                    dj = site_aver['y'] - (other_site_aver['y'] + j)
+                    for k in range(-ceil(maxD), floor(maxD+1)):
+                        dk = site_aver['z'] - (other_site_aver['z'] + k)
+                        if minD**2 <= di**2 + dj**2 + dk**2 <= maxD**2:
+                            nl.append([site, other_site, i, j, k])
+        return nl
 
     def get_occupational_correlation(self, vectors, atom):
         """

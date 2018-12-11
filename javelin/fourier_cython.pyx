@@ -1,3 +1,5 @@
+#cython: auto_pickle=True, embedsignature=True, warn.unused=True
+
 from cython.parallel import parallel, prange
 from libc.math cimport sin, cos, round
 cimport cython
@@ -12,8 +14,8 @@ cpdef calculate_cython(double[:,:,:] qx,
                        double[:,:,:] results_imag):
 
     cdef double dot
-    cdef int A = atoms.shape[0], I = results_real.shape[0], J = results_real.shape[1], K = results_real.shape[2]
-    cdef int a, i, j, k
+    cdef Py_ssize_t A = atoms.shape[0], I = results_real.shape[0], J = results_real.shape[1], K = results_real.shape[2]
+    cdef Py_ssize_t a, i, j, k
     with nogil:
         for i in prange(I):
             for a in range(A):
@@ -39,7 +41,6 @@ cpdef approx_calculate_cython(double[:] xm,
     Butler, B. D. & Welberry T. R. (1992). 3. Appl. Cryst. 25, 391-399.
     """
 
-    cdef double dot
     cdef int A = xat.shape[0], numu = results_real.shape[0], numv = results_real.shape[1], numw = results_real.shape[2]
     cdef int n, i, j, k
 
@@ -54,7 +55,6 @@ cpdef approx_calculate_cython(double[:] xm,
     cdef int iincw = 0;
     cdef int iarg = 0;
     cdef int iadd = 0;
-    cdef int address = 0;
 
     with nogil:
         for i in prange(numu):
