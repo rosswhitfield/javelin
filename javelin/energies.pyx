@@ -1,5 +1,3 @@
-#cython: auto_pickle=True, embedsignature=True, warn.unused=True
-
 """
 ========
 Energies
@@ -41,7 +39,7 @@ cdef class IsingEnergy(Energy):
         self.atom2 = atom2
         self.J = J
     def __str__(self):
-        return "Atom 1: {}\nAtom 2: {}\nJ: {}".format(self.atom1, self.atom2, self.J)
+        return "{}(Atom1={},Atom2={},J={})".format(self.__class__.__name__,self.atom1, self.atom2, self.J)
     cdef double sigma(self, int atom):
         if atom == self.atom1:
             return -1
@@ -69,7 +67,7 @@ cdef class DisplacementCorrelationEnergy(Energy):
                           int a1, double x1, double y1, double z1,
                           int a2, double x2, double y2, double z2,
                           Py_ssize_t target_x, Py_ssize_t target_y, Py_ssize_t target_z) except *:
-        norm = (x1*x1 + y1*y1 + z1*z1) * (x2*x2 + y2*y2 + z2*z2)
+        cdef double norm = (x1*x1 + y1*y1 + z1*z1) * (x2*x2 + y2*y2 + z2*z2)
         if norm == 0:
             return 0
         else:

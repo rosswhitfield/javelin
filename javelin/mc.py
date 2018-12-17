@@ -49,6 +49,7 @@ class MC:
         self.__temp = 1
         self.__targets = []
         self.__modifier = None
+        self.__iterations = 1
 
     def __str__(self):
         return """Number of cycles = {}
@@ -119,8 +120,10 @@ Structure modfifier is {}""".format(self.cycles,
 
         for cycle in range(self.cycles):
             print('Cycle = {}'.format(cycle))
-            accepted = mcrun(self.modifier, np.array(self.__targets),
-                             len(structure.atoms), self.temperature,
+            accepted = mcrun(self.modifier,
+                             np.array(self.__targets),
+                             len(structure.atoms)*self.__iterations,
+                             self.temperature,
                              structure.get_atomic_numbers().reshape(shape),
                              structure.x.reshape(shape),
                              structure.y.reshape(shape),

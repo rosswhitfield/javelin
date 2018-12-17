@@ -1,11 +1,13 @@
-#cython: auto_pickle=True, embedsignature=True, warn.unused=True
-"""MCCore
+"""
+======
+MCCore
+======
 """
 
 from libc.math cimport exp
-from energies cimport Energy
-from modifier cimport BaseModifier
-from random cimport random
+from .energies cimport Energy
+from .modifier cimport BaseModifier
+from .random cimport random
 cimport cython
 
 cdef class Target:
@@ -38,7 +40,7 @@ cpdef int mcrun(BaseModifier modifier, Target[:] targets,
     cdef Py_ssize_t mod_x, mod_y, mod_z
     cdef int number_of_targets, number_of_cells
     cdef int not_accepted = 0
-    cdef Py_ssize_t cell_x_target, cell_y_target, cell_z_target
+    cdef Py_ssize_t cell_x_target, cell_y_target, cell_z_target, ncell
     cdef Py_ssize_t[:, :] cells
     cdef Py_ssize_t target_number, neighbour, number_of_neighbours
     cdef double e0, e1, de
