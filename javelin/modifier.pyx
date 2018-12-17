@@ -295,9 +295,9 @@ cdef class SetDisplacementNormalXYZ(BaseModifier):
         self.old_x = x[self.cells[0,0], self.cells[0,1], self.cells[0,2], self.site]
         self.old_y = y[self.cells[0,0], self.cells[0,1], self.cells[0,2], self.site]
         self.old_z = z[self.cells[0,0], self.cells[0,1], self.cells[0,2], self.site]
-        x[self.cells[0,0], self.cells[0,1], self.cells[0,2], self.site] += random_normal(self.x_mu, self.x_sigma)
-        y[self.cells[0,0], self.cells[0,1], self.cells[0,2], self.site] += random_normal(self.y_mu, self.y_sigma)
-        z[self.cells[0,0], self.cells[0,1], self.cells[0,2], self.site] += random_normal(self.z_mu, self.z_sigma)
+        x[self.cells[0,0], self.cells[0,1], self.cells[0,2], self.site] = random_normal(self.x_mu, self.x_sigma)
+        y[self.cells[0,0], self.cells[0,1], self.cells[0,2], self.site] = random_normal(self.y_mu, self.y_sigma)
+        z[self.cells[0,0], self.cells[0,1], self.cells[0,2], self.site] = random_normal(self.z_mu, self.z_sigma)
     @cython.initializedcheck(False)
     @cython.boundscheck(False)
     cpdef void undo_last_run(self, long[:,:,:,:] a, double[:,:,:,:] x, double[:,:,:,:] y, double[:,:,:,:] z) except *:

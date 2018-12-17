@@ -1,4 +1,4 @@
-from libc.stdlib cimport rand, RAND_MAX
+from libc.stdlib cimport rand, srand, RAND_MAX
 from libc.math cimport cos, log, sqrt, M_PI
 cimport cython
 
@@ -20,6 +20,10 @@ cdef double random_normal(double mu=0, double sigma=1):
     """
     The Box–Muller method for generating values that are normally distributed
     """
-    cdef double U = random()
-    cdef double V = random()
     return sqrt(-2. * log(random())) * cos(2*M_PI * random()) * sigma + mu
+
+cpdef void set_seed(int seed=42):
+    """
+    For testing, allows setting the seed consistent results
+    """
+    srand(seed)
