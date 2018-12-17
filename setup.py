@@ -30,10 +30,23 @@ install_requires = [
     'h5py'
 ]
 
+directives = {'auto_pickle': True,
+              'embedsignature': True,
+              'language_level': 3,
+              'linetrace': False,
+              'profile': True,
+              'warn.undeclared': True,
+              'warn.unreachable': True,
+              'warn.maybe_uninitialized': True,
+              'warn.unused': True,
+              'warn.unused_arg': False,
+              'warn.unused_result': False,
+              'warn.multiple_declarators': True}
+
+macros = []
+
 # enable coverage by building cython files by running setup.py with
 # `--with-cython-coverage` enabled
-directives = {'linetrace': False}
-macros = []
 if '--with-cython-coverage' in sys.argv:
     sys.argv.remove('--with-cython-coverage')
     directives['linetrace'] = True

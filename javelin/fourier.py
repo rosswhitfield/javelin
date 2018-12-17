@@ -280,9 +280,6 @@ Reciprocal layer  :
                                                 len(levels[1])),
                                          np.mod(atoms.index.get_level_values(2).values-startk,
                                                 len(levels[2]))]).T)
-                print(starti, startj, startk, ri, rj, rk)
-                print(len(atomic_numbers))
-                print(positions.shape)
                 if self.magnetic:
                     magmons = structure.magmons.loc[ri, rj, rk, :].values
                     total += self._calculate_magnetic(atomic_numbers, positions, unitcell, magmons)

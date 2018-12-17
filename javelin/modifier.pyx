@@ -1,5 +1,3 @@
-#cython: auto_pickle=True, embedsignature=True, warn.unused=True
-
 """
 ========
 Modifier
@@ -8,7 +6,7 @@ Modifier
 
 import numpy as np
 cimport numpy as np
-from random cimport random_int, random_range, random_normal
+from .random cimport random_int, random_range, random_normal
 cimport cython
 
 cdef class BaseModifier:
@@ -22,7 +20,7 @@ cdef class BaseModifier:
         self.cells = cells
     @cython.initializedcheck(False)
     @cython.boundscheck(False)
-    cdef Py_ssize_t[:,:] get_random_cells(self, Py_ssize_t size_x, Py_ssize_t size_y, Py_ssize_t size_z) except *:
+    cpdef Py_ssize_t[:,:] get_random_cells(self, Py_ssize_t size_x, Py_ssize_t size_y, Py_ssize_t size_z) except *:
         cdef Py_ssize_t i
         for i in range(self.number_of_cells):
             self.cells[i][0] = random_int(size_x)

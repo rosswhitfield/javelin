@@ -1,5 +1,3 @@
-#cython: auto_pickle=True, embedsignature=True, warn.unused=True
-
 from cython.parallel import parallel, prange
 from libc.math cimport sin, cos, round
 cimport cython
