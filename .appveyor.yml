@@ -4,9 +4,6 @@ environment:
     TARGET_ARCH: "x64"
 
   matrix:
-    - CONDA_PY: 3.5
-      MINICONDA: C:\Miniconda35-x64
-      ENVIRONMENT: .ci/environment_py35.yml
     - CONDA_PY: 3.6
       MINICONDA: C:\Miniconda36-x64
       ENVIRONMENT: .ci/environment_py36.yml
