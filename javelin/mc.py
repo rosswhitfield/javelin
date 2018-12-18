@@ -1,7 +1,7 @@
 r"""
-===========
-Monte Carlo
-===========
+==
+mc
+==
 
 .. graphviz::
 
@@ -95,7 +95,7 @@ Structure modfifier is {}""".format(self.cycles,
         if isinstance(energy, Energy):
             try:
                 self.__targets.append(
-                    Target(np.asarray(neighbours).astype(int).reshape((-1, 5)),
+                    Target(np.asarray(neighbours).astype(np.intp).reshape((-1, 5)),
                            energy))
             except ValueError:
                 raise ValueError("neighbours must be javelin.neighborlist.NeighborList or "
