@@ -210,6 +210,11 @@ cdef class ShiftDisplacementRangeXYZ(BaseModifier):
         self.y_max = y_max
         self.z_min = z_min
         self.z_max = z_max
+    def __str__(self):
+        return  "{}(site={},min_x={},max_x={},min_y={},max_y={},min_z={},max_z={})".format(self.__class__.__name__, self.site,
+                                                                                           self.x_min, self.x_max,
+                                                                                           self.y_min, self.y_max,
+                                                                                           self.z_min, self.z_max)
     @cython.initializedcheck(False)
     @cython.boundscheck(False)
     cpdef void run(self, long[:,:,:,:] a, double[:,:,:,:] x, double[:,:,:,:] y, double[:,:,:,:] z) except *:
@@ -235,6 +240,15 @@ cdef class ShiftDisplacementNormalXYZ(BaseModifier):
         self.site = site
         self.x_mu = x_mu
         self.x_sigma = x_sigma
+        self.y_mu = y_mu
+        self.y_sigma = y_sigma
+        self.z_mu = z_mu
+        self.z_sigma = z_sigma
+    def __str__(self):
+        return  "{}(site={},mu_x={},sigma_x={},mu_y={},sigma_y={},mu_z={},sigma_z={})".format(self.__class__.__name__, self.site,
+                                                                                              self.x_mu, self.x_sigma,
+                                                                                              self.y_mu, self.y_sigma,
+                                                                                              self.z_mu, self.z_sigma)
     @cython.initializedcheck(False)
     @cython.boundscheck(False)
     cpdef void run(self, long[:,:,:,:] a, double[:,:,:,:] x, double[:,:,:,:] y, double[:,:,:,:] z) except *:
@@ -264,6 +278,11 @@ cdef class SetDisplacementRangeXYZ(BaseModifier):
         self.y_max = y_max
         self.z_min = z_min
         self.z_max = z_max
+    def __str__(self):
+        return  "{}(site={},min_x={},max_x={},min_y={},max_y={},min_z={},max_z={})".format(self.__class__.__name__, self.site,
+                                                                                           self.x_min, self.x_max,
+                                                                                           self.y_min, self.y_max,
+                                                                                           self.z_min, self.z_max)
     @cython.initializedcheck(False)
     @cython.boundscheck(False)
     cpdef void run(self, long[:,:,:,:] a, double[:,:,:,:] x, double[:,:,:,:] y, double[:,:,:,:] z) except *:
@@ -289,6 +308,15 @@ cdef class SetDisplacementNormalXYZ(BaseModifier):
         self.site = site
         self.x_mu = x_mu
         self.x_sigma = x_sigma
+        self.y_mu = y_mu
+        self.y_sigma = y_sigma
+        self.z_mu = z_mu
+        self.z_sigma = z_sigma
+    def __str__(self):
+        return  "{}(site={},mu_x={},sigma_x={},mu_y={},sigma_y={},mu_z={},sigma_z={})".format(self.__class__.__name__, self.site,
+                                                                                              self.x_mu, self.x_sigma,
+                                                                                              self.y_mu, self.y_sigma,
+                                                                                              self.z_mu, self.z_sigma)
     @cython.initializedcheck(False)
     @cython.boundscheck(False)
     cpdef void run(self, long[:,:,:,:] a, double[:,:,:,:] x, double[:,:,:,:] y, double[:,:,:,:] z) except *:
