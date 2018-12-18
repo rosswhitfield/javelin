@@ -1,7 +1,13 @@
 """
 ========
-Modifier
+modifier
 ========
+
+The Modifier object is the method by which :obj:`javelin.mc.MC`
+changes a :obj:`javelin.structure.Structure`.
+
+All modifiers inherit from :obj:`javelin.modifier.BaseModifier`.
+
 """
 
 import numpy as np
@@ -10,17 +16,27 @@ from .random cimport random_int, random_range, random_normal
 cimport cython
 
 cdef class BaseModifier:
+    """This class does not actually change the structure but is the base
+    of all modifiers. The `number_of_cells` is number of random
+    location that the modifier will change, `for example` swap type
+    modifiers require 2 sites while shift requires only one. The
+    method ``self.initialize_cells(int number_of_cells)`` should be
+    called the set the number of cells."""
     def __init__(self, int number_of_cells):
         self.initialize_cells(number_of_cells)
     def __str__(self):
         return  "{}(number_of_cells={})".format(self.__class__.__name__,self.number_of_cells)
     cdef void initialize_cells(self, int number_of_cells):
+        """Initialize the cells"""
         self.number_of_cells = number_of_cells
         cdef np.ndarray[Py_ssize_t, ndim=2] cells = np.zeros((number_of_cells, 3), dtype=np.intp)
         self.cells = cells
     @cython.initializedcheck(False)
     @cython.boundscheck(False)
     cpdef Py_ssize_t[:,:] get_random_cells(self, Py_ssize_t size_x, Py_ssize_t size_y, Py_ssize_t size_z) except *:
+        """Sets internally and returns randomly selected cells, shape
+        (number_of_cells, 3), based on `size_x`, `size_y` and
+        `size_z`. This needs to be executed before ``self.run``."""
         cdef Py_ssize_t i
         for i in range(self.number_of_cells):
             self.cells[i][0] = random_int(size_x)
@@ -28,11 +44,18 @@ cdef class BaseModifier:
             self.cells[i][2] = random_int(size_z)
         return self.cells
     cpdef void run(self, long[:,:,:,:] a, double[:,:,:,:] x, double[:,:,:,:] y, double[:,:,:,:] z) except *:
+        """Modifies the provided arrays (a, x, y, z) for cells selected by
+        ``self.get_random_cells``."""
         return
     cpdef void undo_last_run(self, long[:,:,:,:] a, double[:,:,:,:] x, double[:,:,:,:] y, double[:,:,:,:] z) except *:
+        """Undoes the last modification done by ``self.run``.
+
+        By default it just executes ``self.run`` again assuming the
+        process is reversible, such as swapping."""
         self.run(a, x, y, z)
 
 cdef class SwapOccupancy(BaseModifier):
+    """Swap the atoms occupancy at swap_site between two cells."""
     cdef Py_ssize_t swap_site
     def __init__(self, Py_ssize_t swap_site):
         self.initialize_cells(2)
@@ -47,6 +70,7 @@ cdef class SwapOccupancy(BaseModifier):
         a[self.cells[1,0], self.cells[1,1], self.cells[1,2], self.swap_site] = tmp_a
 
 cdef class SwapDisplacement(BaseModifier):
+    """Swap the atom displacement at swap_site between two cells."""
     cdef Py_ssize_t swap_site
     def __init__(self, Py_ssize_t swap_site):
         self.initialize_cells(2)
@@ -67,6 +91,7 @@ cdef class SwapDisplacement(BaseModifier):
         z[self.cells[1,0], self.cells[1,1], self.cells[1,2], self.swap_site] = tmp_z
 
 cdef class Swap(BaseModifier):
+    """Swap the atom occupancy and displacement at swap_site between two cells."""
     cdef Py_ssize_t swap_site
     def __init__(self, Py_ssize_t swap_site):
         self.initialize_cells(2)
@@ -90,6 +115,8 @@ cdef class Swap(BaseModifier):
         z[self.cells[1,0], self.cells[1,1], self.cells[1,2], self.swap_site] = tmp_z
 
 cdef class ShiftDisplacementRange(BaseModifier):
+    """Shifts the atoms displacement in all directions by a random amount
+    in the given range."""
     cdef Py_ssize_t site
     cdef double minimum, maximum
     cdef double old_x, old_y, old_z
@@ -117,6 +144,9 @@ cdef class ShiftDisplacementRange(BaseModifier):
         z[self.cells[0,0], self.cells[0,1], self.cells[0,2], self.site] = self.old_z
 
 cdef class ShiftDisplacementNormal(BaseModifier):
+    """Shifts the atoms displacement in all directions by a random amount
+    in the normal distribution given by ``mu`` and ``sigma``.
+    """
     cdef Py_ssize_t site
     cdef double mu, sigma
     cdef double old_x, old_y, old_z
@@ -144,6 +174,8 @@ cdef class ShiftDisplacementNormal(BaseModifier):
         z[self.cells[0,0], self.cells[0,1], self.cells[0,2], self.site] = self.old_z
 
 cdef class SetDisplacementRange(BaseModifier):
+    """Sets the atoms displacement in all directions to a random point in
+    the given range."""
     cdef Py_ssize_t site
     cdef double minimum, maximum
     cdef double old_x, old_y, old_z
@@ -171,6 +203,8 @@ cdef class SetDisplacementRange(BaseModifier):
         z[self.cells[0,0], self.cells[0,1], self.cells[0,2], self.site] = self.old_z
 
 cdef class SetDisplacementNormal(BaseModifier):
+    """Sets the atoms displacement in all directions to a random point in
+    the normal distribution given by ``mu`` and ``sigma``."""
     cdef Py_ssize_t site
     cdef double mu, sigma
     cdef double old_x, old_y, old_z
@@ -198,6 +232,8 @@ cdef class SetDisplacementNormal(BaseModifier):
         z[self.cells[0,0], self.cells[0,1], self.cells[0,2], self.site] = self.old_z
 
 cdef class ShiftDisplacementRangeXYZ(BaseModifier):
+    """Shifts the atoms displacement in all directions by a random amount
+    in the given range for each direction"""
     cdef Py_ssize_t site
     cdef double x_min, x_max, y_min, y_max, z_min, z_max
     cdef double old_x, old_y, old_z
@@ -232,6 +268,9 @@ cdef class ShiftDisplacementRangeXYZ(BaseModifier):
         z[self.cells[0,0], self.cells[0,1], self.cells[0,2], self.site] = self.old_z
 
 cdef class ShiftDisplacementNormalXYZ(BaseModifier):
+    """Shifts the atoms displacement in all directions by a random amount
+    in the normal distribution given by ``mu`` and ``sigma`` for each direction.
+    """
     cdef Py_ssize_t site
     cdef double x_mu, x_sigma, y_mu, y_sigma, z_mu, z_sigma
     cdef double old_x, old_y, old_z
@@ -266,6 +305,8 @@ cdef class ShiftDisplacementNormalXYZ(BaseModifier):
         z[self.cells[0,0], self.cells[0,1], self.cells[0,2], self.site] = self.old_z
 
 cdef class SetDisplacementRangeXYZ(BaseModifier):
+    """Sets the atoms displacement in all directions to a random point in
+    the given range for each direction"""
     cdef Py_ssize_t site
     cdef double x_min, x_max, y_min, y_max, z_min, z_max
     cdef double old_x, old_y, old_z
@@ -300,6 +341,8 @@ cdef class SetDisplacementRangeXYZ(BaseModifier):
         z[self.cells[0,0], self.cells[0,1], self.cells[0,2], self.site] = self.old_z
 
 cdef class SetDisplacementNormalXYZ(BaseModifier):
+    """Sets the atoms displacement in all directions to a random point in
+    the normal distribution given by ``mu`` and ``sigma`` for each direction."""
     cdef Py_ssize_t site
     cdef double x_mu, x_sigma, y_mu, y_sigma, z_mu, z_sigma
     cdef double old_x, old_y, old_z

@@ -1,7 +1,46 @@
 """
 ========
-Energies
+energies
 ========
+
+Custom energies can be created by inheriting from
+:obj:`javelin.energies.Energy` and overriding the `evaluate` method. The
+evaluate method must have the identical signature and this gives you
+access to the origin and neighbor sites atom types and xyz's along
+with the neighbor vector.
+
+*For example*
+
+.. code-block:: python
+
+    class MyEnergy(Energy):
+        def __init__(self, E=-1):
+            self.E = E
+        def evaluate(self,
+                     a1, x1, y1, z1,
+                     a2, x2, y2, z2,
+                     neighbor_x, neighbor_y, neighbor_z):
+        return self.E
+
+This is slower than using compile classes by about a factor of 10. If
+you are using IPython or Jupyter notebooks you can use Cython magic to
+compile your own energies. You need load the Cython magic first
+``%load_ext Cython``. Then *for example*
+
+.. code-block:: cython
+
+    %%cython
+    from javelin.energies cimport Energy
+    cdef class MyCythonEnergy(Energy):
+        cdef double E
+        def __init__(self, double E=-1):
+            self.E = E
+        cpdef double evaluate(self,
+                              int a1, double x1, double y1, double z1,
+                              int a2, double x2, double y2, double z2,
+                              Py_ssize_t neighbor_x, Py_ssize_t neighbor_y, Py_ssize_t neighbor_z) except *:
+        return self.E
+
 """
 
 from libc.math cimport exp, sqrt, pow, INFINITY
@@ -17,6 +56,7 @@ cdef class Energy:
                           int a1, double x1, double y1, double z1,
                           int a2, double x2, double y2, double z2,
                           Py_ssize_t target_x, Py_ssize_t target_y, Py_ssize_t target_z) except *:
+        """This just returns 0"""
         return 0
 
 cdef class IsingEnergy(Energy):
