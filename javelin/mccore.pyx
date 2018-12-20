@@ -109,5 +109,4 @@ cdef unsigned char accept(double dE, double kT):
     elif kT <= 0:
         return False
     else:
-        tmp = exp(-dE/kT)
-        return random() < (tmp/(1+tmp))
+        return random() < exp(-dE/kT)

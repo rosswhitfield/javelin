@@ -26,7 +26,7 @@ mc
 where
 
 .. math::
-    P = \frac{\exp(-\Delta E / kT)}{1+\exp(-\Delta E / kT)}
+    P = \exp(-\Delta E / kT)
 """
 
 import numpy as np
