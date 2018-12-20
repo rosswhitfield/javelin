@@ -43,13 +43,18 @@ compile your own energies. You need load the Cython magic first
 
 """
 
-from libc.math cimport exp, sqrt, pow, INFINITY
+from libc.math cimport exp, sqrt, pow, INFINITY, NAN
 cimport cython
 
 cdef class Energy:
     """ This is the base energy class that all energies must inherit
     from. Inherited class should then override the evaluate method but
-    keep the same function signature."""
+    keep the same function signature. This energy is always 0.
+
+    >>> e = Energy()
+    >>> e.evaluate(1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 1)
+    0.0
+    """
     def __str__(self):
         return "{}()".format(self.__class__.__name__)
     cpdef double evaluate(self,
@@ -66,20 +71,39 @@ cdef class IsingEnergy(Energy):
     the J directly.
 
     .. math::
-        E_{occ} = \sum_{i}H \sigma_i + \sum_{i} \sum_{n,n\\ne i} J_n \sigma_i \sigma_{i-n}
+        E_{occ} = \sum_{i} \sum_{n,n\\ne i} J_n \sigma_i \sigma_{i-n}
 
     The atom site occupancy is represented by Ising spin variables
     :math:`\sigma_i = \pm1`. :math:`\sigma = +1` is when a site is
     occupied by `atom1` and :math:`\sigma = +1` is for `atom2`.
+
+    >>> e = IsingEnergy(13, 42, -1)  # J = -1 produces a positive correlation
+    >>> e.atom1
+    13
+    >>> e.atom2
+    42
+    >>> e.J
+    -1.0
+    >>> e.evaluate(1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0)
+    -0.0
+    >>> e.evaluate(13, 0, 0, 0, 13, 0, 0, 0, 0, 0, 0)
+    -1.0
+    >>> e.evaluate(42, 0, 0, 0, 13, 0, 0, 0, 0, 0, 0)
+    1.0
+    >>> e.evaluate(42, 0, 0, 0, 42, 0, 0, 0, 0, 0, 0)
+    -1.0
     """
     cdef readonly int atom1, atom2
-    cdef readonly double J
-    def __init__(self, int atom1, int atom2, double J):
+    cdef public double J
+    cdef readonly double desired_correlation
+    def __init__(self, int atom1, int atom2, double J=0, double desired_correlation = NAN):
+        self.correlation_type = 1
         self.atom1 = atom1
         self.atom2 = atom2
         self.J = J
+        self.desired_correlation = desired_correlation
     def __str__(self):
-        return "{}(Atom1={},Atom2={},J={})".format(self.__class__.__name__,self.atom1, self.atom2, self.J)
+        return "{}(Atom1={},Atom2={},J={:.3})".format(self.__class__.__name__,self.atom1, self.atom2, self.J)
     cdef double sigma(self, int atom):
         if atom == self.atom1:
             return -1
@@ -100,9 +124,12 @@ cdef class DisplacementCorrelationEnergy(Energy):
     .. math::
         E_{dis} = \sum_{i} \sum_{n} J_n x_i x_{i-n}
     """
-    cdef readonly double J
-    def __init__(self, double J):
+    cdef public double J
+    cdef readonly double desired_correlation
+    def __init__(self, double J=0, double desired_correlation = NAN):
+        self.correlation_type = 2
         self.J = J
+        self.desired_correlation = desired_correlation
     cpdef double evaluate(self,
                           int a1, double x1, double y1, double z1,
                           int a2, double x2, double y2, double z2,

@@ -120,6 +120,30 @@ Structure modfifier is {}""".format(self.cycles,
 
         for cycle in range(self.cycles):
             print('Cycle = {}'.format(cycle))
+
+            # Do feedback
+            for target in self.__targets:
+                if (target.energy.correlation_type is 0 or
+                   np.isnan(target.energy.desired_correlation)):
+                    continue
+                elif target.energy.correlation_type is 1:
+                    correlation = structure.get_occupational_correlation(target.neighbours,
+                                                                         target.energy.atom1)
+                elif target.energy.correlation_type is 2:
+                    correlation = structure.get_displacement_correlation(target.neighbours)
+                else:
+                    raise RuntimeError("Unknown correlation type for energy {}"
+                                       .format(target.energy))
+                target.energy.J += (correlation - target.energy.desired_correlation)
+                print("Correlations of {} with neighbors:\n{}\nis {:.5} "
+                      "for desired correlation of {:.5}. Setting J to {:.5}"
+                      .format(target.energy,
+                              np.asarray(target.neighbours),
+                              correlation,
+                              target.energy.desired_correlation,
+                              target.energy.J))
+
+            # Do MC loop
             accepted = mcrun(self.modifier,
                              np.array(self.__targets),
                              len(structure.atoms)*self.__iterations,

@@ -13,8 +13,8 @@ cimport cython
 cdef class Target:
     """Class to hold an Energy object with it associated neighbours"""
     cdef readonly int number_of_neighbours
-    cdef Py_ssize_t[:,:] neighbours
-    cdef Energy energy
+    cdef readonly Py_ssize_t[:,:] neighbours
+    cdef public Energy energy
     def __init__(self, Py_ssize_t[:,:] neighbours, Energy energy):
         assert neighbours.shape[1] == 5
         self.energy = energy

@@ -594,14 +594,13 @@ class Structure:
         theta = count/total
         return (match_count/total - theta*theta)/(theta*(1-theta))
 
-    def get_displacement_correlation(self, vectors, direction='x', direction2=None):
+    def get_displacement_correlation(self, vectors, direction=(1, 1, 1), direction2=None):
         """
         :param vectors: neighbor vectors
         :type vectors: :class:`javelin.neighborlist.NeighborList` or `n x 5` array of
             neighbor vectors
-        :param atom: atom type for which to calculate correlation
-        :type atom: int
-        :return: occupational correlation
+
+        :return: displacement correlation
         :rtype: float
         """
         from pandas import MultiIndex
