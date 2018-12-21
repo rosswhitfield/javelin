@@ -161,6 +161,7 @@ while negative J creates positive correlations"""
         self.correlation_type = 2
         self.J = J
         self.desired_correlation = desired_correlation
+    @cython.cdivision(True)
     cpdef double evaluate(self,
                           int a1, double x1, double y1, double z1,
                           int a2, double x2, double y2, double z2,
@@ -206,18 +207,67 @@ cdef class SpringEnergy(Energy):
     0.25
     >>> e.evaluate(0, 0, 0, 0, 0, 0, 0.5, 0, 1, 0, 0)  # y2=0.5, target_x=1 ≡ d=1.118
     0.013932
+
+    Optionally you can define a particular atom combination that only
+    this energy will apply to. You can do this by setting
+    ``atom_type1`` and ``atom_type2`` (must set both otherwise this is
+    ignored). If the atoms that are currently being evaluated don't
+    match then the energy will be 0. It is suggested to include
+    energies for all possible atom combinations in the simulation. For
+    example
+
+    >>> e = SpringEnergy(K=1, desired=1, atom_type1=11, atom_type2=17)  # Na - Cl
+    >>> e.evaluate(99, 0, 0, 0, 99, 0.5, 0, 0, 1, 0, 0)  # a1 = 99, a2 = 99
+    0.0
+    >>> e.evaluate(11, 0, 0, 0, 11, 0.5, 0, 0, 1, 0, 0)  # a1 = 11, a2 = 11
+    0.0
+    >>> e.evaluate(11, 0, 0, 0, 17, 0.5, 0, 0, 1, 0, 0)  # a1 = 11, a2 = 17
+    0.25
+    >>> e.evaluate(17, 0, 0, 0, 11, 0.5, 0, 0, 1, 0, 0)  # a1 = 17, a2 = 11
+    0.25
+    >>>
+    >>> e = SpringEnergy(K=1, desired=1, atom_type1=17, atom_type2=17)  # Cl - Cl
+    >>> e.evaluate(99, 0, 0, 0, 99, 0.5, 0, 0, 1, 0, 0)  # a1 = 99, a2 = 99
+    0.0
+    >>> e.evaluate(11, 0, 0, 0, 11, 0.5, 0, 0, 1, 0, 0)  # a1 = 11, a2 = 11
+    0.0
+    >>> e.evaluate(11, 0, 0, 0, 17, 0.5, 0, 0, 1, 0, 0)  # a1 = 11, a2 = 17
+    0.0
+    >>> e.evaluate(17, 0, 0, 0, 17, 0.5, 0, 0, 1, 0, 0)  # a1 = 17, a2 = 17
+    0.25
     """
     cdef readonly double K, desired
-    def __init__(self, double K, double desired):
+    cdef readonly int atom_type1, atom_type2
+    cdef unsigned char check_atom_types
+    def __init__(self, double K, double desired, int atom_type1=-1, int atom_type2=-1):
         self.K = K
         self.desired = desired
+        self.atom_type1 = atom_type1
+        self.atom_type2 = atom_type2
+        self.check_atom_types = self.atom_type1 != -1 or self.atom_type2 != -1
         """
         desired separation distance
         """
+    def __str__(self):
+        return "{}(K={},desired={},atoms={})".format(self.__class__.__name__,
+                                                     self.K,
+                                                     self.desired,
+                                                     '{}-{}'.format(self.atom_type1,self.atom_type2)
+                                                     if self.check_atom_types else 'all')
+    cdef unsigned char valid_atoms(self, int atom1, int atom2):
+        if atom1 == self.atom_type1 and atom2 == self.atom_type2:
+            return True
+        elif atom1 == self.atom_type2 and atom2 == self.atom_type1:
+            return True
+        else:
+            return False
     cpdef double evaluate(self,
                           int a1, double x1, double y1, double z1,
                           int a2, double x2, double y2, double z2,
                           Py_ssize_t target_x, Py_ssize_t target_y, Py_ssize_t target_z) except *:
+        if self.check_atom_types:
+            if not self.valid_atoms(a1, a2):
+                return 0
         cdef double diff = distance(x1, y1, z1,
                                     x2+target_x, y2+target_y, z2+target_z) - self.desired
         return self.K * diff*diff
@@ -260,16 +310,65 @@ cdef class LennardJonesEnergy(Energy):
     3968.0
     >>> e.evaluate(0, 0, 0, 0, 0, 0, 0.5, 0, 1, 0, 0)  # y2=0.5, target_x=1 ≡ d=1.118
     -0.761856
+
+    Optionally you can define a particular atom combination that only
+    this energy will apply to. You can do this by setting
+    ``atom_type1`` and ``atom_type2`` (must set both otherwise this is
+    ignored). If the atoms that are currently being evaluated don't
+    match then the energy will be 0. It is suggested to include
+    energies for all possible atom combinations in the simulation. For
+    example
+
+    >>> e = LennardJonesEnergy(D=1, desired=1, atom_type1=11, atom_type2=17)  # Na - Cl
+    >>> e.evaluate(99, 0, 0, 0, 99, 0.5, 0, 0, 1, 0, 0)  # a1 = 99, a2 = 99
+    0.0
+    >>> e.evaluate(11, 0, 0, 0, 11, 0.5, 0, 0, 1, 0, 0)  # a1 = 11, a2 = 11
+    0.0
+    >>> e.evaluate(11, 0, 0, 0, 17, 0.5, 0, 0, 1, 0, 0)  # a1 = 11, a2 = 17
+    -0.167876
+    >>> e.evaluate(17, 0, 0, 0, 11, 0.5, 0, 0, 1, 0, 0)  # a1 = 17, a2 = 11
+    -0.167876
+    >>>
+    >>> e = LennardJonesEnergy(D=1, desired=1, atom_type1=17, atom_type2=17)  # Cl - Cl
+    >>> e.evaluate(99, 0, 0, 0, 99, 0.5, 0, 0, 1, 0, 0)  # a1 = 99, a2 = 99
+    0.0
+    >>> e.evaluate(11, 0, 0, 0, 11, 0.5, 0, 0, 1, 0, 0)  # a1 = 11, a2 = 11
+    0.0
+    >>> e.evaluate(11, 0, 0, 0, 17, 0.5, 0, 0, 1, 0, 0)  # a1 = 11, a2 = 17
+    0.0
+    >>> e.evaluate(17, 0, 0, 0, 17, 0.5, 0, 0, 1, 0, 0)  # a1 = 17, a2 = 17
+    -0.167876
     """
     cdef readonly double D, desired
-    def __init__(self, double D, double desired):
+    cdef readonly int atom_type1, atom_type2
+    cdef unsigned char check_atom_types
+    def __init__(self, double D, double desired, int atom_type1=-1, int atom_type2=-1):
         self.D = D
         self.desired = desired
+        self.atom_type1 = atom_type1
+        self.atom_type2 = atom_type2
+        self.check_atom_types = self.atom_type1 != -1 or self.atom_type2 != -1
+    def __str__(self):
+        return "{}(D={},desired={},atoms={})".format(self.__class__.__name__,
+                                                     self.D,
+                                                     self.desired,
+                                                     '{}-{}'.format(self.atom_type1,self.atom_type2)
+                                                     if self.check_atom_types else 'all')
+    cdef unsigned char valid_atoms(self, int atom1, int atom2):
+        if atom1 == self.atom_type1 and atom2 == self.atom_type2:
+            return True
+        elif atom1 == self.atom_type2 and atom2 == self.atom_type1:
+            return True
+        else:
+            return False
     @cython.cdivision(True)
     cpdef double evaluate(self,
                           int a1, double x1, double y1, double z1,
                           int a2, double x2, double y2, double z2,
                           Py_ssize_t target_x, Py_ssize_t target_y, Py_ssize_t target_z) except *:
+        if self.check_atom_types:
+            if not self.valid_atoms(a1, a2):
+                return 0
         cdef double d = distance(x1, y1, z1,
                                  x2+target_x, y2+target_y, z2+target_z)
         return INFINITY if d == 0 else self.D * (pow(self.desired/d, 12) - 2*pow(self.desired/d, 6))
