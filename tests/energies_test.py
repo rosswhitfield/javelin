@@ -56,7 +56,7 @@ def test_DisplacementCorrelationEnergy():
 
 def test_SpringEnergy():
     e = SpringEnergy(0.5, 1.1)
-    assert str(e) == "SpringEnergy()"
+    assert str(e) == "SpringEnergy(K=0.5,desired=1.1,atoms=all)"
     assert e.K == 0.5
     assert e.desired == 1.1
     assert e.evaluate(0, 0, 0, 0,
@@ -72,10 +72,29 @@ def test_SpringEnergy():
                                    0, 0.1, 0.2, 0.3,
                                    3, 2, 1), 5.41501035)
 
+    # with atom types
+    e = SpringEnergy(0.5, 1.1, 11, 17)
+    assert str(e) == "SpringEnergy(K=0.5,desired=1.1,atoms=11-17)"
+    assert_almost_equal(e.evaluate(99, 0, 0, 0,
+                                   99, 0, 0, 0,
+                                   1, 0, 0), 0)
+    assert_almost_equal(e.evaluate(11, 0, 0, 0,
+                                   11, 0, 0, 0,
+                                   1, 0, 0), 0)
+    assert_almost_equal(e.evaluate(11, 0, 0, 0,
+                                   17, 0, 0, 0,
+                                   1, 0, 0), 0.005)
+    assert_almost_equal(e.evaluate(17, 0, 0, 0,
+                                   11, 0, 0, 0,
+                                   1, 0, 0), 0.005)
+    assert_almost_equal(e.evaluate(17, 0, 0, 0,
+                                   17, 0, 0, 0,
+                                   1, 0, 0), 0)
+
 
 def test_LennardJonesEnergy():
     e = LennardJonesEnergy(0.5, 1.1)
-    assert str(e) == "LennardJonesEnergy()"
+    assert str(e) == "LennardJonesEnergy(D=0.5,desired=1.1,atoms=all)"
     assert e.D == 0.5
     assert e.desired == 1.1
     assert e.evaluate(0, 0, 0, 0,
@@ -85,8 +104,30 @@ def test_LennardJonesEnergy():
                                    0, 0, 0, 0,
                                    1, 0, 0), -0.2023468)
     assert_almost_equal(e.evaluate(0, 0, 0, 0,
+                                   0, 0.1, 0, 0,
+                                   1, 0, 0), -0.5)
+    assert_almost_equal(e.evaluate(0, 0, 0, 0,
                                    0, 0.2, 0, 0,
                                    1, 0, 0), -0.4172944)
     assert_almost_equal(e.evaluate(0, -0.3, -0.2, -0.1,
                                    0, 0.1, 0.2, 0.3,
                                    3, 2, 1), -0.00024716)
+
+    # With atom types
+    e = LennardJonesEnergy(0.5, 1.1, 11, 17)
+    assert str(e) == "LennardJonesEnergy(D=0.5,desired=1.1,atoms=11-17)"
+    assert_almost_equal(e.evaluate(99, 0, 0, 0,
+                                   99, 0.1, 0, 0,
+                                   1, 0, 0), 0)
+    assert_almost_equal(e.evaluate(11, 0, 0, 0,
+                                   11, 0.1, 0, 0,
+                                   1, 0, 0), 0)
+    assert_almost_equal(e.evaluate(11, 0, 0, 0,
+                                   17, 0.1, 0, 0,
+                                   1, 0, 0), -0.5)
+    assert_almost_equal(e.evaluate(17, 0, 0, 0,
+                                   11, 0.1, 0, 0,
+                                   1, 0, 0), -0.5)
+    assert_almost_equal(e.evaluate(17, 0, 0, 0,
+                                   17, 0.1, 0, 0,
+                                   1, 0, 0), 0)
