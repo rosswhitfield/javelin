@@ -27,7 +27,7 @@ cdef class Target:
 @cython.boundscheck(False)
 @cython.wraparound(False)
 @cython.initializedcheck(False)
-cpdef int mcrun(BaseModifier modifier, Target[:] targets,
+cpdef (int, int, int) mcrun(BaseModifier modifier, Target[:] targets,
                     int iterations, double temperature,
                     long[:,:,:,::1] a, double[:,:,:,::1] x, double[:,:,:,::1] y, double[:,:,:,::1] z):
     """This function is not meant to be used directly. It is used by
@@ -39,7 +39,9 @@ cpdef int mcrun(BaseModifier modifier, Target[:] targets,
     assert tuple(a.shape) == tuple(z.shape)
     cdef Py_ssize_t mod_x, mod_y, mod_z
     cdef int number_of_targets, number_of_cells
-    cdef int not_accepted = 0
+    cdef int accepted_good = 0
+    cdef int accepted_neutral = 0
+    cdef int accepted_bad = 0
     cdef Py_ssize_t cell_x_target, cell_y_target, cell_z_target, ncell
     cdef Py_ssize_t[:, :] cells
     cdef Py_ssize_t target_number, neighbour, number_of_neighbours
@@ -96,10 +98,17 @@ cpdef int mcrun(BaseModifier modifier, Target[:] targets,
                                           z[cell_x_target, cell_y_target, cell_z_target, neighbours[neighbour,1]],
                                           neighbours[neighbour,2], neighbours[neighbour,3], neighbours[neighbour,4])
         de = e1-e0
-        if not accept(de, temperature):
-            not_accepted += 1
+        if accept(de, temperature):
+            if de < 0:
+                accepted_good += 1
+            elif de == 0:
+                accepted_neutral += 1
+            else:
+                accepted_bad += 1
+        else:
             modifier.undo_last_run(a, x, y, z)
-    return iterations-not_accepted
+
+    return accepted_good, accepted_neutral, accepted_bad
 
 @cython.cdivision(True)
 cdef unsigned char accept(double dE, double kT):
