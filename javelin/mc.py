@@ -119,7 +119,7 @@ Structure modfifier is {}""".format(self.cycles,
                  len(structure.atoms.index.levels[3]))
 
         for cycle in range(self.cycles):
-            print('Cycle = {}'.format(cycle))
+            print('\nCycle = {}'.format(cycle))
 
             # Do feedback
             for target in self.__targets:
@@ -144,15 +144,16 @@ Structure modfifier is {}""".format(self.cycles,
                               target.energy.J))
 
             # Do MC loop
-            accepted = mcrun(self.modifier,
-                             np.array(self.__targets),
-                             len(structure.atoms)*self.__iterations,
-                             self.temperature,
-                             structure.get_atomic_numbers().reshape(shape),
-                             structure.x.reshape(shape),
-                             structure.y.reshape(shape),
-                             structure.z.reshape(shape))
-            print("Accepted {} out of {}".format(accepted, len(structure.atoms)))
+            good, neutral, bad = mcrun(self.modifier,
+                                       np.array(self.__targets),
+                                       len(structure.atoms)*self.__iterations,
+                                       self.temperature,
+                                       structure.get_atomic_numbers().reshape(shape),
+                                       structure.x.reshape(shape),
+                                       structure.y.reshape(shape),
+                                       structure.z.reshape(shape))
+            print("Accepted {} good, {} neutral (dE=0) and {} bad out of {}"
+                  .format(good, neutral, bad, len(structure.atoms)))
 
         # Update symbols after Z's were changed
         structure.update_atom_symbols()

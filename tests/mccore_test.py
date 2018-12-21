@@ -64,7 +64,7 @@ def test_mcrun_should_do_nothing():
                      10, 0,
                      a, x, y, z)
 
-    assert accepted == 0
+    assert accepted == (0, 0, 0)
 
     assert_equal(a, a_copy)
     assert_equal(x, x_copy)
@@ -112,7 +112,7 @@ def test_mcrun_accept_all():
                      100, 1,
                      a, x, y, z)
 
-    assert accepted == 100
+    assert accepted == (0, 100, 0)
 
     assert_equal(a[:, 0, 0, 0], [13, 42, 42, 42, 42, 13, 13, 42, 13, 42])
     assert_almost_equal(x[:, 0, 0, 0], [-0.1749765, -0.0079611,  0.1029733,  0.02224, -0.0842436,
