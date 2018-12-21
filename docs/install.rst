@@ -22,7 +22,7 @@ Requirements
 
 Optional:
 
-* ASE_ (to use the ase atoms structue) >= 3.14
+* ASE_ (to use the ase atoms structure) >= 3.14
 
 .. _h5py: 
 .. _pandas: http://pandas.pydata.org/
@@ -33,7 +33,7 @@ Optional:
 Development
 ===========
 
-A development enviroment can easily be set up with either conda or PyPI
+A development environment can easily be set up with either conda or PyPI
 
 Using Conda
 ===========
