@@ -74,7 +74,9 @@ cdef class Energy:
         return 0
 
 cdef class IsingEnergy(Energy):
-    """You can either set the ``desired_correlation`` which will
+    """The `Ising model <https://en.wikipedia.org/wiki/Ising_model>`_
+
+You can either set the ``desired_correlation`` which will
     automatically adjust the pair interaction energy (J), or set the J
     directly.
 
