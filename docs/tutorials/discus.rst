@@ -13,13 +13,13 @@ Javelin can read in discus structure files simply by:
 >>> structure = read_stru("tests/data/pzn2.stru")
 Found a = 4.06, b = 4.06, c = 4.06, alpha = 90.0, beta = 90.0, gamma = 90.0
 Read in these atoms:
+Nb     80
 O     375
 Pb    125
-Nb     80
 Zn     45
 Name: symbol, dtype: int64
 >>> print(structure)
-Structure(O375Pb125Nb80Zn45, a=4.06, b=4.06, c=4.06, alpha=90.0, beta=90.0, gamma=90.0)
+Structure(Nb80O375Pb125Zn45, a=4.06, b=4.06, c=4.06, alpha=90.0, beta=90.0, gamma=90.0)
 
 From here it's easy to calculate the scattering.
 
@@ -30,9 +30,9 @@ From here it's easy to calculate the scattering.
    >>> structure = read_stru("../../tests/data/pzn2.stru")  # doctest: +SKIP
    Found a = 4.06, b = 4.06, c = 4.06, alpha = 90.0, beta = 90.0, gamma = 90.0
    Read in these atoms:
+   Nb     80
    O     375
    Pb    125
-   Nb     80
    Zn     45
    Name: symbol, dtype: int64
    >>> from javelin.fourier import Fourier  # doctest: +SKIP
@@ -42,7 +42,7 @@ From here it's easy to calculate the scattering.
    >>> fourier.grid.r2 = -2, 2  # doctest: +SKIP
    >>> fourier.grid.bins = 201, 201  # doctest: +SKIP
    >>> print(fourier)  # doctest: +SKIP
-   Structure         : Structure(O375Pb125Nb80Zn45, a=4.06, b=4.06, c=4.06, alpha=90.0, beta=90.0, gamma=90.0)
+   Structure         : Structure(Nb80O375Pb125Zn45, a=4.06, b=4.06, c=4.06, alpha=90.0, beta=90.0, gamma=90.0)
    Radiation         : neutron
    Fourier volume    : complete crystal
    Aver. subtraction : False
