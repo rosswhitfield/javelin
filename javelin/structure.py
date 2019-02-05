@@ -246,7 +246,7 @@ class Structure:
 
         Not implemented, only for ASE compatibility.
         """
-        return dict()
+        return {}
 
     def get_atom_symbols(self):
         """Get a list of unique atom symbols in structure
@@ -295,7 +295,7 @@ class Structure:
         Na    2
         Name: symbol, dtype: int64
         """
-        return self.atoms.symbol.value_counts()
+        return self.atoms.symbol.value_counts().sort_index()
 
     def get_atomic_numbers(self):
         """Array of all atomic numbers in the structure
@@ -326,7 +326,7 @@ class Structure:
 
         >>> stru = Structure(symbols=['Na','Cl','Na'],positions=[[0,0,0],[0.5,0.5,0.5],[0,1,0]])
         >>> stru.get_chemical_formula()
-        'Na2Cl1'
+        'Cl1Na2'
         """
         return (self.get_atom_count().index.values+self.get_atom_count().values.astype('str')).sum()
 
@@ -437,6 +437,33 @@ class Structure:
         """
         rs = np.random.RandomState(seed)
         self.atoms[['x', 'y', 'z']] += rs.normal(scale=scale, size=self.xyz.shape)
+
+    def replace_atom(self, to_replace: int, value: int) -> None:
+        """Replace all atoms in the structure that has Z=`to_replace` with
+        Z=`value`. This uses :meth:`pandas.DataFrame.replace` to
+        replace the atom Z values
+
+        :param to_replace: Z value to replace
+        :type to_replace: int
+        :param value: what it is going to be replaced with
+        :type value: int
+
+        :example:
+
+        >>> stru = Structure(symbols=['Na', 'Cl'], positions=[[0,0,0],[0.5,0.5,0.5]], unitcell=5.64)
+        >>> print(stru.get_atom_count())
+        Cl    1
+        Na    1
+        Name: symbol, dtype: int64
+        >>> stru.replace_atom(11, 111)
+        >>> print(stru.get_atom_count())
+        Cl    1
+        Rg    1
+        Name: symbol, dtype: int64
+
+        """
+        self.atoms.Z.replace(to_replace=to_replace, value=value, inplace=True, method=None)
+        self.update_atom_symbols()
 
     def repeat(self, rep):
         """Repeat the cells a number of time along each dimension
