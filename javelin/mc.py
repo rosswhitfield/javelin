@@ -27,6 +27,16 @@ where
 
 .. math::
     P = \exp(-\Delta E / kT)
+
+.. plot::
+
+    x = np.linspace(-1,5,600)
+    for kT in [0.1, 0.5, 1, 2, 5]:
+        plt.plot(x, np.minimum(1, np.exp(-x/kT)), label="$kT={}$".format(kT))
+    plt.xlabel("ΔE")
+    plt.ylabel("P")
+    plt.legend()
+    plt.title("Probabilty change is accepted for given ΔE with different $kT$")
 """
 
 import numpy as np
@@ -39,9 +49,33 @@ from javelin.modifier import BaseModifier
 class MC:
     """MonteCarlo class
 
-    Requires:
+    For the Monte Carlo simulations to run you need to provide an
+    input structure, target (neighbor and energy set) and modifier. A
+    basic, do nothing, example is shown:
 
-    input structure, target, move generator
+    >>> from javelin.structure import Structure
+    >>> from javelin.modifier import BaseModifier
+    >>> from javelin.energies import Energy
+    >>> structure = Structure(symbols=['Na','Cl'],positions=[[0,0,0],[0.5,0.5,0.5]])
+    >>>
+    >>> energy = Energy()
+    >>> neighbors = structure.get_neighbours()
+    >>>
+    >>> mc = MC()
+    >>> mc.modifier = BaseModifier(0)
+    >>> mc.temperature = 1
+    >>> mc.cycles = 2
+    >>> mc.add_target(neighbors, energy)
+    >>>
+    >>> new_structure = mc.run(structure)
+    <BLANKLINE>
+    Cycle = 0, temperature = 1.0
+    Accepted 0 good, 2 neutral (dE=0) and 0 bad out of 2
+    <BLANKLINE>
+    Cycle = 1, temperature = 1.0
+    Accepted 0 good, 2 neutral (dE=0) and 0 bad out of 2
+    >>>
+
     """
 
     def __init__(self):
@@ -49,17 +83,19 @@ class MC:
         self.__temp = 1
         self.__targets = []
         self.__modifier = None
-        self.__iterations = 1
+        self.__iterations = None
 
     def __str__(self):
         return """Number of cycles = {}
-Temperature = {}
+Temperature[s] = {}
 Structure modfifier is {}""".format(self.cycles,
                                     self.temperature,
                                     self.modifier)
 
     @property
     def cycles(self):
+        """The number of cycles to perform.
+        """
         return self.__cycles
 
     @cycles.setter
@@ -70,18 +106,66 @@ Structure modfifier is {}""".format(self.cycles,
             raise ValueError('cycles must be an int')
 
     @property
+    def iterations(self):
+        """The number of iterations (site modifications) to perform for each
+        cycle. Default is equal to the number of atoms in the structure.
+        """
+        return self.__iterations
+
+    @iterations.setter
+    def iterations(self, iterations):
+        try:
+            self.__iterations = int(iterations)
+        except ValueError:
+            raise ValueError('iterations must be an int')
+
+    @property
     def temperature(self):
+        r"""Temperature parameter (:math:`kT`) which changes the probability
+        (P) a energy change of :math:`\Delta E` is accepted
+
+           .. math::
+               P = \exp(-\Delta E / kT)
+
+        Temperature can be a single value for all cycles or you can
+        provide a different temperature for each cycle. This allows
+        you to do quenching of the disorder. If you provide more
+        temperatures than cycles then only the first temperatures
+        corresponding to the number of cycles are used. If there are
+        more cycles than temperature than for remaining cycles the
+        last temperature in the list will be used.
+
+        >>> mc = MC()
+        >>> mc.temperature = 0.1
+        >>> print(mc)
+        Number of cycles = 100
+        Temperature[s] = 0.1
+        Structure modfifier is None
+        >>>
+        >>> mc.temperature = np.linspace(1, 0, 6)
+        >>> print(mc)
+        Number of cycles = 100
+        Temperature[s] = [ 1.   0.8  0.6  0.4  0.2  0. ]
+        Structure modfifier is None
+        """
         return self.__temp
 
     @temperature.setter
     def temperature(self, temperature):
         try:
             self.__temp = float(temperature)
-        except ValueError:
-            raise ValueError('temperature must be a real number')
+        except (ValueError, TypeError):
+            try:
+                self.__temp = np.asarray(temperature, dtype=float)
+            except ValueError:
+                raise ValueError('temperature must be real numbers')
 
     @property
     def modifier(self):
+        """This is how the structure is to be modified, must be of type
+        :class:`javelin.modifier.BaseModifier`.
+
+        """
         return self.__modifier
 
     @modifier.setter
@@ -92,6 +176,16 @@ Structure modfifier is {}""".format(self.cycles,
             raise ValueError("modifier must be an instance of javelin.modifier.BaseModifier")
 
     def add_target(self, neighbours, energy):
+        """This will add an energy calculation and neighbour pair that will be
+        used to calculate and energy for each modification step. You
+        can add as many targets as you like.
+
+        :param neighbour: neighbour for which the energy will be calculated over
+        :type neighbour: :class:`javelin.neighborlist.NeighborList` or `n x 5` array
+            of neighbor vectors
+        :param energy: the energy function that will be calculated for each neighbor
+        :type energy: :class:`javelin.energies.Energy`
+        """
         if isinstance(energy, Energy):
             try:
                 self.__targets.append(
@@ -104,9 +198,20 @@ Structure modfifier is {}""".format(self.cycles,
             raise ValueError("energy must be an instance of javelin.energies.Energy")
 
     def delete_targets(self):
+        """This will remove all previously set targets
+        """
         self.__targets = []
 
     def run(self, structure, inplace=False):
+        """Execute the Monte Carlo routine. You must provide the structure to
+        modify as a parameter. This will by default this will return a
+        new :class:`javelin.structure.Structure` with the results, to
+        modify the provided structure in place set `inplace=True`
+
+        :param structure: structure to run the Monte Carlo on
+        :type structure: :class:`javelin.structure.Structure`
+
+        """
         if structure is None:
             raise ValueError("Need to provide input structure")
 
@@ -118,8 +223,11 @@ Structure modfifier is {}""".format(self.cycles,
                  len(structure.atoms.index.levels[2]),
                  len(structure.atoms.index.levels[3]))
 
+        temps = np.atleast_1d(self.temperature)
+        temps = np.pad(temps, (0, max(0, self.cycles-len(temps))), mode='edge')
         for cycle in range(self.cycles):
-            print('\nCycle = {}'.format(cycle))
+            temp = temps[cycle]
+            print('\nCycle = {}, temperature = {}'.format(cycle, temp))
 
             # Do feedback
             for target in self.__targets:
@@ -146,8 +254,8 @@ Structure modfifier is {}""".format(self.cycles,
             # Do MC loop
             good, neutral, bad = mcrun(self.modifier,
                                        np.array(self.__targets),
-                                       len(structure.atoms)*self.__iterations,
-                                       self.temperature,
+                                       self.__iterations or len(structure.atoms),
+                                       temp,
                                        structure.get_atomic_numbers().reshape(shape),
                                        structure.x.reshape(shape),
                                        structure.y.reshape(shape),
