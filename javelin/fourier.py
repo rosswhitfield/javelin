@@ -495,6 +495,9 @@ def get_ff(atomic_number, radiation, q=None):
     """
     import periodictable
 
+    if atomic_number < 1:
+        raise KeyError(atomic_number)
+
     if radiation == 'neutron':
         return periodictable.elements[atomic_number].neutron.b_c
     elif radiation == 'xray':

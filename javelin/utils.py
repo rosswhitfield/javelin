@@ -42,8 +42,8 @@ def get_atomic_number_symbol(Z=None, symbol=None):
     if isinstance(symbol, str):
         symbol = [symbol]
 
-    if np.count_nonzero(symbol) == 0:
-        if np.count_nonzero(Z) == 0:
+    if symbol is None or len(symbol) == 0:
+        if Z is None or len(Z) == 0:
             raise ValueError("Need to provide list of either Z's or symbols.")
         else:
             Z = np.asarray(Z)
@@ -51,13 +51,18 @@ def get_atomic_number_symbol(Z=None, symbol=None):
             symbol = np.empty(length, dtype='<U2')
             for i in range(length):
                 symbol[i] = elements[Z[i]].symbol
+            symbol[symbol == 'n'] = 'VD'  # use Z=0 as VOID type
     else:
-        symbol = np.asarray(symbol)
+        symbol = np.asarray(symbol, dtype='<U2')
         length = len(symbol)
         Z = np.empty(length, dtype=np.int64)
         for i in range(length):
             symbol[i] = symbol[i].capitalize()
-            Z[i] = elements.symbol(symbol[i]).number
+            if symbol[i] == 'Vd':  # Special case for VOID
+                symbol[i] = 'VD'
+                Z[i] = 0
+            else:
+                Z[i] = elements.symbol(symbol[i]).number
     return (Z, symbol)
 
 

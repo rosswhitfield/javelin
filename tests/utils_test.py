@@ -18,13 +18,13 @@ def test_one():
 
 
 def test_array():
-    Z, symbol = get_atomic_number_symbol(Z=[6, 7, 8])
-    assert_array_equal(Z, [6, 7, 8])
-    assert_array_equal(symbol, ['C', 'N', 'O'])
+    Z, symbol = get_atomic_number_symbol(Z=[6, 7, 8, 0])
+    assert_array_equal(Z, [6, 7, 8, 0])
+    assert_array_equal(symbol, ['C', 'N', 'O', 'VD'])
 
-    Z, symbol = get_atomic_number_symbol(symbol=['Au', 'Ag'])
-    assert_array_equal(Z, [79, 47])
-    assert_array_equal(symbol, ['Au', 'Ag'])
+    Z, symbol = get_atomic_number_symbol(symbol=['Au', 'Ag', 'VD'])
+    assert_array_equal(Z, [79, 47, 0])
+    assert_array_equal(symbol, ['Au', 'Ag', 'VD'])
 
     Z, symbol = get_atomic_number_symbol(Z=[1, 2, 3], symbol=['B', 'C', 'F'])
     assert_array_equal(Z, [5, 6, 9])

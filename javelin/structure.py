@@ -91,7 +91,7 @@ class Structure:
         if numbers is not None or symbols is not None:
             self.atoms.Z, self.atoms.symbol = get_atomic_number_symbol(Z=numbers, symbol=symbols)
 
-        positions = np.asarray(positions)
+        positions = np.asarray(positions, dtype=np.float)
         self.atoms[['x', 'y', 'z']] = positions
 
         if rotations:
@@ -402,7 +402,7 @@ class Structure:
         1 0 0 0     13     Al  0.5  0.0  0...
 
         """
-        Z, symbol = get_atomic_number_symbol([Z], [symbol])
+        Z, symbol = get_atomic_number_symbol(Z, symbol)
         if position is None:
             raise ValueError("position not provided")
 
