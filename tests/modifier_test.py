@@ -34,17 +34,17 @@ def test_BaseModifier():
     assert_equal(a, [[[[42]], [[42]]],
                      [[[13]], [[13]]]])
 
-    mod = BaseModifier(3)
-    assert str(mod) == 'BaseModifier(number_of_cells=3)'
+    mod = BaseModifier(3, [1, 3, 5, 7])
+    assert str(mod) == 'BaseModifier(number_of_cells=3,sites=[1 3 5 7])'
     assert mod.number_of_cells == 3
-    assert_equal(np.asarray(mod.cells), [[0, 0, 0],
-                                         [0, 0, 0],
-                                         [0, 0, 0]])
+    assert_equal(np.asarray(mod.cells), [[0, 0, 0, 0],
+                                         [0, 0, 0, 0],
+                                         [0, 0, 0, 0]])
     set_seed()
     cells = mod.get_random_cells(100, 100, 100)
-    assert_equal(np.asarray(cells), [[3, 32, 69],
-                                     [42, 20, 25],
-                                     [63, 86, 30]])
+    assert_equal(np.asarray(cells), [[3, 32, 69,  3],
+                                     [20, 25, 63,  7],
+                                     [30,  2, 36,  7]])
     assert_equal(np.asarray(mod.cells), np.asarray(cells))
     mod.run(a, x, y, z)
 
@@ -59,14 +59,14 @@ def test_SwapOccupancy():
                      [[[13]], [[13]]]])
 
     mod = SwapOccupancy(0)
-    assert str(mod) == 'SwapOccupancy(swap_site=0)'
+    assert str(mod) == 'SwapOccupancy(swap_sites=[0])'
     assert mod.number_of_cells == 2
-    assert_equal(np.asarray(mod.cells), [[0, 0, 0],
-                                         [0, 0, 0]])
-    set_seed(72)
+    assert_equal(np.asarray(mod.cells), [[0, 0, 0, 0],
+                                         [0, 0, 0, 0]])
+    set_seed(16)
     cells = mod.get_random_cells(2, 2, 1)
-    assert_equal(np.asarray(cells), [[0, 0, 0],
-                                     [1, 0, 0]])
+    assert_equal(np.asarray(cells), [[0, 0, 0, 0],
+                                     [1, 0, 0, 0]])
     assert_equal(np.asarray(mod.cells), np.asarray(cells))
 
     mod.run(a, x, y, z)
@@ -99,14 +99,14 @@ def test_SwapDisplacement():
                              [[0.04351635]]]])
 
     mod = SwapDisplacement(0)
-    assert str(mod) == 'SwapDisplacement(swap_site=0)'
+    assert str(mod) == 'SwapDisplacement(swap_sites=[0])'
     assert mod.number_of_cells == 2
-    assert_equal(np.asarray(mod.cells), [[0, 0, 0],
-                                         [0, 0, 0]])
-    set_seed(72)
+    assert_equal(np.asarray(mod.cells), [[0, 0, 0, 0],
+                                         [0, 0, 0, 0]])
+    set_seed(16)
     cells = mod.get_random_cells(2, 2, 1)
-    assert_equal(np.asarray(cells), [[0, 0, 0],
-                                     [1, 0, 0]])
+    assert_equal(np.asarray(cells), [[0, 0, 0, 0],
+                                     [1, 0, 0, 0]])
     assert_equal(np.asarray(mod.cells), np.asarray(cells))
 
     mod.run(a, x, y, z)
@@ -166,14 +166,14 @@ def test_Swap():
                              [[0.04351635]]]])
 
     mod = Swap(0)
-    assert str(mod) == 'Swap(swap_site=0)'
+    assert str(mod) == 'Swap(swap_sites=[0])'
     assert mod.number_of_cells == 2
-    assert_equal(np.asarray(mod.cells), [[0, 0, 0],
-                                         [0, 0, 0]])
-    set_seed(72)
+    assert_equal(np.asarray(mod.cells), [[0, 0, 0, 0],
+                                         [0, 0, 0, 0]])
+    set_seed(16)
     cells = mod.get_random_cells(2, 2, 1)
-    assert_equal(np.asarray(cells), [[0, 0, 0],
-                                     [1, 0, 0]])
+    assert_equal(np.asarray(cells), [[0, 0, 0, 0],
+                                     [1, 0, 0, 0]])
     assert_equal(np.asarray(mod.cells), np.asarray(cells))
 
     mod.run(a, x, y, z)
@@ -236,27 +236,27 @@ def test_ShiftDisplacementRange():
                              [[0.04351635]]]])
 
     mod = ShiftDisplacementRange(0, -0.1, 0.1)
-    assert str(mod) == 'ShiftDisplacementRange(site=0,minimum=-0.1,maximum=0.1)'
+    assert str(mod) == 'ShiftDisplacementRange(sites=[0],minimum=-0.1,maximum=0.1)'
     assert mod.number_of_cells == 1
-    assert_equal(np.asarray(mod.cells), [[0, 0, 0]])
+    assert_equal(np.asarray(mod.cells), [[0, 0, 0, 0]])
     set_seed()
     cells = mod.get_random_cells(2, 2, 1)
-    assert_equal(np.asarray(cells), [[0, 0, 0]])
+    assert_equal(np.asarray(cells), [[0, 0, 0, 0]])
     assert_equal(np.asarray(mod.cells), np.asarray(cells))
 
     mod.run(a, x, y, z)
 
-    assert_almost_equal(x, [[[[-0.19047921]],
+    assert_almost_equal(x, [[[[-0.23372352]],
                              [[0.03426804]]],
                             [[[0.11530358]],
                              [[-0.0252436]]]])
 
-    assert_almost_equal(y, [[[[0.03938511]],
+    assert_almost_equal(y, [[[[0.04815777]],
                              [[0.05142188]]],
                             [[[0.02211797]],
                              [[-0.10700433]]]])
 
-    assert_almost_equal(z, [[[[-0.06892389]],
+    assert_almost_equal(z, [[[[0.00836212]],
                              [[0.02550014]]],
                             [[[-0.0458027]],
                              [[0.04351635]]]])
@@ -298,27 +298,27 @@ def test_ShiftDisplacementNormal():
                              [[0.04351635]]]])
 
     mod = ShiftDisplacementNormal(0, 0, 0.1)
-    assert str(mod) == 'ShiftDisplacementNormal(site=0,mu=0.0,sigma=0.1)'
+    assert str(mod) == 'ShiftDisplacementNormal(sites=[0],mu=0.0,sigma=0.1)'
     assert mod.number_of_cells == 1
-    assert_equal(np.asarray(mod.cells), [[0, 0, 0]])
+    assert_equal(np.asarray(mod.cells), [[0, 0, 0, 0]])
     set_seed()
     cells = mod.get_random_cells(2, 2, 1)
-    assert_equal(np.asarray(cells), [[0, 0, 0]])
+    assert_equal(np.asarray(cells), [[0, 0, 0, 0]])
     assert_equal(np.asarray(mod.cells), np.asarray(cells))
 
     mod.run(a, x, y, z)
 
-    assert_almost_equal(x, [[[[-0.1393564]],
+    assert_almost_equal(x, [[[[-0.17511995]],
                              [[0.03426804]]],
                             [[[0.11530358]],
                              [[-0.0252436]]]])
 
-    assert_almost_equal(y, [[[[-0.010735]],
+    assert_almost_equal(y, [[[[0.1603671]],
                              [[0.05142188]]],
                             [[[0.02211797]],
                              [[-0.10700433]]]])
 
-    assert_almost_equal(z, [[[[-0.0362182]],
+    assert_almost_equal(z, [[[[0.13397637]],
                              [[0.02550014]]],
                             [[[-0.0458027]],
                              [[0.04351635]]]])
@@ -360,27 +360,27 @@ def test_SetDisplacementRange():
                              [[0.04351635]]]])
 
     mod = SetDisplacementRange(0, -0.1, 0.1)
-    assert str(mod) == 'SetDisplacementRange(site=0,minimum=-0.1,maximum=0.1)'
+    assert str(mod) == 'SetDisplacementRange(sites=[0],minimum=-0.1,maximum=0.1)'
     assert mod.number_of_cells == 1
-    assert_equal(np.asarray(mod.cells), [[0, 0, 0]])
+    assert_equal(np.asarray(mod.cells), [[0, 0, 0, 0]])
     set_seed()
     cells = mod.get_random_cells(2, 2, 1)
-    assert_equal(np.asarray(cells), [[0, 0, 0]])
+    assert_equal(np.asarray(cells), [[0, 0, 0, 0]])
     assert_equal(np.asarray(mod.cells), np.asarray(cells))
 
     mod.run(a, x, y, z)
 
-    assert_almost_equal(x, [[[[-0.0155027]],
+    assert_almost_equal(x, [[[[-0.05874697]],
                              [[0.03426804]]],
                             [[[0.11530358]],
                              [[-0.0252436]]]])
 
-    assert_almost_equal(y, [[[[-0.058747]],
+    assert_almost_equal(y, [[[[-0.04997431]],
                              [[0.05142188]]],
                             [[[0.02211797]],
                              [[-0.10700433]]]])
 
-    assert_almost_equal(z, [[[[-0.0499743]],
+    assert_almost_equal(z, [[[[0.0273117]],
                              [[0.02550014]]],
                             [[[-0.0458027]],
                              [[0.04351635]]]])
@@ -422,27 +422,27 @@ def test_SetDisplacementNormal():
                              [[0.04351635]]]])
 
     mod = SetDisplacementNormal(0, 0.5, 0.1)
-    assert str(mod) == 'SetDisplacementNormal(site=0,mu=0.5,sigma=0.1)'
+    assert str(mod) == 'SetDisplacementNormal(sites=[0],mu=0.5,sigma=0.1)'
     assert mod.number_of_cells == 1
-    assert_equal(np.asarray(mod.cells), [[0, 0, 0]])
+    assert_equal(np.asarray(mod.cells), [[0, 0, 0, 0]])
     set_seed()
     cells = mod.get_random_cells(2, 2, 1)
-    assert_equal(np.asarray(cells), [[0, 0, 0]])
+    assert_equal(np.asarray(cells), [[0, 0, 0, 0]])
     assert_equal(np.asarray(mod.cells), np.asarray(cells))
 
     mod.run(a, x, y, z)
 
-    assert_almost_equal(x, [[[[0.5356201]],
+    assert_almost_equal(x, [[[[0.49985659]],
                              [[0.03426804]]],
                             [[[0.11530358]],
                              [[-0.0252436]]]])
 
-    assert_almost_equal(y, [[[[0.3911329]],
+    assert_almost_equal(y, [[[[0.56223502]],
                              [[0.05142188]]],
                             [[[0.02211797]],
                              [[-0.10700433]]]])
 
-    assert_almost_equal(z, [[[[0.4827314]],
+    assert_almost_equal(z, [[[[0.65292595]],
                              [[0.02550014]]],
                             [[[-0.0458027]],
                              [[0.04351635]]]])
@@ -485,28 +485,28 @@ def test_ShiftDisplacementRangeXYZ():
 
     mod = ShiftDisplacementRangeXYZ(0, -0.6, -0.4, -0.1, 0.1, 0.4, 0.6)
     assert (str(mod) ==
-            "ShiftDisplacementRangeXYZ(site=0,"
+            "ShiftDisplacementRangeXYZ(sites=[0],"
             "min_x=-0.6,max_x=-0.4,min_y=-0.1,max_y=0.1,min_z=0.4,max_z=0.6)")
     assert mod.number_of_cells == 1
-    assert_equal(np.asarray(mod.cells), [[0, 0, 0]])
+    assert_equal(np.asarray(mod.cells), [[0, 0, 0, 0]])
     set_seed()
     cells = mod.get_random_cells(2, 2, 1)
-    assert_equal(np.asarray(cells), [[0, 0, 0]])
+    assert_equal(np.asarray(cells), [[0, 0, 0, 0]])
     assert_equal(np.asarray(mod.cells), np.asarray(cells))
 
     mod.run(a, x, y, z)
 
-    assert_almost_equal(x, [[[[-0.6904792]],
+    assert_almost_equal(x, [[[[-0.73372352]],
                              [[0.03426804]]],
                             [[[0.11530358]],
                              [[-0.0252436]]]])
 
-    assert_almost_equal(y, [[[[0.03938511]],
+    assert_almost_equal(y, [[[[0.04815777]],
                              [[0.05142188]]],
                             [[[0.02211797]],
                              [[-0.10700433]]]])
 
-    assert_almost_equal(z, [[[[0.4310761]],
+    assert_almost_equal(z, [[[[0.50836212]],
                              [[0.02550014]]],
                             [[[-0.0458027]],
                              [[0.04351635]]]])
@@ -548,28 +548,28 @@ def test_ShiftDisplacementNormalXYZ():
                              [[0.04351635]]]])
 
     mod = ShiftDisplacementNormalXYZ(0, -0.5, 0.05, 0, 0.1, 0.1, 0.2)
-    assert (str(mod) == "ShiftDisplacementNormalXYZ(site=0,"
+    assert (str(mod) == "ShiftDisplacementNormalXYZ(sites=[0],"
             "mu_x=-0.5,sigma_x=0.05,mu_y=0.0,sigma_y=0.1,mu_z=0.1,sigma_z=0.2)")
     assert mod.number_of_cells == 1
-    assert_equal(np.asarray(mod.cells), [[0, 0, 0]])
+    assert_equal(np.asarray(mod.cells), [[0, 0, 0, 0]])
     set_seed()
     cells = mod.get_random_cells(2, 2, 1)
-    assert_equal(np.asarray(cells), [[0, 0, 0]])
+    assert_equal(np.asarray(cells), [[0, 0, 0, 0]])
     assert_equal(np.asarray(mod.cells), np.asarray(cells))
 
     mod.run(a, x, y, z)
 
-    assert_almost_equal(x, [[[[-0.6571665]],
+    assert_almost_equal(x, [[[[-0.67504825]],
                              [[0.03426804]]],
                             [[[0.11530358]],
                              [[-0.0252436]]]])
 
-    assert_almost_equal(y, [[[[-0.010735]],
+    assert_almost_equal(y, [[[[0.1603671]],
                              [[0.05142188]]],
                             [[[0.02211797]],
                              [[-0.10700433]]]])
 
-    assert_almost_equal(z, [[[[0.0465132]],
+    assert_almost_equal(z, [[[[0.38690232]],
                              [[0.02550014]]],
                             [[[-0.0458027]],
                              [[0.04351635]]]])
@@ -611,28 +611,28 @@ def test_SetDisplacementRangeXYZ():
                              [[0.04351635]]]])
 
     mod = SetDisplacementRangeXYZ(0, -0.6, -0.4, -0.1, 0.1, 0.4, 0.6)
-    assert (str(mod) == "SetDisplacementRangeXYZ(site=0,"
+    assert (str(mod) == "SetDisplacementRangeXYZ(sites=[0],"
             "min_x=-0.6,max_x=-0.4,min_y=-0.1,max_y=0.1,min_z=0.4,max_z=0.6)")
     assert mod.number_of_cells == 1
-    assert_equal(np.asarray(mod.cells), [[0, 0, 0]])
+    assert_equal(np.asarray(mod.cells), [[0, 0, 0, 0]])
     set_seed()
     cells = mod.get_random_cells(2, 2, 1)
-    assert_equal(np.asarray(cells), [[0, 0, 0]])
+    assert_equal(np.asarray(cells), [[0, 0, 0, 0]])
     assert_equal(np.asarray(mod.cells), np.asarray(cells))
 
     mod.run(a, x, y, z)
 
-    assert_almost_equal(x, [[[[-0.5155027]],
+    assert_almost_equal(x, [[[[-0.55874697]],
                              [[0.03426804]]],
                             [[[0.11530358]],
                              [[-0.0252436]]]])
 
-    assert_almost_equal(y, [[[[-0.058747]],
+    assert_almost_equal(y, [[[[-0.04997431]],
                              [[0.05142188]]],
                             [[[0.02211797]],
                              [[-0.10700433]]]])
 
-    assert_almost_equal(z, [[[[0.4500257]],
+    assert_almost_equal(z, [[[[0.5273117]],
                              [[0.02550014]]],
                             [[[-0.0458027]],
                              [[0.04351635]]]])
@@ -674,28 +674,28 @@ def test_SetDisplacementNormalXYZ():
                              [[0.04351635]]]])
 
     mod = SetDisplacementNormalXYZ(0, -0.5, 0.05, 0, 0.1, 0.1, 0.2)
-    assert (str(mod) == "SetDisplacementNormalXYZ(site=0,"
+    assert (str(mod) == "SetDisplacementNormalXYZ(sites=[0],"
             "mu_x=-0.5,sigma_x=0.05,mu_y=0.0,sigma_y=0.1,mu_z=0.1,sigma_z=0.2)")
     assert mod.number_of_cells == 1
-    assert_equal(np.asarray(mod.cells), [[0, 0, 0]])
+    assert_equal(np.asarray(mod.cells), [[0, 0, 0, 0]])
     set_seed()
     cells = mod.get_random_cells(2, 2, 1)
-    assert_equal(np.asarray(cells), [[0, 0, 0]])
+    assert_equal(np.asarray(cells), [[0, 0, 0, 0]])
     assert_equal(np.asarray(mod.cells), np.asarray(cells))
 
     mod.run(a, x, y, z)
 
-    assert_almost_equal(x, [[[[-0.4821899]],
+    assert_almost_equal(x, [[[[-0.5000717]],
                              [[0.03426804]]],
                             [[[0.11530358]],
                              [[-0.0252436]]]])
 
-    assert_almost_equal(y, [[[[-0.1088671]],
+    assert_almost_equal(y, [[[[0.06223502]],
                              [[0.05142188]]],
                             [[[0.02211797]],
                              [[-0.10700433]]]])
 
-    assert_almost_equal(z, [[[[0.0654628]],
+    assert_almost_equal(z, [[[[0.4058519]],
                              [[0.02550014]]],
                             [[[-0.0458027]],
                              [[0.04351635]]]])

@@ -64,6 +64,8 @@ cpdef (int, int, int) mcrun(BaseModifier modifier, Target[:] targets,
             number_of_neighbours = target.number_of_neighbours
             for ncell in range(number_of_cells):
                 for neighbour in range(number_of_neighbours):
+                    if neighbours[neighbour,0] != cells[ncell, 3]:
+                        continue
                     cell_x_target = (cells[ncell,0]+neighbours[neighbour,2]) % mod_x
                     cell_y_target = (cells[ncell,1]+neighbours[neighbour,3]) % mod_y
                     cell_z_target = (cells[ncell,2]+neighbours[neighbour,4]) % mod_z
@@ -85,6 +87,8 @@ cpdef (int, int, int) mcrun(BaseModifier modifier, Target[:] targets,
             number_of_neighbours = target.number_of_neighbours
             for ncell in range(number_of_cells):
                 for neighbour in range(number_of_neighbours):
+                    if neighbours[neighbour,0] != cells[ncell, 3]:
+                        continue
                     cell_x_target = (cells[ncell,0]+neighbours[neighbour,2]) % mod_x
                     cell_y_target = (cells[ncell,1]+neighbours[neighbour,3]) % mod_y
                     cell_z_target = (cells[ncell,2]+neighbours[neighbour,4]) % mod_z
