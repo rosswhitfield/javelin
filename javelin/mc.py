@@ -59,7 +59,7 @@ class MC:
     >>> structure = Structure(symbols=['Na','Cl'],positions=[[0,0,0],[0.5,0.5,0.5]])
     >>>
     >>> energy = Energy()
-    >>> neighbors = structure.get_neighbours()
+    >>> neighbors = structure.get_neighbors()
     >>>
     >>> mc = MC()
     >>> mc.modifier = BaseModifier(0)
@@ -175,7 +175,7 @@ Structure modfifier is {}""".format(self.cycles,
         else:
             raise ValueError("modifier must be an instance of javelin.modifier.BaseModifier")
 
-    def add_target(self, neighbours, energy):
+    def add_target(self, neighbors, energy):
         """This will add an energy calculation and neighbour pair that will be
         used to calculate and energy for each modification step. You
         can add as many targets as you like.
@@ -189,10 +189,10 @@ Structure modfifier is {}""".format(self.cycles,
         if isinstance(energy, Energy):
             try:
                 self.__targets.append(
-                    Target(np.asarray(neighbours).astype(np.intp).reshape((-1, 5)),
+                    Target(np.asarray(neighbors).astype(np.intp).reshape((-1, 5)),
                            energy))
             except ValueError:
-                raise ValueError("neighbours must be javelin.neighborlist.NeighborList or "
+                raise ValueError("neighbors must be javelin.neighborlist.NeighborList or "
                                  "`n x 5` array of neighbor vectors where dtype=int")
         else:
             raise ValueError("energy must be an instance of javelin.energies.Energy")
@@ -235,10 +235,10 @@ Structure modfifier is {}""".format(self.cycles,
                    np.isnan(target.energy.desired_correlation)):
                     continue
                 elif target.energy.correlation_type is 1:
-                    correlation = structure.get_occupational_correlation(target.neighbours,
+                    correlation = structure.get_occupational_correlation(target.neighbors,
                                                                          target.energy.atom1)
                 elif target.energy.correlation_type is 2:
-                    correlation = structure.get_displacement_correlation(target.neighbours)
+                    correlation = structure.get_displacement_correlation(target.neighbors)
                 else:
                     raise RuntimeError("Unknown correlation type for energy {}"
                                        .format(target.energy))
@@ -246,7 +246,7 @@ Structure modfifier is {}""".format(self.cycles,
                 print("Correlations of {} with neighbors:\n{}\nis {:.5} "
                       "for desired correlation of {:.5}. Setting J to {:.5}"
                       .format(target.energy,
-                              np.asarray(target.neighbours),
+                              np.asarray(target.neighbors),
                               correlation,
                               target.energy.desired_correlation,
                               target.energy.J))

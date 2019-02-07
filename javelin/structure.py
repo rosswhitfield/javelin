@@ -567,7 +567,7 @@ class Structure:
                      scaled_positions=self.get_scaled_positions(),
                      cell=self.unitcell.cell)
 
-    def get_neighbours(self, site=0, target_site=None, minD=0.01, maxD=1.1):
+    def get_neighbors(self, site=0, target_site=None, minD=0.01, maxD=1.1):
         """
 
 

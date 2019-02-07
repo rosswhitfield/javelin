@@ -24,8 +24,8 @@ def test_Target():
                        [0, 1, 0, 0, 1]])
     e = Energy()
     target = Target(np.asarray(nl).astype(np.intp), e)
-    assert target.number_of_neighbours == 3
-    assert str(target) == "Target(number_of_neighbours=3)"
+    assert target.number_of_neighbors == 3
+    assert str(target) == "Target(number_of_neighbors=3)"
 
     with pytest.raises(ValueError):
         Target(np.array([[0.0, 0.0, 1.0, 0.0, 0.0]]), e)
