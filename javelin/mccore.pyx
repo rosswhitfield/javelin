@@ -63,21 +63,10 @@ cpdef (int, int, int) mcrun(BaseModifier modifier, Target[:] targets,
             energy = target.energy
             number_of_neighbors = target.number_of_neighbors
             for ncell in range(number_of_cells):
-                for neighbour in range(number_of_neighbors):
-                    if neighbors[neighbour,0] != cells[ncell, 3]:
-                        continue
-                    cell_x_target = (cells[ncell,0]+neighbors[neighbour,2]) % mod_x
-                    cell_y_target = (cells[ncell,1]+neighbors[neighbour,3]) % mod_y
-                    cell_z_target = (cells[ncell,2]+neighbors[neighbour,4]) % mod_z
-                    e0 += energy.evaluate(a[cells[ncell,0], cells[ncell,1], cells[ncell,2], neighbors[neighbour,0]],
-                                          x[cells[ncell,0], cells[ncell,1], cells[ncell,2], neighbors[neighbour,0]],
-                                          y[cells[ncell,0], cells[ncell,1], cells[ncell,2], neighbors[neighbour,0]],
-                                          z[cells[ncell,0], cells[ncell,1], cells[ncell,2], neighbors[neighbour,0]],
-                                          a[cell_x_target, cell_y_target, cell_z_target, neighbors[neighbour,1]],
-                                          x[cell_x_target, cell_y_target, cell_z_target, neighbors[neighbour,1]],
-                                          y[cell_x_target, cell_y_target, cell_z_target, neighbors[neighbour,1]],
-                                          z[cell_x_target, cell_y_target, cell_z_target, neighbors[neighbour,1]],
-                                          neighbors[neighbour,2], neighbors[neighbour,3], neighbors[neighbour,4])
+                e0 += energy.run(a, x, y, z,
+                                 cells[ncell, :],
+                                 neighbors, number_of_neighbors,
+                                 mod_x, mod_y, mod_z)
         modifier.run(a, x, y, z)
         e1 = 0
         for target_number in range(number_of_targets):
@@ -86,21 +75,11 @@ cpdef (int, int, int) mcrun(BaseModifier modifier, Target[:] targets,
             energy = target.energy
             number_of_neighbors = target.number_of_neighbors
             for ncell in range(number_of_cells):
-                for neighbour in range(number_of_neighbors):
-                    if neighbors[neighbour,0] != cells[ncell, 3]:
-                        continue
-                    cell_x_target = (cells[ncell,0]+neighbors[neighbour,2]) % mod_x
-                    cell_y_target = (cells[ncell,1]+neighbors[neighbour,3]) % mod_y
-                    cell_z_target = (cells[ncell,2]+neighbors[neighbour,4]) % mod_z
-                    e1 += energy.evaluate(a[cells[ncell,0], cells[ncell,1], cells[ncell,2], neighbors[neighbour,0]],
-                                          x[cells[ncell,0], cells[ncell,1], cells[ncell,2], neighbors[neighbour,0]],
-                                          y[cells[ncell,0], cells[ncell,1], cells[ncell,2], neighbors[neighbour,0]],
-                                          z[cells[ncell,0], cells[ncell,1], cells[ncell,2], neighbors[neighbour,0]],
-                                          a[cell_x_target, cell_y_target, cell_z_target, neighbors[neighbour,1]],
-                                          x[cell_x_target, cell_y_target, cell_z_target, neighbors[neighbour,1]],
-                                          y[cell_x_target, cell_y_target, cell_z_target, neighbors[neighbour,1]],
-                                          z[cell_x_target, cell_y_target, cell_z_target, neighbors[neighbour,1]],
-                                          neighbors[neighbour,2], neighbors[neighbour,3], neighbors[neighbour,4])
+                e1 += energy.run(a, x, y, z,
+                                 cells[ncell, :],
+                                 neighbors, number_of_neighbors,
+                                 mod_x, mod_y, mod_z)
+
         de = e1-e0
         if accept(de, temperature):
             if de < 0:
@@ -116,7 +95,6 @@ cpdef (int, int, int) mcrun(BaseModifier modifier, Target[:] targets,
 
 @cython.cdivision(True)
 cdef unsigned char accept(double dE, double kT):
-    cdef double tmp
     if dE < 0:
         return True
     elif kT <= 0:

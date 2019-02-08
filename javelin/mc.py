@@ -70,10 +70,10 @@ class MC:
     >>> new_structure = mc.run(structure)
     <BLANKLINE>
     Cycle = 0, temperature = 1.0
-    Accepted 0 good, 2 neutral (dE=0) and 0 bad out of 2
+    Accepted 0 good, 1 neutral (dE=0) and 0 bad out of 1
     <BLANKLINE>
     Cycle = 1, temperature = 1.0
-    Accepted 0 good, 2 neutral (dE=0) and 0 bad out of 2
+    Accepted 0 good, 1 neutral (dE=0) and 0 bad out of 1
     >>>
 
     """
@@ -108,7 +108,8 @@ Structure modfifier is {}""".format(self.cycles,
     @property
     def iterations(self):
         """The number of iterations (site modifications) to perform for each
-        cycle. Default is equal to the number of atoms in the structure.
+        cycle. Default is equal to the number of unitcells in the
+        structure.
         """
         return self.__iterations
 
@@ -202,7 +203,7 @@ Structure modfifier is {}""".format(self.cycles,
         """
         self.__targets = []
 
-    def run(self, structure, inplace=False):
+    def run(self, structure, inplace=False):  # noqa: C901
         """Execute the Monte Carlo routine. You must provide the structure to
         modify as a parameter. This will by default this will return a
         new :class:`javelin.structure.Structure` with the results, to
@@ -215,6 +216,12 @@ Structure modfifier is {}""".format(self.cycles,
         if structure is None:
             raise ValueError("Need to provide input structure")
 
+        if len(self.__targets) == 0:
+            raise ValueError("You must add targets to the MC object with add_target")
+
+        if self.__modifier is None:
+            raise ValueError("You must add a modifier to the MC object")
+
         if not inplace:
             structure = copy.copy(structure)
 
@@ -222,6 +229,8 @@ Structure modfifier is {}""".format(self.cycles,
                  len(structure.atoms.index.levels[1]),
                  len(structure.atoms.index.levels[2]),
                  len(structure.atoms.index.levels[3]))
+
+        iterations = self.__iterations or len(structure.atoms.index.droplevel(3).drop_duplicates())
 
         temps = np.atleast_1d(self.temperature)
         temps = np.pad(temps, (0, max(0, self.cycles-len(temps))), mode='edge')
@@ -254,14 +263,14 @@ Structure modfifier is {}""".format(self.cycles,
             # Do MC loop
             good, neutral, bad = mcrun(self.modifier,
                                        np.array(self.__targets),
-                                       self.__iterations or len(structure.atoms),
+                                       iterations,
                                        temp,
                                        structure.get_atomic_numbers().reshape(shape),
                                        structure.x.reshape(shape),
                                        structure.y.reshape(shape),
                                        structure.z.reshape(shape))
             print("Accepted {} good, {} neutral (dE=0) and {} bad out of {}"
-                  .format(good, neutral, bad, len(structure.atoms)))
+                  .format(good, neutral, bad, iterations))
 
         # Update symbols after Z's were changed
         structure.update_atom_symbols()

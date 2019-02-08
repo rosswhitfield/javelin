@@ -581,11 +581,11 @@ class Structure:
             if target_site is not None and other_site != target_site:
                 continue
             other_site_aver = self.get_average_site(other_site, separate_site=False)
-            for i in range(-ceil(maxD), floor(maxD+1)):
+            for i in range(-ceil(maxD+site_aver['x']), floor(maxD+site_aver['x']+1)):
                 di = site_aver['x'] - (other_site_aver['x'] + i)
-                for j in range(-ceil(maxD), floor(maxD+1)):
+                for j in range(-ceil(maxD+site_aver['y']), floor(maxD+site_aver['y']+1)):
                     dj = site_aver['y'] - (other_site_aver['y'] + j)
-                    for k in range(-ceil(maxD), floor(maxD+1)):
+                    for k in range(-ceil(maxD+site_aver['z']), floor(maxD+site_aver['z']+1)):
                         dk = site_aver['z'] - (other_site_aver['z'] + k)
                         if minD**2 <= di**2 + dj**2 + dk**2 <= maxD**2:
                             nl.append([site, other_site, i, j, k])

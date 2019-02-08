@@ -57,6 +57,32 @@ cdef class Energy:
     """
     def __str__(self):
         return "{}()".format(self.__class__.__name__)
+    @cython.boundscheck(False)
+    @cython.wraparound(False)
+    cpdef double run(self,
+                     long[:,:,:,::1] a, double[:,:,:,::1] x, double[:,:,:,::1] y, double[:,:,:,::1] z,
+                     Py_ssize_t[:] cell,
+                     Py_ssize_t[:,:] neighbors,  Py_ssize_t number_of_neighbors,
+                     Py_ssize_t mod_x, Py_ssize_t mod_y, Py_ssize_t mod_z) except *:
+        cdef Py_ssize_t cell_x_target, cell_y_target, cell_z_target
+        cdef Py_ssize_t neighbor
+        cdef double e = 0
+        for neighbor in range(number_of_neighbors):
+            if neighbors[neighbor,0] != cell[3]:
+                continue
+            cell_x_target = (cell[0]+neighbors[neighbor,2]) % mod_x
+            cell_y_target = (cell[1]+neighbors[neighbor,3]) % mod_y
+            cell_z_target = (cell[2]+neighbors[neighbor,4]) % mod_z
+            e += self.evaluate(a[cell[0], cell[1], cell[2], neighbors[neighbor,0]],
+                               x[cell[0], cell[1], cell[2], neighbors[neighbor,0]],
+                               y[cell[0], cell[1], cell[2], neighbors[neighbor,0]],
+                               z[cell[0], cell[1], cell[2], neighbors[neighbor,0]],
+                               a[cell_x_target, cell_y_target, cell_z_target, neighbors[neighbor,1]],
+                               x[cell_x_target, cell_y_target, cell_z_target, neighbors[neighbor,1]],
+                               y[cell_x_target, cell_y_target, cell_z_target, neighbors[neighbor,1]],
+                               z[cell_x_target, cell_y_target, cell_z_target, neighbors[neighbor,1]],
+                               neighbors[neighbor,2], neighbors[neighbor,3], neighbors[neighbor,4])
+        return e
     cpdef double evaluate(self,
                           int a1, double x1, double y1, double z1,
                           int a2, double x2, double y2, double z2,
