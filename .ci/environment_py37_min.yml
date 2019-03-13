@@ -10,10 +10,11 @@ dependencies:
 - pandas=0.23
 - pytables=3.4
 - xarray=0.10
-- diffpy.structure
+- ase=3.16
+- periodictable=1.5
+- vtk=8.1
+- diffpy.structure=3.0
 - pytest-cov
 - pytest-runner
 - codecov
 - flake8
-- pip:
-    - periodictable==1.5
