@@ -71,8 +71,8 @@ cdef class SwapOccupancy(BaseModifier):
     @cython.boundscheck(False)
     cpdef void run(self, long[:,:,:,:] a, double[:,:,:,:] x, double[:,:,:,:] y, double[:,:,:,:] z) except *:
         cdef long tmp_a = a[self.cells[0,0], self.cells[0,1], self.cells[0,2], self.cells[0,3]]
-        a[self.cells[0,0], self.cells[0,1], self.cells[0,2], self.cells[0,3]] = a[self.cells[1,0], self.cells[1,1], self.cells[1,2], self.cells[0,3]]
-        a[self.cells[1,0], self.cells[1,1], self.cells[1,2], self.cells[0,3]] = tmp_a
+        a[self.cells[0,0], self.cells[0,1], self.cells[0,2], self.cells[0,3]] = a[self.cells[1,0], self.cells[1,1], self.cells[1,2], self.cells[1,3]]
+        a[self.cells[1,0], self.cells[1,1], self.cells[1,2], self.cells[1,3]] = tmp_a
 
 cdef class SwapDisplacement(BaseModifier):
     """Swap the atom displacement at swap_site between two cells."""
@@ -87,12 +87,12 @@ cdef class SwapDisplacement(BaseModifier):
         cdef double tmp_x = x[self.cells[0,0], self.cells[0,1], self.cells[0,2], self.cells[0,3]]
         cdef double tmp_y = y[self.cells[0,0], self.cells[0,1], self.cells[0,2], self.cells[0,3]]
         cdef double tmp_z = z[self.cells[0,0], self.cells[0,1], self.cells[0,2], self.cells[0,3]]
-        x[self.cells[0,0], self.cells[0,1], self.cells[0,2], self.cells[0,3]] = x[self.cells[1,0], self.cells[1,1], self.cells[1,2], self.cells[0,3]]
-        y[self.cells[0,0], self.cells[0,1], self.cells[0,2], self.cells[0,3]] = y[self.cells[1,0], self.cells[1,1], self.cells[1,2], self.cells[0,3]]
-        z[self.cells[0,0], self.cells[0,1], self.cells[0,2], self.cells[0,3]] = z[self.cells[1,0], self.cells[1,1], self.cells[1,2], self.cells[0,3]]
-        x[self.cells[1,0], self.cells[1,1], self.cells[1,2], self.cells[0,3]] = tmp_x
-        y[self.cells[1,0], self.cells[1,1], self.cells[1,2], self.cells[0,3]] = tmp_y
-        z[self.cells[1,0], self.cells[1,1], self.cells[1,2], self.cells[0,3]] = tmp_z
+        x[self.cells[0,0], self.cells[0,1], self.cells[0,2], self.cells[0,3]] = x[self.cells[1,0], self.cells[1,1], self.cells[1,2], self.cells[1,3]]
+        y[self.cells[0,0], self.cells[0,1], self.cells[0,2], self.cells[0,3]] = y[self.cells[1,0], self.cells[1,1], self.cells[1,2], self.cells[1,3]]
+        z[self.cells[0,0], self.cells[0,1], self.cells[0,2], self.cells[0,3]] = z[self.cells[1,0], self.cells[1,1], self.cells[1,2], self.cells[1,3]]
+        x[self.cells[1,0], self.cells[1,1], self.cells[1,2], self.cells[1,3]] = tmp_x
+        y[self.cells[1,0], self.cells[1,1], self.cells[1,2], self.cells[1,3]] = tmp_y
+        z[self.cells[1,0], self.cells[1,1], self.cells[1,2], self.cells[1,3]] = tmp_z
 
 cdef class Swap(BaseModifier):
     """Swap the atom occupancy and displacement at swap_site between two cells."""
@@ -108,14 +108,14 @@ cdef class Swap(BaseModifier):
         cdef double tmp_x = x[self.cells[0,0], self.cells[0,1], self.cells[0,2], self.cells[0,3]]
         cdef double tmp_y = y[self.cells[0,0], self.cells[0,1], self.cells[0,2], self.cells[0,3]]
         cdef double tmp_z = z[self.cells[0,0], self.cells[0,1], self.cells[0,2], self.cells[0,3]]
-        a[self.cells[0,0], self.cells[0,1], self.cells[0,2], self.cells[0,3]] = a[self.cells[1,0], self.cells[1,1], self.cells[1,2], self.cells[0,3]]
-        x[self.cells[0,0], self.cells[0,1], self.cells[0,2], self.cells[0,3]] = x[self.cells[1,0], self.cells[1,1], self.cells[1,2], self.cells[0,3]]
-        y[self.cells[0,0], self.cells[0,1], self.cells[0,2], self.cells[0,3]] = y[self.cells[1,0], self.cells[1,1], self.cells[1,2], self.cells[0,3]]
-        z[self.cells[0,0], self.cells[0,1], self.cells[0,2], self.cells[0,3]] = z[self.cells[1,0], self.cells[1,1], self.cells[1,2], self.cells[0,3]]
-        a[self.cells[1,0], self.cells[1,1], self.cells[1,2], self.cells[0,3]] = tmp_a
-        x[self.cells[1,0], self.cells[1,1], self.cells[1,2], self.cells[0,3]] = tmp_x
-        y[self.cells[1,0], self.cells[1,1], self.cells[1,2], self.cells[0,3]] = tmp_y
-        z[self.cells[1,0], self.cells[1,1], self.cells[1,2], self.cells[0,3]] = tmp_z
+        a[self.cells[0,0], self.cells[0,1], self.cells[0,2], self.cells[0,3]] = a[self.cells[1,0], self.cells[1,1], self.cells[1,2], self.cells[1,3]]
+        x[self.cells[0,0], self.cells[0,1], self.cells[0,2], self.cells[0,3]] = x[self.cells[1,0], self.cells[1,1], self.cells[1,2], self.cells[1,3]]
+        y[self.cells[0,0], self.cells[0,1], self.cells[0,2], self.cells[0,3]] = y[self.cells[1,0], self.cells[1,1], self.cells[1,2], self.cells[1,3]]
+        z[self.cells[0,0], self.cells[0,1], self.cells[0,2], self.cells[0,3]] = z[self.cells[1,0], self.cells[1,1], self.cells[1,2], self.cells[1,3]]
+        a[self.cells[1,0], self.cells[1,1], self.cells[1,2], self.cells[1,3]] = tmp_a
+        x[self.cells[1,0], self.cells[1,1], self.cells[1,2], self.cells[1,3]] = tmp_x
+        y[self.cells[1,0], self.cells[1,1], self.cells[1,2], self.cells[1,3]] = tmp_y
+        z[self.cells[1,0], self.cells[1,1], self.cells[1,2], self.cells[1,3]] = tmp_z
 
 cdef class ShiftDisplacementRange(BaseModifier):
     """Shifts the atoms displacement in all directions by a random amount

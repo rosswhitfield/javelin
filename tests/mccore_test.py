@@ -25,7 +25,10 @@ def test_Target():
     e = Energy()
     target = Target(np.asarray(nl).astype(np.intp), e)
     assert target.number_of_neighbors == 3
-    assert str(target) == "Target(number_of_neighbors=3)"
+    assert str(target) == """Target(Energy=Energy()
+Neighbors=[[0 1 1 0 0]
+ [0 1 0 1 0]
+ [0 1 0 0 1]])"""
 
     with pytest.raises(ValueError):
         Target(np.array([[0.0, 0.0, 1.0, 0.0, 0.0]]), e)
@@ -59,7 +62,7 @@ def test_mcrun_should_do_nothing():
     y_copy = y.copy()
     z_copy = z.copy()
 
-    accepted = mcrun(mod,
+    accepted = mcrun(np.array([mod]),
                      np.array([target]),
                      10, 0,
                      a, x, y, z)
@@ -72,25 +75,31 @@ def test_mcrun_should_do_nothing():
     assert_equal(z, z_copy)
 
     with pytest.raises(ValueError):
-        mcrun(mod,
+        mcrun(np.array([mod]),
               np.array([1]),
               10, 0,
               a, x, y, z)
 
+    with pytest.raises(ValueError):
+        mcrun(np.array([1]),
+              np.array([target]),
+              10, 0,
+              a, x, y, z)
+
     with pytest.raises(TypeError):
-        mcrun(1,
+        mcrun(mod,
               np.array([target]),
               10, 0,
               a, x, y, z)
 
     with pytest.raises(ValueError):
-        mcrun(mod,
+        mcrun(np.array([mod]),
               np.array([target]),
               10, 0,
               x, x, y, z)
 
     with pytest.raises(ValueError):
-        mcrun(mod,
+        mcrun(np.array([mod]),
               np.array([target]),
               10, 0,
               a, x, y, a)
@@ -107,7 +116,7 @@ def test_mcrun_accept_all():
     a, x, y, z = create_test_arrays(n=10)
 
     set_seed()
-    accepted = mcrun(mod,
+    accepted = mcrun(np.array([mod]),
                      np.array([target]),
                      100, 1,
                      a, x, y, z)

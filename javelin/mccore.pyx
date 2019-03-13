@@ -9,6 +9,7 @@ from .energies cimport Energy
 from .modifier cimport BaseModifier
 from .random cimport random
 cimport cython
+import numpy as np
 
 cdef class Target:
     """Class to hold an Energy object with it associated neighbors"""
@@ -21,13 +22,13 @@ cdef class Target:
         self.neighbors = neighbors
         self.number_of_neighbors = len(self.neighbors)
     def __str__(self):
-        return "{}(number_of_neighbors={})".format(self.__class__.__name__,self.number_of_neighbors)
+        return "{}(Energy={}\nNeighbors={})".format(self.__class__.__name__,self.energy,np.array(self.neighbors))
 
 @cython.cdivision(True)
 @cython.boundscheck(False)
 @cython.wraparound(False)
 @cython.initializedcheck(False)
-cpdef (int, int, int) mcrun(BaseModifier modifier, Target[:] targets,
+cpdef (int, int, int) mcrun(BaseModifier[:] modifiers, Target[:] targets,
                     int iterations, double temperature,
                     long[:,:,:,::1] a, double[:,:,:,::1] x, double[:,:,:,::1] y, double[:,:,:,::1] z):
     """This function is not meant to be used directly. It is used by
@@ -38,58 +39,57 @@ cpdef (int, int, int) mcrun(BaseModifier modifier, Target[:] targets,
     assert tuple(a.shape) == tuple(y.shape)
     assert tuple(a.shape) == tuple(z.shape)
     cdef Py_ssize_t mod_x, mod_y, mod_z
-    cdef int number_of_targets, number_of_cells
+    cdef int number_of_modifiers, number_of_targets, number_of_cells
     cdef int accepted_good = 0
     cdef int accepted_neutral = 0
     cdef int accepted_bad = 0
-    cdef Py_ssize_t cell_x_target, cell_y_target, cell_z_target, ncell
+    cdef Py_ssize_t ncell, mod
     cdef Py_ssize_t[:, :] cells
-    cdef Py_ssize_t target_number, neighbour, number_of_neighbors
+    cdef Py_ssize_t target_number
     cdef double e0, e1, de
     cdef Energy energy
     cdef Target target
-    cdef Py_ssize_t[:,:] neighbors
+    cdef BaseModifier modifier
+    number_of_modifiers = modifiers.shape[0]
     number_of_targets = targets.shape[0]
-    number_of_cells = modifier.number_of_cells
     mod_x = a.shape[0]
     mod_y = a.shape[1]
     mod_z = a.shape[2]
     for _ in range(iterations):
-        cells = modifier.get_random_cells(a.shape[0], a.shape[1], a.shape[2])
-        e0 = 0
-        for target_number in range(number_of_targets):
-            target = targets[target_number]
-            neighbors = target.neighbors
-            energy = target.energy
-            number_of_neighbors = target.number_of_neighbors
-            for ncell in range(number_of_cells):
-                e0 += energy.run(a, x, y, z,
-                                 cells[ncell, :],
-                                 neighbors, number_of_neighbors,
-                                 mod_x, mod_y, mod_z)
-        modifier.run(a, x, y, z)
-        e1 = 0
-        for target_number in range(number_of_targets):
-            target = targets[target_number]
-            neighbors = target.neighbors
-            energy = target.energy
-            number_of_neighbors = target.number_of_neighbors
-            for ncell in range(number_of_cells):
-                e1 += energy.run(a, x, y, z,
-                                 cells[ncell, :],
-                                 neighbors, number_of_neighbors,
-                                 mod_x, mod_y, mod_z)
+        for mod in range(number_of_modifiers):
+            modifier = modifiers[mod]
+            number_of_cells = modifier.number_of_cells
+            cells = modifier.get_random_cells(a.shape[0], a.shape[1], a.shape[2])
+            e0 = 0
+            for target_number in range(number_of_targets):
+                target = targets[target_number]
+                energy = target.energy
+                for ncell in range(number_of_cells):
+                    e0 += energy.run(a, x, y, z,
+                                     cells[ncell, :],
+                                     target.neighbors, target.number_of_neighbors,
+                                     mod_x, mod_y, mod_z)
+            modifier.run(a, x, y, z)
+            e1 = 0
+            for target_number in range(number_of_targets):
+                target = targets[target_number]
+                energy = target.energy
+                for ncell in range(number_of_cells):
+                    e1 += energy.run(a, x, y, z,
+                                     cells[ncell, :],
+                                     target.neighbors, target.number_of_neighbors,
+                                     mod_x, mod_y, mod_z)
 
-        de = e1-e0
-        if accept(de, temperature):
-            if de < 0:
-                accepted_good += 1
-            elif de == 0:
-                accepted_neutral += 1
+            de = e1-e0
+            if accept(de, temperature):
+                if de < 0:
+                    accepted_good += 1
+                elif de == 0:
+                    accepted_neutral += 1
+                else:
+                    accepted_bad += 1
             else:
-                accepted_bad += 1
-        else:
-            modifier.undo_last_run(a, x, y, z)
+                modifier.undo_last_run(a, x, y, z)
 
     return accepted_good, accepted_neutral, accepted_bad
 

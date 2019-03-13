@@ -62,7 +62,7 @@ class MC:
     >>> neighbors = structure.get_neighbors()
     >>>
     >>> mc = MC()
-    >>> mc.modifier = BaseModifier(0)
+    >>> mc.add_modifier(BaseModifier(0))
     >>> mc.temperature = 1
     >>> mc.cycles = 2
     >>> mc.add_target(neighbors, energy)
@@ -82,15 +82,15 @@ class MC:
         self.__cycles = 100
         self.__temp = 1
         self.__targets = []
-        self.__modifier = None
+        self.__modifier = []
         self.__iterations = None
 
     def __str__(self):
         return """Number of cycles = {}
 Temperature[s] = {}
-Structure modfifier is {}""".format(self.cycles,
-                                    self.temperature,
-                                    self.modifier)
+Structure modfifiers are {}""".format(self.cycles,
+                                      self.temperature,
+                                      [str(m) for m in self.modifier])
 
     @property
     def cycles(self):
@@ -141,13 +141,13 @@ Structure modfifier is {}""".format(self.cycles,
         >>> print(mc)
         Number of cycles = 100
         Temperature[s] = 0.1
-        Structure modfifier is None
+        Structure modfifiers are []
         >>>
         >>> mc.temperature = np.linspace(1, 0, 6)
         >>> print(mc)
         Number of cycles = 100
         Temperature[s] = [ 1.   0.8  0.6  0.4  0.2  0. ]
-        Structure modfifier is None
+        Structure modfifiers are []
         """
         return self.__temp
 
@@ -170,9 +170,12 @@ Structure modfifier is {}""".format(self.cycles,
         return self.__modifier
 
     @modifier.setter
-    def modifier(self, modifier):
+    def modifier(self):
+        raise ValueError("You must use add_modifier to add a modifier")
+
+    def add_modifier(self, modifier):
         if isinstance(modifier, BaseModifier):
-            self.__modifier = modifier
+            self.__modifier.append(modifier)
         else:
             raise ValueError("modifier must be an instance of javelin.modifier.BaseModifier")
 
@@ -219,11 +222,11 @@ Structure modfifier is {}""".format(self.cycles,
         if len(self.__targets) == 0:
             raise ValueError("You must add targets to the MC object with add_target")
 
-        if self.__modifier is None:
-            raise ValueError("You must add a modifier to the MC object")
+        if len(self.__modifier) == 0:
+            raise ValueError("You must add a modifier to the MC object with add_modifier")
 
         if not inplace:
-            structure = copy.copy(structure)
+            structure = copy.deepcopy(structure)
 
         shape = (len(structure.atoms.index.levels[0]),
                  len(structure.atoms.index.levels[1]),
@@ -240,13 +243,13 @@ Structure modfifier is {}""".format(self.cycles,
 
             # Do feedback
             for target in self.__targets:
-                if (target.energy.correlation_type is 0 or
+                if (target.energy.correlation_type == 0 or
                    np.isnan(target.energy.desired_correlation)):
                     continue
-                elif target.energy.correlation_type is 1:
+                elif target.energy.correlation_type == 1:
                     correlation = structure.get_occupational_correlation(target.neighbors,
                                                                          target.energy.atom1)
-                elif target.energy.correlation_type is 2:
+                elif target.energy.correlation_type == 2:
                     correlation = structure.get_displacement_correlation(target.neighbors)
                 else:
                     raise RuntimeError("Unknown correlation type for energy {}"
@@ -261,7 +264,7 @@ Structure modfifier is {}""".format(self.cycles,
                               target.energy.J))
 
             # Do MC loop
-            good, neutral, bad = mcrun(self.modifier,
+            good, neutral, bad = mcrun(np.array(self.__modifier),
                                        np.array(self.__targets),
                                        iterations,
                                        temp,

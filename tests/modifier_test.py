@@ -15,8 +15,8 @@ from javelin.modifier import (BaseModifier, SwapOccupancy,
 from javelin.random import set_seed
 
 if sys.platform.startswith("win"):
-        pytest.skip("skipping tests for windows, different c random numbers",
-                    allow_module_level=True)
+    pytest.skip("skipping tests for windows, different c random numbers",
+                allow_module_level=True)
 
 
 def create_test_arrays(n=2):
