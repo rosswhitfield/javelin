@@ -12,6 +12,7 @@ dependencies:
 - pytest-cov
 - pytest-runner
 - xarray
+- diffpy.structure
 - codecov
 - flake8
 - pip:

@@ -10,6 +10,7 @@ dependencies:
 - pandas=0.23
 - pytables=3.4
 - xarray=0.10
+- diffpy.structure
 - pytest-cov
 - pytest-runner
 - codecov

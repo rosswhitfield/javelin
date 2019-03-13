@@ -2,7 +2,6 @@ name: testenv
 channels:
 - defaults
 - conda-forge
-- diffpy/label/dev
 dependencies:
 - python=3.6
 - cython=0.25
