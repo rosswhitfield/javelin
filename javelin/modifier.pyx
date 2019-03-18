@@ -33,8 +33,8 @@ cdef class BaseModifier:
         cdef cnp.ndarray[Py_ssize_t, ndim=2] cells = np.zeros((number_of_cells, 4), dtype=np.intp)
         self.cells = cells
     cdef void initialize_sites(self, object sites):
-        """Initialize the sites correctly as numpy int array"""
-        self.sites = np.atleast_1d(np.asarray(sites, dtype=int))
+        """Initialize the sites correctly as numpy Py_ssize_t (np.intp) array"""
+        self.sites = np.atleast_1d(np.asarray(sites, dtype=np.intp))
     @cython.initializedcheck(False)
     @cython.boundscheck(False)
     cpdef Py_ssize_t[:,:] get_random_cells(self, Py_ssize_t size_x, Py_ssize_t size_y, Py_ssize_t size_z) except *:
