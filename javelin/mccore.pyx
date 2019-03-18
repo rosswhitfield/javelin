@@ -8,8 +8,9 @@ from libc.math cimport exp
 from .energies cimport Energy
 from .modifier cimport BaseModifier
 from .random cimport random
-cimport cython
 import numpy as np
+cimport cython
+cimport numpy as cnp
 
 cdef class Target:
     """Class to hold an Energy object with it associated neighbors"""
@@ -30,7 +31,7 @@ cdef class Target:
 @cython.initializedcheck(False)
 cpdef (int, int, int) mcrun(BaseModifier[:] modifiers, Target[:] targets,
                     int iterations, double temperature,
-                    long[:,:,:,::1] a, double[:,:,:,::1] x, double[:,:,:,::1] y, double[:,:,:,::1] z):
+                    cnp.int64_t[:,:,:,::1] a, double[:,:,:,::1] x, double[:,:,:,::1] y, double[:,:,:,::1] z):
     """This function is not meant to be used directly. It is used by
     :obj:`javelin.mc.MC`. The function does very little validation
     of the input values, it you don't provide exactly what is expected

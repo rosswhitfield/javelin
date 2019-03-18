@@ -11,7 +11,6 @@ All modifiers inherit from :obj:`javelin.modifier.BaseModifier`.
 """
 
 import numpy as np
-cimport numpy as np
 from .random cimport random_int, random_range, random_normal
 cimport cython
 
@@ -31,7 +30,7 @@ cdef class BaseModifier:
     cdef void initialize_cells(self, int number_of_cells):
         """Initialize the cells"""
         self.number_of_cells = number_of_cells
-        cdef np.ndarray[Py_ssize_t, ndim=2] cells = np.zeros((number_of_cells, 4), dtype=np.intp)
+        cdef cnp.ndarray[Py_ssize_t, ndim=2] cells = np.zeros((number_of_cells, 4), dtype=np.intp)
         self.cells = cells
     cdef void initialize_sites(self, object sites):
         """Initialize the sites correctly as numpy int array"""
@@ -49,11 +48,11 @@ cdef class BaseModifier:
             self.cells[i][2] = random_int(size_z)
             self.cells[i][3] = self.sites[random_int(self.sites.shape[0])]
         return self.cells
-    cpdef void run(self, long[:,:,:,:] a, double[:,:,:,:] x, double[:,:,:,:] y, double[:,:,:,:] z) except *:
+    cpdef void run(self, cnp.int64_t[:,:,:,:] a, double[:,:,:,:] x, double[:,:,:,:] y, double[:,:,:,:] z) except *:
         """Modifies the provided arrays (a, x, y, z) for cells selected by
         ``self.get_random_cells``."""
         return
-    cpdef void undo_last_run(self, long[:,:,:,:] a, double[:,:,:,:] x, double[:,:,:,:] y, double[:,:,:,:] z) except *:
+    cpdef void undo_last_run(self, cnp.int64_t[:,:,:,:] a, double[:,:,:,:] x, double[:,:,:,:] y, double[:,:,:,:] z) except *:
         """Undoes the last modification done by ``self.run``.
 
         By default it just executes ``self.run`` again assuming the
@@ -69,8 +68,8 @@ cdef class SwapOccupancy(BaseModifier):
         return  "{}(swap_sites={})".format(self.__class__.__name__,np.array(self.sites))
     @cython.initializedcheck(False)
     @cython.boundscheck(False)
-    cpdef void run(self, long[:,:,:,:] a, double[:,:,:,:] x, double[:,:,:,:] y, double[:,:,:,:] z) except *:
-        cdef long tmp_a = a[self.cells[0,0], self.cells[0,1], self.cells[0,2], self.cells[0,3]]
+    cpdef void run(self, cnp.int64_t[:,:,:,:] a, double[:,:,:,:] x, double[:,:,:,:] y, double[:,:,:,:] z) except *:
+        cdef cnp.int64_t tmp_a = a[self.cells[0,0], self.cells[0,1], self.cells[0,2], self.cells[0,3]]
         a[self.cells[0,0], self.cells[0,1], self.cells[0,2], self.cells[0,3]] = a[self.cells[1,0], self.cells[1,1], self.cells[1,2], self.cells[1,3]]
         a[self.cells[1,0], self.cells[1,1], self.cells[1,2], self.cells[1,3]] = tmp_a
 
@@ -83,7 +82,7 @@ cdef class SwapDisplacement(BaseModifier):
         return  "{}(swap_sites={})".format(self.__class__.__name__,np.array(self.sites))
     @cython.initializedcheck(False)
     @cython.boundscheck(False)
-    cpdef void run(self, long[:,:,:,:] a, double[:,:,:,:] x, double[:,:,:,:] y, double[:,:,:,:] z) except *:
+    cpdef void run(self, cnp.int64_t[:,:,:,:] a, double[:,:,:,:] x, double[:,:,:,:] y, double[:,:,:,:] z) except *:
         cdef double tmp_x = x[self.cells[0,0], self.cells[0,1], self.cells[0,2], self.cells[0,3]]
         cdef double tmp_y = y[self.cells[0,0], self.cells[0,1], self.cells[0,2], self.cells[0,3]]
         cdef double tmp_z = z[self.cells[0,0], self.cells[0,1], self.cells[0,2], self.cells[0,3]]
@@ -103,8 +102,8 @@ cdef class Swap(BaseModifier):
         return  "{}(swap_sites={})".format(self.__class__.__name__,np.array(self.sites))
     @cython.initializedcheck(False)
     @cython.boundscheck(False)
-    cpdef void run(self, long[:,:,:,:] a, double[:,:,:,:] x, double[:,:,:,:] y, double[:,:,:,:] z) except *:
-        cdef long tmp_a = a[self.cells[0,0], self.cells[0,1], self.cells[0,2], self.cells[0,3]]
+    cpdef void run(self, cnp.int64_t[:,:,:,:] a, double[:,:,:,:] x, double[:,:,:,:] y, double[:,:,:,:] z) except *:
+        cdef cnp.int64_t tmp_a = a[self.cells[0,0], self.cells[0,1], self.cells[0,2], self.cells[0,3]]
         cdef double tmp_x = x[self.cells[0,0], self.cells[0,1], self.cells[0,2], self.cells[0,3]]
         cdef double tmp_y = y[self.cells[0,0], self.cells[0,1], self.cells[0,2], self.cells[0,3]]
         cdef double tmp_z = z[self.cells[0,0], self.cells[0,1], self.cells[0,2], self.cells[0,3]]
@@ -131,7 +130,7 @@ cdef class ShiftDisplacementRange(BaseModifier):
         return  "{}(sites={},minimum={},maximum={})".format(self.__class__.__name__,np.array(self.sites),self.minimum,self.maximum)
     @cython.initializedcheck(False)
     @cython.boundscheck(False)
-    cpdef void run(self, long[:,:,:,:] a, double[:,:,:,:] x, double[:,:,:,:] y, double[:,:,:,:] z) except *:
+    cpdef void run(self, cnp.int64_t[:,:,:,:] a, double[:,:,:,:] x, double[:,:,:,:] y, double[:,:,:,:] z) except *:
         self.old_x = x[self.cells[0,0], self.cells[0,1], self.cells[0,2], self.cells[0,3]]
         self.old_y = y[self.cells[0,0], self.cells[0,1], self.cells[0,2], self.cells[0,3]]
         self.old_z = z[self.cells[0,0], self.cells[0,1], self.cells[0,2], self.cells[0,3]]
@@ -140,7 +139,7 @@ cdef class ShiftDisplacementRange(BaseModifier):
         z[self.cells[0,0], self.cells[0,1], self.cells[0,2], self.cells[0,3]] += random_range(self.minimum, self.maximum)
     @cython.initializedcheck(False)
     @cython.boundscheck(False)
-    cpdef void undo_last_run(self, long[:,:,:,:] a, double[:,:,:,:] x, double[:,:,:,:] y, double[:,:,:,:] z) except *:
+    cpdef void undo_last_run(self, cnp.int64_t[:,:,:,:] a, double[:,:,:,:] x, double[:,:,:,:] y, double[:,:,:,:] z) except *:
         x[self.cells[0,0], self.cells[0,1], self.cells[0,2], self.cells[0,3]] = self.old_x
         y[self.cells[0,0], self.cells[0,1], self.cells[0,2], self.cells[0,3]] = self.old_y
         z[self.cells[0,0], self.cells[0,1], self.cells[0,2], self.cells[0,3]] = self.old_z
@@ -160,7 +159,7 @@ cdef class ShiftDisplacementNormal(BaseModifier):
         return  "{}(sites={},mu={},sigma={})".format(self.__class__.__name__,np.array(self.sites),self.mu,self.sigma)
     @cython.initializedcheck(False)
     @cython.boundscheck(False)
-    cpdef void run(self, long[:,:,:,:] a, double[:,:,:,:] x, double[:,:,:,:] y, double[:,:,:,:] z) except *:
+    cpdef void run(self, cnp.int64_t[:,:,:,:] a, double[:,:,:,:] x, double[:,:,:,:] y, double[:,:,:,:] z) except *:
         self.old_x = x[self.cells[0,0], self.cells[0,1], self.cells[0,2], self.cells[0,3]]
         self.old_y = y[self.cells[0,0], self.cells[0,1], self.cells[0,2], self.cells[0,3]]
         self.old_z = z[self.cells[0,0], self.cells[0,1], self.cells[0,2], self.cells[0,3]]
@@ -169,7 +168,7 @@ cdef class ShiftDisplacementNormal(BaseModifier):
         z[self.cells[0,0], self.cells[0,1], self.cells[0,2], self.cells[0,3]] += random_normal(self.mu, self.sigma)
     @cython.initializedcheck(False)
     @cython.boundscheck(False)
-    cpdef void undo_last_run(self, long[:,:,:,:] a, double[:,:,:,:] x, double[:,:,:,:] y, double[:,:,:,:] z) except *:
+    cpdef void undo_last_run(self, cnp.int64_t[:,:,:,:] a, double[:,:,:,:] x, double[:,:,:,:] y, double[:,:,:,:] z) except *:
         x[self.cells[0,0], self.cells[0,1], self.cells[0,2], self.cells[0,3]] = self.old_x
         y[self.cells[0,0], self.cells[0,1], self.cells[0,2], self.cells[0,3]] = self.old_y
         z[self.cells[0,0], self.cells[0,1], self.cells[0,2], self.cells[0,3]] = self.old_z
@@ -188,7 +187,7 @@ cdef class SetDisplacementRange(BaseModifier):
         return  "{}(sites={},minimum={},maximum={})".format(self.__class__.__name__,np.array(self.sites),self.minimum,self.maximum)
     @cython.initializedcheck(False)
     @cython.boundscheck(False)
-    cpdef void run(self, long[:,:,:,:] a, double[:,:,:,:] x, double[:,:,:,:] y, double[:,:,:,:] z) except *:
+    cpdef void run(self, cnp.int64_t[:,:,:,:] a, double[:,:,:,:] x, double[:,:,:,:] y, double[:,:,:,:] z) except *:
         self.old_x = x[self.cells[0,0], self.cells[0,1], self.cells[0,2], self.cells[0,3]]
         self.old_y = y[self.cells[0,0], self.cells[0,1], self.cells[0,2], self.cells[0,3]]
         self.old_z = z[self.cells[0,0], self.cells[0,1], self.cells[0,2], self.cells[0,3]]
@@ -197,7 +196,7 @@ cdef class SetDisplacementRange(BaseModifier):
         z[self.cells[0,0], self.cells[0,1], self.cells[0,2], self.cells[0,3]] = random_range(self.minimum, self.maximum)
     @cython.initializedcheck(False)
     @cython.boundscheck(False)
-    cpdef void undo_last_run(self, long[:,:,:,:] a, double[:,:,:,:] x, double[:,:,:,:] y, double[:,:,:,:] z) except *:
+    cpdef void undo_last_run(self, cnp.int64_t[:,:,:,:] a, double[:,:,:,:] x, double[:,:,:,:] y, double[:,:,:,:] z) except *:
         x[self.cells[0,0], self.cells[0,1], self.cells[0,2], self.cells[0,3]] = self.old_x
         y[self.cells[0,0], self.cells[0,1], self.cells[0,2], self.cells[0,3]] = self.old_y
         z[self.cells[0,0], self.cells[0,1], self.cells[0,2], self.cells[0,3]] = self.old_z
@@ -216,7 +215,7 @@ cdef class SetDisplacementNormal(BaseModifier):
         return  "{}(sites={},mu={},sigma={})".format(self.__class__.__name__,np.array(self.sites),self.mu,self.sigma)
     @cython.initializedcheck(False)
     @cython.boundscheck(False)
-    cpdef void run(self, long[:,:,:,:] a, double[:,:,:,:] x, double[:,:,:,:] y, double[:,:,:,:] z) except *:
+    cpdef void run(self, cnp.int64_t[:,:,:,:] a, double[:,:,:,:] x, double[:,:,:,:] y, double[:,:,:,:] z) except *:
         self.old_x = x[self.cells[0,0], self.cells[0,1], self.cells[0,2], self.cells[0,3]]
         self.old_y = y[self.cells[0,0], self.cells[0,1], self.cells[0,2], self.cells[0,3]]
         self.old_z = z[self.cells[0,0], self.cells[0,1], self.cells[0,2], self.cells[0,3]]
@@ -225,7 +224,7 @@ cdef class SetDisplacementNormal(BaseModifier):
         z[self.cells[0,0], self.cells[0,1], self.cells[0,2], self.cells[0,3]] = random_normal(self.mu, self.sigma)
     @cython.initializedcheck(False)
     @cython.boundscheck(False)
-    cpdef void undo_last_run(self, long[:,:,:,:] a, double[:,:,:,:] x, double[:,:,:,:] y, double[:,:,:,:] z) except *:
+    cpdef void undo_last_run(self, cnp.int64_t[:,:,:,:] a, double[:,:,:,:] x, double[:,:,:,:] y, double[:,:,:,:] z) except *:
         x[self.cells[0,0], self.cells[0,1], self.cells[0,2], self.cells[0,3]] = self.old_x
         y[self.cells[0,0], self.cells[0,1], self.cells[0,2], self.cells[0,3]] = self.old_y
         z[self.cells[0,0], self.cells[0,1], self.cells[0,2], self.cells[0,3]] = self.old_z
@@ -252,7 +251,7 @@ cdef class ShiftDisplacementRangeXYZ(BaseModifier):
                                                                                             self.z_min, self.z_max)
     @cython.initializedcheck(False)
     @cython.boundscheck(False)
-    cpdef void run(self, long[:,:,:,:] a, double[:,:,:,:] x, double[:,:,:,:] y, double[:,:,:,:] z) except *:
+    cpdef void run(self, cnp.int64_t[:,:,:,:] a, double[:,:,:,:] x, double[:,:,:,:] y, double[:,:,:,:] z) except *:
         self.old_x = x[self.cells[0,0], self.cells[0,1], self.cells[0,2], self.cells[0,3]]
         self.old_y = y[self.cells[0,0], self.cells[0,1], self.cells[0,2], self.cells[0,3]]
         self.old_z = z[self.cells[0,0], self.cells[0,1], self.cells[0,2], self.cells[0,3]]
@@ -261,7 +260,7 @@ cdef class ShiftDisplacementRangeXYZ(BaseModifier):
         z[self.cells[0,0], self.cells[0,1], self.cells[0,2], self.cells[0,3]] += random_range(self.z_min, self.z_max)
     @cython.initializedcheck(False)
     @cython.boundscheck(False)
-    cpdef void undo_last_run(self, long[:,:,:,:] a, double[:,:,:,:] x, double[:,:,:,:] y, double[:,:,:,:] z) except *:
+    cpdef void undo_last_run(self, cnp.int64_t[:,:,:,:] a, double[:,:,:,:] x, double[:,:,:,:] y, double[:,:,:,:] z) except *:
         x[self.cells[0,0], self.cells[0,1], self.cells[0,2], self.cells[0,3]] = self.old_x
         y[self.cells[0,0], self.cells[0,1], self.cells[0,2], self.cells[0,3]] = self.old_y
         z[self.cells[0,0], self.cells[0,1], self.cells[0,2], self.cells[0,3]] = self.old_z
@@ -289,7 +288,7 @@ cdef class ShiftDisplacementNormalXYZ(BaseModifier):
                                                                                                self.z_mu, self.z_sigma)
     @cython.initializedcheck(False)
     @cython.boundscheck(False)
-    cpdef void run(self, long[:,:,:,:] a, double[:,:,:,:] x, double[:,:,:,:] y, double[:,:,:,:] z) except *:
+    cpdef void run(self, cnp.int64_t[:,:,:,:] a, double[:,:,:,:] x, double[:,:,:,:] y, double[:,:,:,:] z) except *:
         self.old_x = x[self.cells[0,0], self.cells[0,1], self.cells[0,2], self.cells[0,3]]
         self.old_y = y[self.cells[0,0], self.cells[0,1], self.cells[0,2], self.cells[0,3]]
         self.old_z = z[self.cells[0,0], self.cells[0,1], self.cells[0,2], self.cells[0,3]]
@@ -298,7 +297,7 @@ cdef class ShiftDisplacementNormalXYZ(BaseModifier):
         z[self.cells[0,0], self.cells[0,1], self.cells[0,2], self.cells[0,3]] += random_normal(self.z_mu, self.z_sigma)
     @cython.initializedcheck(False)
     @cython.boundscheck(False)
-    cpdef void undo_last_run(self, long[:,:,:,:] a, double[:,:,:,:] x, double[:,:,:,:] y, double[:,:,:,:] z) except *:
+    cpdef void undo_last_run(self, cnp.int64_t[:,:,:,:] a, double[:,:,:,:] x, double[:,:,:,:] y, double[:,:,:,:] z) except *:
         x[self.cells[0,0], self.cells[0,1], self.cells[0,2], self.cells[0,3]] = self.old_x
         y[self.cells[0,0], self.cells[0,1], self.cells[0,2], self.cells[0,3]] = self.old_y
         z[self.cells[0,0], self.cells[0,1], self.cells[0,2], self.cells[0,3]] = self.old_z
@@ -325,7 +324,7 @@ cdef class SetDisplacementRangeXYZ(BaseModifier):
                                                                                             self.z_min, self.z_max)
     @cython.initializedcheck(False)
     @cython.boundscheck(False)
-    cpdef void run(self, long[:,:,:,:] a, double[:,:,:,:] x, double[:,:,:,:] y, double[:,:,:,:] z) except *:
+    cpdef void run(self, cnp.int64_t[:,:,:,:] a, double[:,:,:,:] x, double[:,:,:,:] y, double[:,:,:,:] z) except *:
         self.old_x = x[self.cells[0,0], self.cells[0,1], self.cells[0,2], self.cells[0,3]]
         self.old_y = y[self.cells[0,0], self.cells[0,1], self.cells[0,2], self.cells[0,3]]
         self.old_z = z[self.cells[0,0], self.cells[0,1], self.cells[0,2], self.cells[0,3]]
@@ -334,7 +333,7 @@ cdef class SetDisplacementRangeXYZ(BaseModifier):
         z[self.cells[0,0], self.cells[0,1], self.cells[0,2], self.cells[0,3]] = random_range(self.z_min, self.z_max)
     @cython.initializedcheck(False)
     @cython.boundscheck(False)
-    cpdef void undo_last_run(self, long[:,:,:,:] a, double[:,:,:,:] x, double[:,:,:,:] y, double[:,:,:,:] z) except *:
+    cpdef void undo_last_run(self, cnp.int64_t[:,:,:,:] a, double[:,:,:,:] x, double[:,:,:,:] y, double[:,:,:,:] z) except *:
         x[self.cells[0,0], self.cells[0,1], self.cells[0,2], self.cells[0,3]] = self.old_x
         y[self.cells[0,0], self.cells[0,1], self.cells[0,2], self.cells[0,3]] = self.old_y
         z[self.cells[0,0], self.cells[0,1], self.cells[0,2], self.cells[0,3]] = self.old_z
@@ -361,7 +360,7 @@ cdef class SetDisplacementNormalXYZ(BaseModifier):
                                                                                                self.z_mu, self.z_sigma)
     @cython.initializedcheck(False)
     @cython.boundscheck(False)
-    cpdef void run(self, long[:,:,:,:] a, double[:,:,:,:] x, double[:,:,:,:] y, double[:,:,:,:] z) except *:
+    cpdef void run(self, cnp.int64_t[:,:,:,:] a, double[:,:,:,:] x, double[:,:,:,:] y, double[:,:,:,:] z) except *:
         self.old_x = x[self.cells[0,0], self.cells[0,1], self.cells[0,2], self.cells[0,3]]
         self.old_y = y[self.cells[0,0], self.cells[0,1], self.cells[0,2], self.cells[0,3]]
         self.old_z = z[self.cells[0,0], self.cells[0,1], self.cells[0,2], self.cells[0,3]]
@@ -370,7 +369,7 @@ cdef class SetDisplacementNormalXYZ(BaseModifier):
         z[self.cells[0,0], self.cells[0,1], self.cells[0,2], self.cells[0,3]] = random_normal(self.z_mu, self.z_sigma)
     @cython.initializedcheck(False)
     @cython.boundscheck(False)
-    cpdef void undo_last_run(self, long[:,:,:,:] a, double[:,:,:,:] x, double[:,:,:,:] y, double[:,:,:,:] z) except *:
+    cpdef void undo_last_run(self, cnp.int64_t[:,:,:,:] a, double[:,:,:,:] x, double[:,:,:,:] y, double[:,:,:,:] z) except *:
         x[self.cells[0,0], self.cells[0,1], self.cells[0,2], self.cells[0,3]] = self.old_x
         y[self.cells[0,0], self.cells[0,1], self.cells[0,2], self.cells[0,3]] = self.old_y
         z[self.cells[0,0], self.cells[0,1], self.cells[0,2], self.cells[0,3]] = self.old_z

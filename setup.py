@@ -56,8 +56,10 @@ extensions = [Extension('javelin.fourier_cython', ['javelin/fourier_cython.pyx']
                         extra_compile_args=extra_compile_args,
                         extra_link_args=extra_link_args,
                         define_macros=macros),
-              Extension('javelin.energies', ['javelin/energies.pyx'], define_macros=macros),
-              Extension('javelin.mccore', ['javelin/mccore.pyx'], define_macros=macros),
+              Extension('javelin.energies', ['javelin/energies.pyx'],
+                        include_dirs=[numpy.get_include()], define_macros=macros),
+              Extension('javelin.mccore', ['javelin/mccore.pyx'],
+                        include_dirs=[numpy.get_include()], define_macros=macros),
               Extension('javelin.modifier', ['javelin/modifier.pyx'],
                         include_dirs=[numpy.get_include()], define_macros=macros),
               Extension('javelin.random', ['javelin/random.pyx'], define_macros=macros)]

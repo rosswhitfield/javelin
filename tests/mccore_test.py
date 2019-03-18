@@ -14,7 +14,7 @@ def create_test_arrays(n=2):
     x = np.random.normal(0, 0.1, size=n**2).reshape((n, n, 1, 1))
     y = np.random.normal(0, 0.1, size=n**2).reshape((n, n, 1, 1))
     z = np.random.normal(0, 0.1, size=n**2).reshape((n, n, 1, 1))
-    a = np.random.choice([13, 42], n**2).reshape((n, n, 1, 1))
+    a = np.random.choice([13, 42], n**2).reshape((n, n, 1, 1)).astype(np.int64, copy=False)
     return a, x, y, z
 
 

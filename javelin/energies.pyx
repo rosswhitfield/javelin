@@ -60,7 +60,7 @@ cdef class Energy:
     @cython.boundscheck(False)
     @cython.wraparound(False)
     cpdef double run(self,
-                     long[:,:,:,::1] a, double[:,:,:,::1] x, double[:,:,:,::1] y, double[:,:,:,::1] z,
+                     cnp.int64_t[:,:,:,::1] a, double[:,:,:,::1] x, double[:,:,:,::1] y, double[:,:,:,::1] z,
                      Py_ssize_t[:] cell,
                      Py_ssize_t[:,:] neighbors,  Py_ssize_t number_of_neighbors,
                      Py_ssize_t mod_x, Py_ssize_t mod_y, Py_ssize_t mod_z) except *:
