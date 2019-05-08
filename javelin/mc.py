@@ -88,9 +88,13 @@ class MC:
     def __str__(self):
         return """Number of cycles = {}
 Temperature[s] = {}
-Structure modfifiers are {}""".format(self.cycles,
-                                      self.temperature,
-                                      [str(m) for m in self.modifier])
+Structure modfifiers are:
+    {}
+Targets are:
+    {}""".format(self.cycles,
+                 self.temperature,
+                 '\n    '.join(str(m) for m in self.modifier),
+                 '\n    '.join(str(t) for t in self.__targets))
 
     @property
     def cycles(self):
@@ -109,7 +113,7 @@ Structure modfifiers are {}""".format(self.cycles,
     def iterations(self):
         """The number of iterations (site modifications) to perform for each
         cycle. Default is equal to the number of unitcells in the
-        structure.
+        structure. Each modifier will run once per iteration.
         """
         return self.__iterations
 

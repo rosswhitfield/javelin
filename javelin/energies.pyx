@@ -44,6 +44,7 @@ compile your own energies. You need load the Cython magic first
 """
 
 from libc.math cimport exp, sqrt, pow, INFINITY, NAN
+from scipy.linalg.cython_blas cimport dnrm2
 cimport cython
 
 cdef class Energy:
@@ -407,3 +408,10 @@ cdef double distance(double x1, double y1, double z1,
     cdef double dY = y2 - y1
     cdef double dZ = z2 - z1
     return sqrt( dX*dX + dY*dY + dZ*dZ )
+
+cpdef _nrm2_memview(double[::1] x):
+    return _nrm2(x.shape[0], &x[0], 1)
+
+cdef double _nrm2(int n, double *x, int incx) nogil:
+    """sqrt(sum((x_i)^2))"""
+    return dnrm2(&n, x, &incx)

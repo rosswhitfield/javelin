@@ -12,7 +12,9 @@ All modifiers inherit from :obj:`javelin.modifier.BaseModifier`.
 
 import numpy as np
 from .random cimport random_int, random_range, random_normal
+from libc.math cimport cos, sin
 cimport cython
+from scipy.linalg.cython_blas cimport dgemm # matrix multiply
 
 cdef class BaseModifier:
     """This class does not actually change the structure but is the base
@@ -373,3 +375,94 @@ cdef class SetDisplacementNormalXYZ(BaseModifier):
         x[self.cells[0,0], self.cells[0,1], self.cells[0,2], self.cells[0,3]] = self.old_x
         y[self.cells[0,0], self.cells[0,1], self.cells[0,2], self.cells[0,3]] = self.old_y
         z[self.cells[0,0], self.cells[0,1], self.cells[0,2], self.cells[0,3]] = self.old_z
+
+cdef class RotateGroup(BaseModifier):
+    """
+    Rotation around center and axis;
+    Optional use center (centroid) of group and normal to three points
+    Rotation axis get be defined by two site locations;
+    self.sites define which site are rotated;
+    """
+    cdef double minimum, maximum
+    cdef double dx, dy, dz
+    def __init__(self, object sites, double minimum, double maximum):
+        self.initialize_cells(1)
+        self.initialize_sites(sites)
+        self.minimum = minimum
+        self.maximum = maximum
+
+cdef double[:, :] get_rot_matrix(double ux, double uy, double uz, double theta):
+    cdef double ct = cos(theta)
+    cdef double st = sin(theta)
+    return np.array([[ct + ux*ux*(1-ct), ux*uy*(1-ct) - uz*st, ux*uz*(1-ct) + uy*st],
+                     [uy*ux*(1-ct) + uz*st, ct + uy*uy*(1-ct), uy*uz*(1-ct) - ux*st],
+                     [uz*ux*(1-ct) - uy*st, uz*uy*(1-ct) + ux*st, ct + uz*uz*(1-ct)]])
+
+
+cdef class ShiftDisplacementRangeGroup(BaseModifier):
+    cdef double minimum, maximum
+    cdef double dx, dy, dz
+    def __init__(self, object sites, double minimum, double maximum):
+        self.initialize_cells(1)
+        self.initialize_sites(sites)
+        self.minimum = minimum
+        self.maximum = maximum
+    @cython.initializedcheck(False)
+    @cython.boundscheck(False)
+    cpdef void run(self, cnp.int64_t[:,:,:,:] a, double[:,:,:,:] x, double[:,:,:,:] y, double[:,:,:,:] z) except *:
+        cdef Py_ssize_t site
+        self.dx = random_range(self.minimum, self.maximum)
+        self.dy = random_range(self.minimum, self.maximum)
+        self.dz = random_range(self.minimum, self.maximum)
+        for site in range(self.sites.shape[0]):
+            x[self.cells[0,0], self.cells[0,1], self.cells[0,2], self.sites[site]] += self.dx
+            y[self.cells[0,0], self.cells[0,1], self.cells[0,2], self.sites[site]] += self.dy
+            z[self.cells[0,0], self.cells[0,1], self.cells[0,2], self.sites[site]] += self.dz
+    @cython.initializedcheck(False)
+    @cython.boundscheck(False)
+    cpdef void undo_last_run(self, cnp.int64_t[:,:,:,:] a, double[:,:,:,:] x, double[:,:,:,:] y, double[:,:,:,:] z) except *:
+        cdef Py_ssize_t site
+        for site in range(self.sites.shape[0]):
+            x[self.cells[0,0], self.cells[0,1], self.cells[0,2], self.sites[site]] -= self.dx
+            y[self.cells[0,0], self.cells[0,1], self.cells[0,2], self.sites[site]] -= self.dy
+            z[self.cells[0,0], self.cells[0,1], self.cells[0,2], self.sites[site]] -= self.dz
+
+cdef class SwapGroup(BaseModifier):
+    def __init__(self, object sites):
+        self.initialize_cells(2)
+        self.initialize_sites(sites)
+    @cython.initializedcheck(False)
+    @cython.boundscheck(False)
+    cpdef void run(self, cnp.int64_t[:,:,:,:] a, double[:,:,:,:] x, double[:,:,:,:] y, double[:,:,:,:] z) except *:
+        cdef Py_ssize_t site
+        cdef cnp.int64_t tmp_a
+        cdef double tmp_x, tmp_y, tmp_z
+        for site in range(self.sites.shape[0]):
+            tmp_a = a[self.cells[0,0], self.cells[0,1], self.cells[0,2], self.sites[site]]
+            tmp_x = x[self.cells[0,0], self.cells[0,1], self.cells[0,2], self.sites[site]]
+            tmp_y = y[self.cells[0,0], self.cells[0,1], self.cells[0,2], self.sites[site]]
+            tmp_z = z[self.cells[0,0], self.cells[0,1], self.cells[0,2], self.sites[site]]
+            a[self.cells[0,0], self.cells[0,1], self.cells[0,2], self.sites[site]] = a[self.cells[1,0], self.cells[1,1], self.cells[1,2], self.sites[site]]
+            x[self.cells[0,0], self.cells[0,1], self.cells[0,2], self.sites[site]] = x[self.cells[1,0], self.cells[1,1], self.cells[1,2], self.sites[site]]
+            y[self.cells[0,0], self.cells[0,1], self.cells[0,2], self.sites[site]] = y[self.cells[1,0], self.cells[1,1], self.cells[1,2], self.sites[site]]
+            z[self.cells[0,0], self.cells[0,1], self.cells[0,2], self.sites[site]] = z[self.cells[1,0], self.cells[1,1], self.cells[1,2], self.sites[site]]
+            a[self.cells[1,0], self.cells[1,1], self.cells[1,2], self.sites[site]] = tmp_a
+            x[self.cells[1,0], self.cells[1,1], self.cells[1,2], self.sites[site]] = tmp_x
+            y[self.cells[1,0], self.cells[1,1], self.cells[1,2], self.sites[site]] = tmp_y
+            z[self.cells[1,0], self.cells[1,1], self.cells[1,2], self.sites[site]] = tmp_z
+
+
+from scipy.linalg.cython_blas cimport srot, srotg, drot, drotg
+from cython cimport floating
+
+cdef void _rotg(floating *a, floating *b, floating *c, floating *s) nogil:
+    """Generate plane rotation"""
+    if floating is float:
+        srotg(a, b, c, s)
+    else:
+        drotg(a, b, c, s)
+
+
+cpdef _rotg_memview(floating a, floating b, floating c, floating s):
+    _rotg(&a, &b, &c, &s)
+    return a, b, c, s
