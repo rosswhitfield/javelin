@@ -7,6 +7,7 @@ This module define the Fourier class and other functions related to
 the fourier transformation.
 """
 import numpy as np
+import pandas as pd
 from javelin.grid import Grid
 from javelin.utils import get_unitcell, get_positions, get_atomic_numbers
 from javelin.fourier_cython import calculate_cython, approx_calculate_cython
@@ -328,9 +329,9 @@ Reciprocal layer  :
         if self.lots is None:
             index = structure.atoms.index.droplevel(3).drop_duplicates()
         else:
-            index = structure.atoms.loc[range(self.lots[0]),
-                                        range(self.lots[1]),
-                                        range(self.lots[2]),
+            index = structure.atoms.loc[pd.RangeIndex(self.lots[0]),
+                                        pd.RangeIndex(self.lots[1]),
+                                        pd.RangeIndex(self.lots[2]),
                                         :].index.droplevel(3).drop_duplicates()
 
         aver *= self._calculate(np.zeros(len(index), dtype=np.int),

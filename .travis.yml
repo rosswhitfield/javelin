@@ -8,12 +8,16 @@ matrix:
       env: ENVIRONMENT=.ci/environment_py36_min.yml
     - name: "Python 3.7 with minimum dependency versions"
       env: ENVIRONMENT=.ci/environment_py37_min.yml
+    - name: "Python 3.8 with minimum dependency versions"
+      env: ENVIRONMENT=.ci/environment_py38_min.yml
     - name: "Python 3.5 with newest dependency versions"
       env: ENVIRONMENT=.ci/environment_py35.yml
     - name: "Python 3.6 with newest dependency versions"
       env: ENVIRONMENT=.ci/environment_py36.yml
     - name: "Python 3.7 with newest dependency versions"
       env: ENVIRONMENT=.ci/environment_py37.yml
+    - name: "Python 3.8 with newest dependency versions"
+      env: ENVIRONMENT=.ci/environment_py38.yml
 
 before_install:
   - wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh;

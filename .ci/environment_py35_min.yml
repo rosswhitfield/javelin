@@ -4,10 +4,10 @@ channels:
 - conda-forge
 dependencies:
 - python=3.5
-- cython=0.23
-- h5py=2.5
+- cython=0.24
+- h5py=2.6
 - numpy=1.10
-- pandas=0.17
+- pandas=0.18
 - pytables=3.2
 - xarray=0.7
 - ase=3.14

@@ -13,6 +13,9 @@ environment:
     - CONDA_PY: 3.7
       MINICONDA: C:\Miniconda37-x64
       ENVIRONMENT: .ci/environment_py37.yml
+    - CONDA_PY: 3.8
+      MINICONDA: C:\Miniconda37-x64
+      ENVIRONMENT: .ci/environment_py38.yml
 
 init:
   - "ECHO %CONDA_PY% %MINICONDA% %ENVIRONMENT%"
