@@ -25,11 +25,10 @@ The scattering can be calculated from a
    >>> type(stru)  # doctest: +SKIP
    <class 'diffpy.Structure.structure.Structure'>
    >>> four = Fourier()  # doctest: +SKIP
-   >>> four.structure = stru  # doctest: +SKIP
    >>> four.grid.bins = 201, 201  # doctest: +SKIP
    >>> four.grid.r1 = -2, 2  # doctest: +SKIP
    >>> four.grid.r2 = -2, 2  # doctest: +SKIP
-   >>> results = four.calc()  # doctest: +SKIP
+   >>> results = four.calc(stru)  # doctest: +SKIP
    Working on atom number 6 Total atoms: 4
    >>> results.plot()  # doctest: +SKIP
    <matplotlib.collections.QuadMesh object at ...>

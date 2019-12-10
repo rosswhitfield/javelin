@@ -18,11 +18,10 @@ calculating the scattering directly from an :class:`ase.Atoms` object.
    >>> print(cnt)  # doctest: +SKIP
    Atoms(symbols='C96', pbc=[False, False, True], cell=[0.0, 0.0, 17.04])
    >>> cnt_four = Fourier()  # doctest: +SKIP
-   >>> cnt_four.structure = cnt  # doctest: +SKIP
    >>> cnt_four.grid.bins = 201, 201  # doctest: +SKIP
    >>> cnt_four.grid.r1 = -3, 3  # doctest: +SKIP
    >>> cnt_four.grid.r2 = -3, 3  # doctest: +SKIP
-   >>> results = cnt_four.calc()  # doctest: +SKIP
+   >>> results = cnt_four.calc(cnt)  # doctest: +SKIP
    Working on atom number 6 Total atoms: 96
    >>> results.plot(vmax=2e5)  # doctest: +SKIP
    <matplotlib.collections.QuadMesh object at ...>

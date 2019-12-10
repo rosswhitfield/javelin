@@ -37,7 +37,6 @@ From here it's easy to calculate the scattering.
    Name: symbol, dtype: int64
    >>> from javelin.fourier import Fourier  # doctest: +SKIP
    >>> fourier = Fourier()  # doctest: +SKIP
-   >>> fourier.structure = structure  # doctest: +SKIP
    >>> fourier.grid.r1 = -2, 2  # doctest: +SKIP
    >>> fourier.grid.r2 = -2, 2  # doctest: +SKIP
    >>> fourier.grid.bins = 201, 201  # doctest: +SKIP
@@ -58,7 +57,7 @@ From here it's easy to calculate the scattering.
    top   increment    :     [ 0.  0.  1.]
    <BLANKLINE>
    # of points        :     201 x 201 x 1
-   >>> results = fourier.calc()  # doctest: +SKIP
+   >>> results = fourier.calc(structure)  # doctest: +SKIP
    Working on atom number 8 Total atoms: 375
    Working on atom number 30 Total atoms: 45
    Working on atom number 41 Total atoms: 80
