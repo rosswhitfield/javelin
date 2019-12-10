@@ -20,7 +20,7 @@ with the neighbor vector.
                      a1, x1, y1, z1,
                      a2, x2, y2, z2,
                      neighbor_x, neighbor_y, neighbor_z):
-        return self.E
+            return self.E
 
 This is slower than using compile classes by about a factor of 10. If
 you are using IPython or Jupyter notebooks you can use Cython magic to
@@ -39,7 +39,7 @@ compile your own energies. You need load the Cython magic first
                               int a1, double x1, double y1, double z1,
                               int a2, double x2, double y2, double z2,
                               Py_ssize_t neighbor_x, Py_ssize_t neighbor_y, Py_ssize_t neighbor_z) except *:
-        return self.E
+            return self.E
 
 """
 

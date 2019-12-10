@@ -9,3 +9,4 @@ Tutorials
    tutorials/ase
    tutorials/diffpy
    tutorials/neighbors
+   tutorials/mc
