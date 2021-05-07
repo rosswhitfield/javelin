@@ -146,8 +146,8 @@ def read_stru(filename, starting_cell=(1, 1, 1)):
     y = []
     z = []
 
-    for l in lines:
-        line = l.replace(',', ' ').split()
+    for line in lines:
+        line = line.replace(',', ' ').split()
         if not reading_atom_list:  # Wait for 'atoms' line before reading atoms
             if line[0] == 'cell':
                 a, b, c, alpha, beta, gamma = [float(word) for word in line[1:7]]
@@ -225,8 +225,8 @@ def read_stru_to_ase(filename):
     symbols = []
     positions = []
 
-    for l in lines:
-        line = l.replace(',', ' ').split()
+    for line in lines:
+        line = line.replace(',', ' ').split()
         if not reading_atom_list:  # Wait for 'atoms' line before reading atoms
             if line[0] == 'cell':
                 a, b, c, alpha, beta, gamma = [float(x) for x in line[1:7]]

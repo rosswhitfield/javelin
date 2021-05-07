@@ -161,13 +161,13 @@ class UnitCell:
         """Returns the inverse **B** matrix"""
         return np.linalg.inv(self.B)
 
-    def dstar(self, h, k, l):
+    def dstar(self, h, k, l):  # noqa: E741
         """Returns d*=1/d for given h,k,l"""
         return np.linalg.norm(self.B @ np.array([[h],
                                                  [k],
                                                  [l]]))
 
-    def d(self, h, k, l):
+    def d(self, h, k, l):  # noqa: E741
         """Returns d-spacing for given h,k,l"""
         return 1/self.dstar(h, k, l)
 

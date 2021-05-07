@@ -388,7 +388,7 @@ class Structure:
         >>> stru.atoms # doctest: +NORMALIZE_WHITESPACE
                      Z symbol    x    y    z
         i j k site
-        0 0 0 0     12     Mg  0  0  0
+        0 0 0 0     12     Mg  0.0  0.0  0.0
         >>> stru.add_atom(Z=13, position=[0.,0.5,0.])
         >>> stru.atoms # doctest: +NORMALIZE_WHITESPACE
                      Z symbol    x    y    z
@@ -711,7 +711,7 @@ def axisAngle2Versor(x, y, z, angle, unit='degrees'):
     return [np.cos(angle/2), x*sw, y*sw, z*sw]
 
 
-def get_rotation_matrix(l, m, n, theta, unit='degrees'):
+def get_rotation_matrix(l, m, n, theta, unit='degrees'):  # noqa: E741
     return get_rotation_matrix_from_versor(*axisAngle2Versor(l, m, n, theta, unit=unit))
 
 
@@ -727,7 +727,7 @@ def get_miindex(length=0, ncells=None):
     if ncells is None:
         if length == 0:
             miindex = MultiIndex(levels=[[], [], [], []],
-                                 labels=[[], [], [], []],
+                                 codes=[[], [], [], []],
                                  names=['i', 'j', 'k', 'site'])
         else:
             miindex = MultiIndex.from_product([[0], [0], [0], range(length)],
