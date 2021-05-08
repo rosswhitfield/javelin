@@ -14,6 +14,16 @@ jobs:
         exclude:
           - os: windows-latest
             python-version: 3.9
+          - os: macos-latest
+            python-version: 3.9
+        include:
+        - python-version: 3.8
+          os: macos-latest
+          experimental: true
+
+    env:
+      CC: gcc-10
+      CXX: g++-10
 
     steps:
     - uses: actions/checkout@v2
