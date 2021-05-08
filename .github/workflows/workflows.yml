@@ -19,6 +19,9 @@ jobs:
         python-version: ${{ matrix.python-version }}
     - name: Install python testing dependencies
       run: pip install pytest-runner pytest-cov flake8 cython h5py numpy pandas tables xarray periodictable ase
+    - name: Install vtk
+      if:  ${{ matrix.python-version != 3.9 }}
+      run: pip install vtk
     - name: Lint with flake8
       run: flake8
     - name: Test with pytest
