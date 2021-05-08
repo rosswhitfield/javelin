@@ -248,6 +248,14 @@ class Structure:
         """
         return {}
 
+    @property
+    def constraints(self):
+        """Used for applying one or more constraints during structure optimization.
+
+        Not implemented, only for ASE compatibility.
+        """
+        return []
+
     def get_atom_symbols(self):
         """Get a list of unique atom symbols in structure
 
